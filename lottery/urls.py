@@ -1,0 +1,8 @@
+from django.conf.urls import url
+from django.contrib import admin
+from django.contrib import auth
+from . import views
+urlpatterns = [
+    url(r'^drawings$', views.DrawingsView.as_view(), name='drawings'),
+    url(r'^drawings/(?P<pk>[0-9]+)$',views.DrawingParticipantDashboard.as_view(),name="drawing_dashboard")
+]

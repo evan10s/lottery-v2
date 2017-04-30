@@ -1,0 +1,54 @@
+{% load static %}
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Foundation Starter Template</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+  </head>
+  <body>
+    <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+      <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+      <div class="title-bar-title">Lottery</div>
+    </div>
+
+    <div class="top-bar" id="example-menu">
+      <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+          <li class="menu-text">Lottery</li>
+          <li>
+            <a href="{% url 'drawings' %}">Drawings</a></li>
+          </li>
+          <li><a href="{% url 'logout' %}">Log out</a></li>
+        </ul>
+      </div>
+    </div>
+    Your recent tickets:
+    <table>
+      <thead>
+        <td>ID</td>
+        <td>Timestamp</td>
+        <td>Numbers</td>
+      </thead>
+      <tbody>
+          {% for ticket in drawing_info %}
+          <tr>
+            <td>{{ ticket.pk }}</td>
+            <td>{{ ticket.timestamp }}</td>
+            <td>{% for num in ticket.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
+            </td>
+        {% endfor %}
+      </tbody>
+    </table>
+      <br>
+
+    <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+    <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+    <script>
+      $(document).foundation();
+    </script>
+
+  </body>
+</html>

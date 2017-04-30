@@ -1,0 +1,8 @@
+<ul>
+{% for drawing in drawing_list %}
+<li><a href="{% url 'drawing_dashboard' drawing.pk %}">{{drawing.drawing_name}}</a></li>
+
+
+{% endfor %}
+
+</ul>
