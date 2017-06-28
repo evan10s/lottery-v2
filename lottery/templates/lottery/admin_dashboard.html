@@ -1,1 +1,69 @@
-super secret admin page!!!!
+{% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% load static %}
+<!doctype HTML>
+<html>
+<head>
+  <style>
+    .log-in-form {
+    border: 1px solid #cacaca;
+    padding: 1rem;
+    border-radius: 0;
+  }
+  </style>
+  <title>Manage drawings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+</head>
+<body>
+
+
+
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+  <div class="title-bar-title">Lottery</div>
+</div>
+
+<div class="top-bar" id="example-menu">
+  <div class="top-bar-left">
+    <ul class="dropdown menu" data-dropdown-menu>
+      <li class="menu-text">Lottery</li>
+      <li>
+        <a href="{% url 'drawings' %}">Drawings</a></li>
+      </li>
+      {% if user.is_staff %}
+      <li><a href="{% url 'manage' %}">
+        Manage drawings</a></li>
+      <li><a href="/admin">Site admin</a></li>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <li><a href="{% url 'logout' %}">Log out</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+<div class="grid-container grid align-center">
+    <div class="grid-x">
+      <div class="auto cell"></div>
+      <div class="large-6 cell">
+        <h3>End drawing</h3>
+        <table id="ticket-info">
+          <thead>
+            <th>ID</th>
+            <th>User</th>
+            <th>Numbers</tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+      <div class="auto cell"></div>
+  </div>
+</div>
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="{% static "lottery/js/adminDashboard.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
+  $(document).foundation();
+</script>
+</body>
+</html>

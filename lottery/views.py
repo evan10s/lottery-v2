@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.views import generic
 from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
 from django.views.generic import TemplateView
+from django import forms
 import json,datetime
 from .models import Drawing, Ticket,Number
 # Create your views here.
@@ -90,3 +91,47 @@ def create_ticket(request):
                              'id':t.pk,
                              'timestamp': timestamp_str }
         return HttpResponse(json.dumps(result_obj),content_type="application/json"); # StackOverflow for sending an object as the HttpResponse data: https://stackoverflow.com/questions/21879729/returning-python-object-in-httpresponse
+
+def getTicketsMatchingLottery(request):
+    if request.method == "POST" and request.user.is_staff:
+        try:
+            drawing_id = int(request.POST['drawing_id'])
+        except:
+            return HttpResponse("Bad drawing id")
+
+        drawing = Drawing.objects.filter(pk=drawing_id)[0]
+
+        #start_time = drawing.start_time
+        #end_time = drawing.end_time
+        #print(str(drawing_id));
+        #print(str(start_time))
+        tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date,timestamp__lte=drawing.end_date)
+        print(len(tickets))
+        print(tickets[36].number_set.all()[0].value)
+
+        """
+        {
+            tickets: [
+                id: 4,
+                user: evan
+                numbers: [
+                    21,22,23,24
+                ]
+            ]
+        }
+        """
+
+        result = {
+            'tickets': []
+        }
+
+        for t in tickets:
+            result['tickets'].append({
+                'id': t.pk,
+                'user': t.submitted_by.username,
+                'numbers': [ n.value for n in t.number_set.all() ]
+            })
+
+        print(result)
+
+        return HttpResponse(json.dumps(result),content_type="application/json")
