@@ -1,8 +1,56 @@
-<ul>
-{% for drawing in drawing_list %}
-<li><a href="{% url 'drawing_dashboard' drawing.pk %}">{{drawing.drawing_name}}</a></li>
+{% load static %}
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lottery Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+  </head>
+  <body>
+    <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+      <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+      <div class="title-bar-title">Lottery</div>
+    </div>
+
+    <div class="top-bar" id="example-menu">
+      <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+          <li class="menu-text">Lottery</li>
+          <li>
+            <a href="{% url 'drawings' %}">Drawings</a></li>
+          </li>
+          {% if user.is_staff %}
+          <li><a href="{% url 'manage' %}">
+            Manage drawings</a></li>
+          <li><a href="/admin">Site admin</a></li>
+          {% endif %}
+          {% if user.is_authenticated %}
+          <li><a href="{% url 'logout' %}">Log out</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+    <div class="medium-4 columns">
+      Current drawings:
+        <ul>
+          {% for drawing in drawing_list %}
+          <li><a href="{% url 'drawing_dashboard' drawing.pk %}">{{drawing.drawing_name}}</a></li>
+          {% endfor %}
+        </ul>
+    </div>
+  </div>
 
 
-{% endfor %}
 
-</ul>
+
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+<script>
+  $(document).foundation();
+</script>
+
+  </body>
+</html>
