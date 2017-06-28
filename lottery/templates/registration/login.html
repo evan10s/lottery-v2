@@ -1,34 +1,86 @@
 {% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% load static %}
+<!doctype HTML>
+<html>
+<head>
+  <style>
+    .log-in-form {
+    border: 1px solid #cacaca;
+    padding: 1rem;
+    border-radius: 0;
+  }
+  </style>
+  <title>Sign in</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+</head>
+<body>
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+  <div class="title-bar-title">Lottery</div>
+</div>
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+<div class="top-bar" id="example-menu">
+  <div class="top-bar-left">
+    <ul class="dropdown menu" data-dropdown-menu>
+      <li class="menu-text">Lottery</li>
+      <li><a href="#">
+        Sign in</a></li>
+    </ul>
+  </div>
+</div>
 
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<div class="grid-container grid align-center">
+    <div class="grid-x">
+      <div class="auto cell"></div>
+      <div class="medium-6 large-4 cell">
+
+        <form method="post" action="{% url 'login' %}" class="log-in-form">
+          {% csrf_token %}
+          <h4 class="text-center">Sign in to continue</h4>
+
+          {% if form.errors %}
+          <div class="alert callout small">
+            <p>Your username and password didn't match. Please try again.</p>
+          </div>
+          {% endif %}
+
+          {% if next %}
+              {% if user.is_authenticated %}
+              <div class="alert callout small">
+                <p>Access denied.</p>
+              </div>
+              {% endif %}
+          {% endif %}
+
+
+          <div class="alert callout small hide" id="submit-error">
+            <h4>Unable to submit ticket</h4>
+            <p>You entered 5 numbers, but each ticket can only contain 4 numbers.</p>
+          </div>
+
+          <label>Username
+            {{ form.username }}
+          </label>
+          <label>Password
+            {{ form.password }}
+          </label>
+          <input type="hidden" name="next" value="{{ next }}" />
+          <p>
+            <input type="submit" class="button expanded" value="Continue"></input>
+          </p>
+          <p class="text-center"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+        </form>
+    </div>
+    <div class="auto cell"></div>
+  </div>
+</div>
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
+  $(document).foundation();
+</script>
+</body>
+</html>
