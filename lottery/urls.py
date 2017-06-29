@@ -8,4 +8,6 @@ urlpatterns = [
     url(r'^tickets/add$', views.create_ticket,name="submit_ticket"),
     url(r'^drawing/alltickets$',views.getTicketsMatchingLottery,name="drawing_all_tickets"),
     url(r'^manage$',views.AdminDashboard.as_view(),name="manage"),
+    url(r'^manage/(?P<drawing_id>[0-9]+)$',views.LotteryAdmin.as_view(),name="manage_drawing"),
+    url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results")
 ]
