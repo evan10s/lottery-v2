@@ -1,12 +1,17 @@
 $(document).ready(function() {
-  $.ajax({
-    url: "/drawing/alltickets",
-    type: "POST",
-    data: {
-      drawing_id: 1
-    },
-    success:outputTicketInfoTable }
-  )
+  console.log("hi there")
+  // if (haveDrawingId) {
+  //   console.log("Bad!")
+  //   $.ajax({
+  //     url: "/drawing/alltickets",
+  //     type: "POST",
+  //     data: {
+  //       drawing_id: drawingId
+  //     },
+  //     success:outputTicketInfoTable }
+  //   );
+  //
+  // }
 })
 
 function outputTicketInfoTable(data) {
@@ -14,7 +19,7 @@ function outputTicketInfoTable(data) {
   var currentTicket;
   for (var i = 0; i < tickets.length; i++) {
       currentTicket = tickets[i];
-      console.log(currentTicket);
+      //console.log(currentTicket);
       $('#ticket-info>tbody').append("<tr><td>" + currentTicket.id + "</td><td>" + currentTicket.user + "</td><td>" + currentTicket.numbers.toString() + "</td></tr>");
   }
 
