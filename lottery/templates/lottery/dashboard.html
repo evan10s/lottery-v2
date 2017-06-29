@@ -13,6 +13,7 @@
       <div class="title-bar-title">Lottery</div>
     </div>
 
+
     <div class="top-bar" id="example-menu">
       <div class="top-bar-left">
         <ul class="dropdown menu" data-dropdown-menu>
@@ -21,8 +22,8 @@
             <a href="{% url 'drawings' %}">Drawings</a></li>
           </li>
           {% if user.is_staff %}
-          <li><a href="{% url 'manage' %}">
-            Manage drawings</a></li>
+          <li><a href="{% url 'manage_drawing' pk %}">
+            Manage drawing</a></li>
           <li><a href="/admin">Site admin</a></li>
           {% endif %}
           {% if user.is_authenticated %}
@@ -42,12 +43,14 @@
         </div>
         Submit a ticket:
         <br />
+
         <form id="submit-ticket" action="{% url 'submit_ticket' %}" method="post">
           {% csrf_token %}
           <input type="text" id="nums" placeholder="Enter up to 4 numbers separated by commas"/>
           <input type="submit" class="button" id="submitBtn" value="Submit" />
         </form>
         <p>To ensure the integrity of the drawing, there may be a limit on the number of tickets you can submit each hour.  Once you submit a ticket, it is consider official and cannot be modified or deleted.</p>
+        <p>Submitting a ticket here makes it eligible for any drawing currently taking place.</p>
       </div>
       <div class="medium-4 columns">
         Your recent tickets:
@@ -63,7 +66,7 @@
                 <td>{{ ticket.pk }}</td>
                 <td>{{ ticket.timestamp }}</td>
                 <td>{% for num in ticket.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
-                </td>
+                </td></tr>
             {% endfor %}
           </tbody>
         </table>
