@@ -1,0 +1,102 @@
+{% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% load static %}
+<!doctype HTML>
+<html>
+<head>
+  <style>
+    .log-in-form {
+    border: 1px solid #cacaca;
+    padding: 1rem;
+    border-radius: 0;
+  }
+  </style>
+  <title>Manage drawings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+</head>
+<body>
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+  <div class="title-bar-title">Lottery</div>
+</div>
+
+<div class="top-bar" id="example-menu">
+  <div class="top-bar-left">
+    <ul class="dropdown menu" data-dropdown-menu>
+      <li class="menu-text">Lottery</li>
+      <li>
+        <a href="{% url 'drawings' %}">Drawings</a></li>
+      </li>
+      {% if user.is_staff %}
+      <li><a href="{% url 'manage' %}">
+        Manage drawings</a></li>
+      <li><a href="/admin">Site admin</a></li>
+      {% endif %}
+      {% if user.is_authenticated %}
+      <li><a href="{% url 'logout' %}">Log out</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+<div class="grid-container grid align-center">
+    <div class="grid-x grid-margin-x">
+      <div class="large-6 cell">
+          <h3>Drawing admin</h3>
+          <p>You're managing drawing #{{ drawing_id }}</p>
+          <p>You can't delete an individual ticket from this view.  If a user has submitted fraudulent tickets, you should disqualify them from the drawing when running the results for the drawing.</p>
+          <p>Enable actions of finality<div class="switch">
+            <input class="switch-input" id="enable-dangerous-actions" type="checkbox">
+            <label class="switch-paddle" for="enable-dangerous-actions">
+              <span class="show-for-sr">Enable actions of finality</span>
+            </label>
+          </div></p>
+          <h4>Get results</h4>
+          <p>Calculating the results for a lottery is final and has no simple "undo."  Don't click the button until you are absolutely ready to end the lottery and see who won.</p>
+          <p>Each user will be given a percent correct based on the number of correct numbers they submitted compared to the total number of numbers they submitted.
+            For this reason, there's no advantage to submitting more or less numbers on a given ticket.</p>
+          <p>Users will be displayed from highest to lowest percentage correct.  Disqualified users have their percent correct calculated like any other user, but are sorted to the bottom because their "Disqualify" flag is set to true.</p>
+          <p>To disqualify a user after the fact, go to "Site admin," find the user's results entry, and check the box next to Disqualify.</p>
+
+          <button type="button" id="generate-results" class="button large">End Lottery and Calculate Results</button>
+      </div>
+      <div class="large-6 cell">
+        <h5>Eligible tickets</h5>
+        <p>Below are all the tickets that are within the date and time range for this drawing.</p>
+        <em>Visit "Site admin" to change the drawing start and end time.</em>
+        <table id="ticket-info">
+          <thead>
+            <th>ID</th>
+            <th>User</th>
+            <th>Numbers</tr>
+          </thead>
+          <tbody>
+            {% for t in tickets%}
+            <tr>
+              <td>{{ t.pk }}</td>
+              <td>{{ t.submitted_by.username }}</td>
+              <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+  </div>
+</div>
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="{% static "lottery/js/manageLottery.js" %}"></script>
+<script>
+  {% if drawing_id %}
+    var haveDrawingId = true;
+    var drawingId = {{ drawing_id }};
+  {% else %}
+    var haveDrawingId = false;
+  {% endif %}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
+  $(document).foundation();
+</script>
+</body>
+</html>
