@@ -27,6 +27,9 @@ class TicketAdmin(admin.ModelAdmin):
 class NumberAdmin(admin.ModelAdmin):
     fields = ['value']
 
+class ResultsAdmin(admin.ModelAdmin):
+    fields = ['drawing_id','number_correct','number_possible','disqualify']
+
 admin.site.site_header = "Lottery Admin" #from this StackOverflow answer: http://stackoverflow.com/a/24983231
 
 admin.site.unregister(User)
@@ -34,3 +37,4 @@ admin.site.register(User,UserAdmins)
 admin.site.register(Ticket,TicketAdmin)
 admin.site.register(Number)
 admin.site.register(Drawing)
+admin.site.register(Results,ResultsAdmin)
