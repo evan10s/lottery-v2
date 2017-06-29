@@ -14,9 +14,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
 </head>
 <body>
-
-
-
 <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
   <button class="menu-icon" type="button" data-toggle="example-menu"></button>
   <div class="title-bar-title">Lottery</div>
@@ -44,17 +41,13 @@
 <div class="grid-container grid align-center">
     <div class="grid-x">
       <div class="auto cell"></div>
-      <div class="large-6 cell">
-        <h3>End drawing</h3>
-        <table id="ticket-info">
-          <thead>
-            <th>ID</th>
-            <th>User</th>
-            <th>Numbers</tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
+      <div class="large-8 cell">
+            <h3>Select drawing to manage</h3>
+            <ul>
+              {% for drawing in drawings %}
+              <li><a href="{% url 'manage_drawing' drawing.pk %}">{{drawing.drawing_name}}</a></li>
+              {% endfor %}
+            </ul>
       </div>
       <div class="auto cell"></div>
   </div>
