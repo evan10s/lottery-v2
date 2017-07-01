@@ -6,7 +6,8 @@ from django.views.generic import TemplateView
 from django import forms
 import json,datetime
 from .models import Drawing, Ticket,Number, Results
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group # need to import Group from https://stackoverflow.com/a/6288863/5434744
+import random
 # Create your views here.
 class DrawingsView(generic.ListView):
     template_name = 'lottery/drawings.html'
@@ -175,6 +176,10 @@ def generateResultsForDrawing(request):
         except:
             return HttpResponse("Bad drawing id")
 
+        existing_results = len(Results.objects.filter(drawing_id=drawing_id))
+        if existing_results > 0:
+            return HttpResponse("Results already made")
+
         drawing = Drawing.objects.filter(pk=drawing_id)[0]
         tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date,timestamp__lte=drawing.end_date)
 
@@ -221,3 +226,37 @@ def generateResultsForDrawing(request):
 
         # A valid Result must have:
         # Drawing id, User, Possible, Correct, Disqualify (t/f)
+
+def checkIfDrawingHasResults(request,drawing_id):
+    print(drawing_id,"is drawing_id")
+
+    existing_results = len(Results.objects.filter(drawing_id=drawing_id))
+
+    if not existing_results:
+        return HttpResponse("No results")
+    return HttpResponse("Results exist");
+
+### KIOSK METHODS
+def provisionKiosk(request):
+    # Find an unused kiosk user or create a new kiosk user
+    # For now, just create a new user
+    if request.user.is_staff:
+        kiosk_id = random.randint(100000,999999) #Generate a random 6-digit key for the kiosk user
+        kiosk_pw = random.randint(10000000000000,99999999999999) #HACK: THIS IS ABSOLUTELY TERRIBLE MAYBE... the kiosk user must have limited permissions: can only add tickets and numbers, cannot touch results, users, groups, or permissions, cannot delete anything
+        user = User.objects.create_user(kiosk_id,"",kiosk_pw)
+
+        kiosk_group = Group.objects.get(name="kiosk") #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
+        kiosk_group.user_set.add(user)
+
+    return HttpResponse("Hello, World!")
+
+
+def kiosk(request, kiosk_id):
+    print(request.user.groups.all())
+    if request.user.groups.filter(name="kiosk").count() >= 1 and request.user.username == kiosk_id:
+        return HttpResponse("Congrats, you have successfully authenticated as this kiosk")
+    elif request.user.username == kiosk_id:
+        return HttpResponse("This user isn't authorized to act as a kiosk.")
+    elif request.user.groups.filter(name="kiosk").count() >= 1:
+        return HttpResponse("This account has kiosk permissions but is trying to act as a different kiosk.  The kiosk_id URL parameter must match the kiosk account username.")
+    return HttpResponse("The kiosk_id in the URL must match the account username, and the user must have been provisioned to act as a kiosk.  Your request meets neither of these requirements.")

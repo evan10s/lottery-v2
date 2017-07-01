@@ -1,6 +1,24 @@
 $(document).ready(function() {
-  $('#generate-results').on('click',generateResults);
+  $.ajax({
+    url: "/api/manage/results/" + drawingId + "/check",
+    type: "GET",
+    success: function (data) {
+      if (data === "No results") {
+        $('#generate-results').text("End Lottery and Finalize Results").removeAttr('disabled').on('click',generateResults)
+      } else {
+        updateBtnResultsFinalized();
+      }
+    }
+  });
+
+  $('#enable-dangerous-actions').on('change',function() {
+    console.log("The check box changed");
+  })
 })
+
+function updateBtnResultsFinalized() {
+  $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
+}
 
 function generateResults() {
   $('#generate-results').text('Processing...').attr('disabled','disabled');
@@ -12,7 +30,7 @@ function generateResults() {
        },
        success: function(data) {
 		       console.log(data);
-           $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
+           updateBtnResultsFinalized();
           }
       });
 }

@@ -9,5 +9,9 @@ urlpatterns = [
     url(r'^drawing/alltickets$',views.getTicketsMatchingLottery,name="drawing_all_tickets"),
     url(r'^manage$',views.AdminDashboard.as_view(),name="manage"),
     url(r'^manage/(?P<drawing_id>[0-9]+)$',views.LotteryAdmin.as_view(),name="manage_drawing"),
-    url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results")
+    url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results"),
+    url(r'^api/manage/results/(?P<drawing_id>[0-9]+)/check$',views.checkIfDrawingHasResults,name="check_for_results"),
+    url(r'^api/kiosk/provision$',views.provisionKiosk,name="provision_kiosk"),
+    url(r'^kiosk/view/(?P<kiosk_id>[0-9]+)$',views.kiosk,name="kiosk"),
+
 ]

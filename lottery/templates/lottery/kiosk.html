@@ -1,0 +1,10 @@
+I am a kiosk
+
+{% load staticfiles %}
+
+{% static "channels/js/websocketbridge.js" %}
+
+<script>
+  var wsb = new channels.WebSocketBridge();
+  wsb.connect('')
+</script>
