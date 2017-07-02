@@ -1,10 +1,36 @@
-I am a kiosk
-
 {% load staticfiles %}
 
-{% static "channels/js/websocketbridge.js" %}
+<p>Welcome!</p>
+
+<p id="status">Please wait...</p>
+
+<div id="scans">
+
+</div>
+
+
+
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+<script>
+  $(document).foundation();
+</script>
+
+<script src='{% static "channels/js/websocketbridge.js" %}'></script>
 
 <script>
+  var kiosk_id = {{ kiosk_id }};
   var wsb = new channels.WebSocketBridge();
-  wsb.connect('')
+  wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
+  wsb.listen(function(a, s) {
+    $('#scans').append("<p>" + a.barcode + "</p>");
+    console.log(a,s);
+  })
+
+  wsb.socket.addEventListener('open', function() {
+    console.log("Connected to websocket")
+    $('#status').text("Scan your ticket below")
+    wsb.send({barcode:"8G7GH4"})
+  })
 </script>

@@ -251,12 +251,16 @@ def provisionKiosk(request):
     return HttpResponse("Hello, World!")
 
 
-def kiosk(request, kiosk_id):
-    print(request.user.groups.all())
-    if request.user.groups.filter(name="kiosk").count() >= 1 and request.user.username == kiosk_id:
-        return HttpResponse("Congrats, you have successfully authenticated as this kiosk")
-    elif request.user.username == kiosk_id:
-        return HttpResponse("This user isn't authorized to act as a kiosk.")
-    elif request.user.groups.filter(name="kiosk").count() >= 1:
-        return HttpResponse("This account has kiosk permissions but is trying to act as a different kiosk.  The kiosk_id URL parameter must match the kiosk account username.")
-    return HttpResponse("The kiosk_id in the URL must match the account username, and the user must have been provisioned to act as a kiosk.  Your request meets neither of these requirements.")
+class Kiosk(UserPassesTestMixin,TemplateView):
+    template_name = "lottery/kiosk.html"
+    context_object_name = "kiosk"
+    login_url = '/login'
+
+
+    def get_context_data(self, **kwargs):
+        context = super(Kiosk, self).get_context_data(**kwargs) #getting kwargs to be a template variable from https://stackoverflow.com/a/18233104 and https://stackoverflow.com/a/16110852/5434744
+        return context;
+
+    def test_func(self):
+        #print("The kiosk id is",self.kwargs['kiosk_id'])
+        return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == self.kwargs['kiosk_id']

@@ -12,6 +12,6 @@ urlpatterns = [
     url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results"),
     url(r'^api/manage/results/(?P<drawing_id>[0-9]+)/check$',views.checkIfDrawingHasResults,name="check_for_results"),
     url(r'^api/kiosk/provision$',views.provisionKiosk,name="provision_kiosk"),
-    url(r'^kiosk/view/(?P<kiosk_id>[0-9]+)$',views.kiosk,name="kiosk"),
+    url(r'^kiosk/view/(?P<kiosk_id>[0-9]+)$',views.Kiosk.as_view(),name="kiosk"),
 
 ]
