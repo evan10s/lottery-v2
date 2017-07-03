@@ -1,36 +1,72 @@
 {% load staticfiles %}
 
-<p>Welcome!</p>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kiosk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
+    <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}" />
+  </head>
+  <body>
+    <div id="screen-1" class="hide">
+      <div class="row">
+        <div class="large-12 columns">
+            <h1>Welcome</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 columns">
+          <h3>Scan your ticket below</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-6 columns scanner-arrow">
+          <i class="barcode-arrow fi-arrow-down"></i>
+        </div>
+        <div class="small-6 columns scanner-arrow">
+          <i class="barcode-arrow fi-arrow-down"></i>
+        </div>
+      </div>
+    </div>
+    <div id="loading" class="hide">
+      <div id="loading-bar" class="single13"></div>
+    </div>
+    <div id="screen-2">
+      <div id="s2-center-vertical">
+        <div class="row">
+          <div class="medium-12 center">
+            <h3>What's your name?</h3>
+          </div>
+          <div class="medium-6 medium-offset-3">
+            <input type="text" id="user-name" placeholder="Enter your name..."/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="center medium-2 medium-offset-5">
+            <button id="continue" type="button" class="button large">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<p id="status">Please wait...</p>
-
-<div id="scans">
-
-</div>
 
 
+    <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+    <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+    <script>
+      $(document).foundation();
+    </script>
 
-<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
-<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
-<script>
-  $(document).foundation();
-</script>
+    <script src='{% static "channels/js/websocketbridge.js" %}'></script>
 
-<script src='{% static "channels/js/websocketbridge.js" %}'></script>
+    <script>
+      var kiosk_id = {{ kiosk_id }};
+    </script>
+    <script src='{% static "lottery/js/kiosk.js" %}'></script>
 
-<script>
-  var kiosk_id = {{ kiosk_id }};
-  var wsb = new channels.WebSocketBridge();
-  wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
-  wsb.listen(function(a, s) {
-    $('#scans').append("<p>" + a.barcode + "</p>");
-    console.log(a,s);
-  })
-
-  wsb.socket.addEventListener('open', function() {
-    console.log("Connected to websocket")
-    $('#status').text("Scan your ticket below")
-    wsb.send({barcode:"8G7GH4"})
-  })
-</script>
+  </body>
+</html>
