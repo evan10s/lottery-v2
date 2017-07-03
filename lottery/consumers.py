@@ -5,17 +5,18 @@ from channels.sessions import channel_session
 from channels.auth import channel_session_user, channel_session_user_from_http
 from channels.security.websockets import allowed_hosts_only
 
-@channel_session_user
+#@channel_session_user
+#@channel_session
 def ws_message(message, kiosk_id):
-    print(kiosk_id)
+    #print(kiosk_id)
     Group("scan-%s" % kiosk_id).send({
         "text": message['text'],
     })
 
 # Connected to websocket.disconnect
-@channel_session
+#@channel_session
 def ws_disconnect(message, kiosk_id):
-    print(kiosk_id)
+    #print(kiosk_id)
     Group("scan-%s" % kiosk_id).discard(message.reply_channel)
 
 # # Connected to websocket.connect
@@ -28,10 +29,12 @@ def ws_disconnect(message, kiosk_id):
 #     Group("scan-%s" % message.user.username[0]).add(message.reply_channel)
 
 # Connected to websocket.connect
-@allowed_hosts_only
-@channel_session_user_from_http
+#@allowed_hosts_only
+#@channel_session_user_from_http
+@channel_session
 def ws_connect_kiosk(message, kiosk_id):
     print(kiosk_id)
+    print("connecting")
     # Accept connection
     message.reply_channel.send({"accept": True})
     # Add them to the right group
