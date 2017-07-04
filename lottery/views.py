@@ -264,3 +264,38 @@ class Kiosk(UserPassesTestMixin,TemplateView):
     def test_func(self):
         #print("The kiosk id is",self.kwargs['kiosk_id'])
         return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == self.kwargs['kiosk_id']
+
+def userIsKiosk(user):
+    return user.groups.filter(name="kiosk").count() >= 1
+
+
+def saveName(request):
+    if request.method == "POST" and userIsKiosk(request.user):
+        name = request.POST['name']
+        username = request.POST['username']
+        if len(name) >= 2 and len(name) <= 200:
+            ref_user = User.objects.get(username=username)
+            try:
+                ref_user.first_name = name
+                ref_user.save()
+            except:
+                HttpResponse("500 Internal Server Error")
+            return HttpResponse("200 OK")
+        return HttpResponse("Invalid data format")
+    return HttpResponse("403 Forbidden")
+
+def checkForName(request, username):
+    if request.method == "GET" and userIsKiosk(request.user):
+        user = User.objects.get(username=username)
+        if user.first_name:
+            return HttpResponse("User has name")
+        return HttpResponse("User has no name")
+    return HttpResponse("403 Forbidden")
+
+def validateBarcode(request, barcode):
+    if request.method == "GET" and userIsKiosk(request.user):
+        found_users = User.objects.filter(username=request.user.username)
+        if len(found_users) == 1:
+            return HttpResponse("User exists")
+        return HttpResponse("User not found");
+    return HttpResponse("403 Forbidden")

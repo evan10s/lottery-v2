@@ -42,6 +42,12 @@ h3 {
   text-align: center;
 }
 
+#user-name {
+  text-align: center;
+  font-size: 1.75rem;
+  height: 51px;
+}
+
 /* from https://boguz.github.io/Spinners/
  under license:
  MIT License

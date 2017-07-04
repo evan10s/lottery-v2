@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results"),
     url(r'^api/manage/results/(?P<drawing_id>[0-9]+)/check$',views.checkIfDrawingHasResults,name="check_for_results"),
     url(r'^api/kiosk/provision$',views.provisionKiosk,name="provision_kiosk"),
+    url(r'^api/kiosk/saveName$',views.saveName,name="save_name"),
+    url(r'^api/kiosk/(?P<username>[a-zA-Z0-9]+)/checkForName$',views.checkForName,name="check_for_name"),
+    url(r'^api/kiosk/validateBarcode/(?P<barcode>[a-zA-Z0-9]+)$',views.validateBarcode,name="validateBarcode"),
     url(r'^kiosk/view/(?P<kiosk_id>[0-9]+)$',views.Kiosk.as_view(),name="kiosk"),
 
 ]

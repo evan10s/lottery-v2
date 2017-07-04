@@ -11,7 +11,20 @@
     <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}" />
   </head>
   <body>
-    <div id="screen-1" class="hide">
+    <div id="setup">
+      <div class="row">
+        <div class="small-6 small-offset-3 center">
+          <h3>Just one more thing...</h3>
+          <h4>Please open the Lotto Barcode Scanner on another device</h4>
+          <h4>and enter the following details</h4>
+          <h2><strong>Server address: </strong><span id="server-address"></span><br />
+              <strong>Kiosk ID: </strong><span id="kiosk-id"></span>
+          </h2>
+          <h3>This screen will automatically change once a barcode scanner is connected</h3>
+        </div>
+      </div>
+    </div>
+    <div id="screen-1">
       <div class="row">
         <div class="large-12 columns">
             <h1>Welcome</h1>
@@ -31,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div id="loading" class="hide">
+    <div id="loading">
       <div id="loading-bar" class="single13"></div>
     </div>
     <div id="screen-2">
@@ -41,8 +54,11 @@
             <h3>What's your name?</h3>
           </div>
           <div class="medium-6 medium-offset-3">
-            <input type="text" id="user-name" placeholder="Enter your name..."/>
-          </div>
+            <form method="POST" action="{% url 'save_name' %}">
+              {% csrf_token %}
+              <input type="text" id="user-name" autocomplete="off" placeholder="Enter your name..."/>
+            </form>
+            </div>
         </div>
         <div class="row">
           <div class="center medium-2 medium-offset-5">
