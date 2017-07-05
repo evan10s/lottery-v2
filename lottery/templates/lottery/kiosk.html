@@ -56,7 +56,10 @@
           <div class="medium-6 medium-offset-3">
             <form method="POST" action="{% url 'save_name' %}">
               {% csrf_token %}
-              <input type="text" id="user-name" autocomplete="off" placeholder="Enter your name..."/>
+              <div class="alert callout small hide" id="name-submit-error">
+                <h5>Enter your first name to continue.</h5>
+              </div>
+              <input type="text" id="user-name" autocomplete="off" placeholder="Enter your first name..."/>
             </form>
             </div>
         </div>
@@ -64,6 +67,20 @@
           <div class="center medium-2 medium-offset-5">
             <button id="continue" type="button" class="button large">Continue</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-3">
+      <div class="row">
+        <div class="medium-3 columns">
+          Hi user
+        </div>
+        <div class="medium-6 columns">
+          Select a number
+        </div>
+        <div class="medium-3 columns">
+          Your previous tickets
         </div>
       </div>
     </div>

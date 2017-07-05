@@ -274,7 +274,10 @@ def saveName(request):
         name = request.POST['name']
         username = request.POST['username']
         if len(name) >= 2 and len(name) <= 200:
-            ref_user = User.objects.get(username=username)
+            try:
+                ref_user = User.objects.get(username=username)
+            except:
+                return HttpResponse("User does not exist")
             try:
                 ref_user.first_name = name
                 ref_user.save()
@@ -293,8 +296,10 @@ def checkForName(request, username):
     return HttpResponse("403 Forbidden")
 
 def validateBarcode(request, barcode):
+    print(len(User.objects.filter(username="ACD1243")),"len filter acd123")
     if request.method == "GET" and userIsKiosk(request.user):
-        found_users = User.objects.filter(username=request.user.username)
+        print("request.user.username",barcode)
+        found_users = User.objects.filter(username=barcode)
         if len(found_users) == 1:
             return HttpResponse("User exists")
         return HttpResponse("User not found");

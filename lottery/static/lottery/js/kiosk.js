@@ -3,8 +3,12 @@ var currentUser;
 var transactionInProgress = false;
 
 wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
-wsb.listen(function(a, s) {
-  console.log("Barcode scanned:",a.barcode);
+wsb.listen(async function(a, s) {
+  if (a.msgType === "data") {
+    console.log("Barcode scanned:",a.barcode);
+  } else {
+    console.log("Websocket message:",a);
+  }
   if (!transactionInProgress) {
     if (a.msgType === "info") {
       switchScreens("setup","screen-1");
@@ -12,27 +16,49 @@ wsb.listen(function(a, s) {
       currentUser = a.barcode;
       transactionInProgress = true;
       switchScreens("screen-1","loading");
-      validateBarcode(currentUser).then(function (result) {
-        if (result) {
-          return hasUsername(currentUser);
-        }
-      }).then(function (result) {
-        if (result) {
+
+      if (await validateBarcode(currentUser)) {
+        if (await hasUsername(currentUser)) {
           switchScreens("loading","screen-3");
         } else {
           switchScreens("loading","screen-2");
         }
-      });
+      } else {
+        console.log("Unrecognized barcode")
+        switchScreens("loading","screen-1");
+        transactionInProgress = false;
+      }
+      // validateBarcode(currentUser).then(function (result) {
+      //   console.log(result);
+      //   if (result) {
+      //     console.log("inside true");
+      //     return hasUsername(currentUser);
+      //   } else {
+      //     console.log("inside false");
+      //     Promise.reject("User DNE");
+      //   }
+      // }, returnToWelcomeWithError("That barcode isn't in this system")).then(function (result) {
+      //   if (result) {
+      //     switchScreens("loading","screen-3");
+      //   } else {
+      //     switchScreens("loading","screen-2");
+      //   }
+      // }).catch(function() { console.log("Caught an error"); });
+
+    } else if (a.msgType === "searchAcknowledge") {
+      console.log("Scanner search was acknowledged",a);
+      switchScreens("setup","screen-1");
     }
   }
 })
 
 wsb.socket.addEventListener('open', function() {
   console.log("Connected to websocket");
+  wsb.send({"msgType":"searchForScanner"});
 })
 var animationCycleTime = 1000
 $(document).ready(function() {
-  $('#screen-1,#screen-2,#loading').hide();
+  $('#screen-1,#screen-2,#screen-3,#loading').hide();
   $('#server-address').text(window.location.host);
   $('#kiosk-id').text(kiosk_id);
   setInterval(fadeArrowsOut,2*animationCycleTime);
@@ -61,42 +87,54 @@ function switchScreens(s1, s2) {
   $(s2).fadeIn();
 }
 
-function submitUsername() {
-  var usernameVal = $('#user-name').val();
-  if (!usernameVal) {
+function returnToWelcomeWithError(msg) {
+  console.log("Error, returning to screen-1 (welcome)");
+  $('#screen-1,#screen-2,#screen-3,#loading').fadeOut();
+  switchScreens("loading","screen-1");
+}
 
+async function submitUsername() {
+  var usernameVal = $('#user-name').val();
+  if (usernameVal === "") {
+    $('#name-submit-error').removeClass("hide");
   } else {
     switchScreens("screen-2","loading");
-    $.ajax({
+    var submitResult = $.ajax({
     	url: "/api/kiosk/saveName",
     	method: "POST",
     	data: {
-    		name: username,
-    		username: "ABC123"
+    		name: usernameVal,
+    		username: currentUser
         }
     });
+    if (await submitResult !== "Username saved") {
+      $('#name-submit-error').removeClass("hide");
+    } else {
+      switchScreens("screen-2","screen-3");
+    }
+
   }
 }
 
-function validateBarcode(barcode) {
-  return $.ajax({
+async function validateBarcode(barcode) {
+   var result = $.ajax({
     url: "/api/kiosk/validateBarcode/" + barcode,
     method: "GET",
-  }).then(function(result) {
-    console.log("Result of validateBarcode:",result,result === "User exists");
-    return result === "User exists";
   });
+    console.log("Result of validateBarcode:",await result, await result === "User exists");
+    return await result === "User exists";
+
 }
 
-function hasUsername(barcode) {
+async function hasUsername(barcode) {
   console.log("inside has Username");
-  return $.ajax({
-    url: "/api/kiosk/" + barcode + "/checkForName",
-    method: "GET",
-  }).then(function(result) {
-    console.log("Result of hasUsername",result,result === "User has name");
-    return result === "User has name";
-  });
+  var result = $.ajax({
+      url: "/api/kiosk/" + barcode + "/checkForName",
+      method: "GET"
+    });
+    console.log("Result of hasUsername",await result, await result === "User has name");
+    return await result === "User has name";
+
 }
 
 //this code block ($.ajaxSetup) allows Django's CSRF protection to work with AJAX requests and is from http://stackoverflow.com/a/5107878
