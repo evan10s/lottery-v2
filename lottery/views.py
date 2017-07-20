@@ -304,3 +304,28 @@ def validateBarcode(request, barcode):
             return HttpResponse("User exists")
         return HttpResponse("User not found");
     return HttpResponse("403 Forbidden")
+
+def getRecentTickets(request, username, num):
+    if request.method == "GET" and userIsKiosk(request.user):
+        actual_user = User.objects.get(username=username)
+
+        try:
+            numTks = int(num)
+        except:
+            HttpResponse("500 Internal Server Error")
+        tks = Ticket.objects.filter(submitted_by=actual_user).order_by("-timestamp")[:numTks]
+
+
+        result = {
+            'tickets': []
+        }
+
+        print("hey");
+
+        for t in tks:
+            result["tickets"].append({
+                'id': t.pk,
+                'numbers': [ n.value for n in t.number_set.all() ]
+            })
+        return HttpResponse(json.dumps(result),content_type="application/json")
+    return HttpResponse("403 Forbidden");

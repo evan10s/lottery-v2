@@ -18,14 +18,19 @@ wsb.listen(async function(a, s) {
       switchScreens("screen-1","loading");
 
       if (await validateBarcode(currentUser)) {
+        clearErrorMessage();
         if (await hasUsername(currentUser)) {
+          updateTicketsTable(await getRecentTickets(currentUser));
+          console.log("got recent tickets");
           switchScreens("loading","screen-3");
+
         } else {
+
           switchScreens("loading","screen-2");
         }
       } else {
         console.log("Unrecognized barcode")
-        switchScreens("loading","screen-1");
+        returnToWelcomeWithError("The ticket you just scanned couldn't be validated.  Please see a lottery administrator for more information.");
         transactionInProgress = false;
       }
       // validateBarcode(currentUser).then(function (result) {
@@ -88,9 +93,14 @@ function switchScreens(s1, s2) {
 }
 
 function returnToWelcomeWithError(msg) {
-  console.log("Error, returning to screen-1 (welcome)");
+  console.log("Error, returning to screen-1 (welcome)","The specific error is:",msg);
   $('#screen-1,#screen-2,#screen-3,#loading').fadeOut();
-  switchScreens("loading","screen-1");
+  $('#s1-error-msg > h5').text(msg).parent().removeClass("hide");
+  $("#screen-1").fadeIn();
+}
+
+function clearErrorMessage() {
+  $('#s1-error-msg').addClass("hide");
 }
 
 async function submitUsername() {
@@ -110,7 +120,7 @@ async function submitUsername() {
     if (await submitResult !== "Username saved") {
       $('#name-submit-error').removeClass("hide");
     } else {
-      switchScreens("screen-2","screen-3");
+      switchScreens("loading","screen-3");
     }
 
   }
@@ -135,6 +145,28 @@ async function hasUsername(barcode) {
     console.log("Result of hasUsername",await result, await result === "User has name");
     return await result === "User has name";
 
+}
+
+async function getRecentTickets(barcode) {
+  var num = 5; //Get 5 recent tickets at most
+  var result = $.ajax({
+    url: "/api/kiosk/" + barcode + "/recentTickets/" + num,
+    method: "GET"
+  })
+
+  console.log(await result);
+  return await result;
+}
+
+function updateTicketsTable(result) {
+  let tickets = result.tickets;
+  console.log(tickets)
+  for (let t of tickets) {
+    $('#tickets-list').append(`<tr>
+                                  <td>${t.id}</td>
+                                  <td>${t.numbers.toString()}</td>
+                                  </tr>`)
+  }
 }
 
 //this code block ($.ajaxSetup) allows Django's CSRF protection to work with AJAX requests and is from http://stackoverflow.com/a/5107878

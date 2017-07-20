@@ -16,5 +16,6 @@ urlpatterns = [
     url(r'^api/kiosk/(?P<username>[a-zA-Z0-9]+)/checkForName$',views.checkForName,name="check_for_name"),
     url(r'^api/kiosk/validateBarcode/(?P<barcode>[a-zA-Z0-9]+)$',views.validateBarcode,name="validateBarcode"),
     url(r'^kiosk/view/(?P<kiosk_id>[0-9]+)$',views.Kiosk.as_view(),name="kiosk"),
+    url(r'^api/kiosk/(?P<username>[a-zA-Z0-9]+)/recentTickets/(?P<num>[0-9]+)$',views.getRecentTickets,name="get_recent_tickets_kiosk"),
 
 ]
