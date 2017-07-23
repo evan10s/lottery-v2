@@ -1,117 +1,132 @@
 {% load staticfiles %}
-
+<!DOCTYPE html>
 <html class="no-js" lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kiosk</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
-    <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}" />
-  </head>
-  <body>
-    <div id="setup">
-      <div class="row">
-        <div class="small-6 small-offset-3 center">
-          <h3>Just one more thing...</h3>
-          <h4>Please open the Lotto Barcode Scanner on another device</h4>
-          <h4>and enter the following details</h4>
-          <h2><strong>Server address: </strong><span id="server-address"></span><br />
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiosk</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
+  <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}" />
+</head>
+
+<body>
+  <div id="setup">
+    <div class="row">
+      <div class="small-6 small-offset-3 center">
+        <h3>Just one more thing...</h3>
+        <h4>Please open the Lotto Barcode Scanner on another device</h4>
+        <h4>and enter the following details</h4>
+        <h2><strong>Server address: </strong><span id="server-address"></span><br />
               <strong>Kiosk ID: </strong><span id="kiosk-id"></span>
           </h2>
-          <h3>This screen will automatically change once a barcode scanner is connected</h3>
+        <h3>This screen will automatically change once a barcode scanner is connected</h3>
+      </div>
+    </div>
+  </div>
+  <div id="screen-1">
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>Welcome</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <h3>Scan your ticket below</h3>
+        <div class="alert callout small center hide" id="s1-error-msg">
+          <h5></h5>
         </div>
       </div>
     </div>
-    <div id="screen-1">
-      <div class="row">
-        <div class="large-12 columns">
-            <h1>Welcome</h1>
-        </div>
+    <div class="row">
+      <div class="small-6 columns scanner-arrow">
+        <i class="barcode-arrow fi-arrow-down"></i>
       </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <h3>Scan your ticket below</h3>
-          <div class="alert callout small center hide" id="s1-error-msg">
-            <h5></h5>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="small-6 columns scanner-arrow">
-          <i class="barcode-arrow fi-arrow-down"></i>
-        </div>
-        <div class="small-6 columns scanner-arrow">
-          <i class="barcode-arrow fi-arrow-down"></i>
-        </div>
+      <div class="small-6 columns scanner-arrow">
+        <i class="barcode-arrow fi-arrow-down"></i>
       </div>
     </div>
-    <div id="loading">
-      <div id="loading-bar" class="single13"></div>
-    </div>
-    <div id="screen-2">
-      <div id="s2-center-vertical">
-        <div class="row">
-          <div class="medium-12 center">
-            <h3>What's your name?</h3>
-          </div>
-          <div class="medium-6 medium-offset-3">
-            <form method="POST" action="{% url 'save_name' %}">
-              {% csrf_token %}
-              <div class="alert callout small hide" id="name-submit-error">
-                <h5>Enter your first name to continue.</h5>
-              </div>
-              <input type="text" id="user-name" autocomplete="off" placeholder="Enter your first name..."/>
-            </form>
+  </div>
+  <div id="loading">
+    <div id="loading-bar" class="single13"></div>
+  </div>
+  <div id="screen-2">
+    <div id="s2-center-vertical">
+      <div class="row">
+        <div class="medium-12 center">
+          <h3>What's your name?</h3>
+        </div>
+        <div class="medium-6 medium-offset-3">
+          <form method="POST" action="{% url 'save_name' %}">
+            {% csrf_token %}
+            <div class="alert callout small hide" id="name-submit-error">
+              <h5>Enter your first name to continue.</h5>
             </div>
-        </div>
-        <div class="row">
-          <div class="center medium-2 medium-offset-5">
-            <button id="continue" type="button" class="button large">Continue</button>
-          </div>
+            <input type="text" id="user-name" autocomplete="off" placeholder="Enter your first name..." />
+          </form>
         </div>
       </div>
-    </div>
-
-    <div id="screen-3">
       <div class="row">
-        <div class="medium-3 columns">
-          Hi user
-        </div>
-        <div class="medium-6 columns">
-          Select a number
-        </div>
-        <div class="medium-3 columns">
-          <h3>Your recent tickets:</h3>
-          <table id="tickets-table">
-            <thead>
-              <td>ID</td>
-              <td>Numbers</td>
-            </thead>
-            <tbody id="tickets-list">
-
-            </tbody>
-          </table>
+        <div class="center medium-2 medium-offset-5">
+          <button id="continue" type="button" class="button large">Continue</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="screen-3">
+    <div class="row">
+      <div class="medium-3 columns" id="recent-tickets">
+        <h3>Your recent tickets:</h3>
+        <table id="tickets-table">
+          <thead>
+            <td>ID</td>
+            <td>Numbers</td>
+          </thead>
+          <tbody id="tickets-list">
+          </tbody>
+        </table>
+      </div>
+      <div class="medium-9 columns">
+        <h3>Select up to 4 numbers</h3>
+        <h4>Submit as many lottery tickets as you want!  When you're finished, tap I'm Finished.</h4>
+        <div class="alert callout small hide" id="max-nums-selected">
+          <h5>To select number <span id="max-nums-attempted"></span>, deselect a number you've already selected.</h5>
+          <p>Click a number you've selected to deselect it.</p>
+        </div>
+        <table>
+          <tbody id="lottery-nums">
+          </tbody>
+        </table>
+          <div class="button-group large expanded" id="lt-submit-btns"> <!-- lt = lottery ticket -->
+            <button class="submit-ticket button">Submit this ticket</button>
+            <button class="submit-ticket kiosk-end-session button">Submit + I'm finished</button>
+            <button class="kiosk-end-session button">I'm finshed</button>
+          </div>
+          <div id="ticket-submit-loading-bar" class="hide single13"></div>
+      </div>
+
+    </div>
+  </div>
 
 
 
-    <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
-    <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
-    <script>
-      $(document).foundation();
-    </script>
+  <script src="{% static 'lottery/js/vendor/jquery.js' %}"></script>
+  <script src="{% static 'lottery/js/vendor/what-input.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js" integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+  <script>
+    $(document).foundation();
+  </script>
 
-    <script src='{% static "channels/js/websocketbridge.js" %}'></script>
+  <script src='{% static "channels/js/websocketbridge.js" %}'></script>
 
-    <script>
-      var kiosk_id = {{ kiosk_id }};
-    </script>
-    <script src='{% static "lottery/js/kiosk.js" %}'></script>
+  <script>
+    var kiosk_id = {{ kiosk_id }};
+  </script>
+  <script src='{% static "lottery/js/kiosk.js" %}'></script>
 
-  </body>
+</body>
+
 </html>

@@ -48,6 +48,32 @@ h3 {
   height: 51px;
 }
 
+
+#lottery-nums > tr > td {
+  width: 100px;
+  height: 80px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+#lottery-nums > tr > td.selected {
+  font-size: 2rem;
+  text-decoration: underline;
+}
+
+#ticket-submit-loading, #lt-submit-btns-container {
+  width: 100%;
+}
+
+#ticket-submit-loading-bar, #lt-submit-btns {
+  margin: auto;
+}
+
+#ticket-submit-loading-bar {
+  margin-top: 65px;
+}
+
+
 /* from https://boguz.github.io/Spinners/
  under license:
  MIT License
