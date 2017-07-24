@@ -41,16 +41,10 @@
           <h4>Unable to submit ticket</h4>
           <p>You entered 5 numbers, but each ticket can only contain 4 numbers.</p>
         </div>
-        Submit a ticket:
+
         <br />
 
-        <form id="submit-ticket" action="{% url 'submit_ticket' %}" method="post">
-          {% csrf_token %}
-          <input type="text" id="nums" placeholder="Enter up to 4 numbers separated by commas"/>
-          <input type="submit" class="button" id="submitBtn" value="Submit" />
-        </form>
-        <p>To ensure the integrity of the drawing, there may be a limit on the number of tickets you can submit each hour.  Once you submit a ticket, it is consider official and cannot be modified or deleted.</p>
-        <p>Submitting a ticket here makes it eligible for any drawing currently taking place.</p>
+        <p>Tickets can only be submitted from a kiosk.</p>
       </div>
       <div class="medium-4 columns">
         Your recent tickets:

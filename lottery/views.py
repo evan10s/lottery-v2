@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import generic
 from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
@@ -8,6 +8,7 @@ import json,datetime
 from .models import Drawing, Ticket,Number, Results
 from django.contrib.auth.models import User, Group # need to import Group from https://stackoverflow.com/a/6288863/5434744
 import random
+from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 class DrawingsView(generic.ListView):
     template_name = 'lottery/drawings.html'
@@ -257,6 +258,16 @@ def provisionKiosk(request):
 
         kiosk_group = Group.objects.get(name="kiosk") #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
         kiosk_group.user_set.add(user)
+
+        #this part of the code (autheticating and signing in as the kiosk user, and logging out the current user)
+        # is from the Django v1.11 docs - https://docs.djangoproject.com/en/1.11/topics/auth/default/#how-to-log-a-user-in
+        # and https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.logout
+        kiosk_user = authenticate(request, username=kiosk_id, password=kiosk_pw)
+        if user is not None:
+            logout(request)
+            login(request, kiosk_user);
+            return redirect('/kiosk/view/%d' % kiosk_id)
+
 
     return HttpResponse("Hello, World!")
 
