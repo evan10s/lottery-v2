@@ -68,31 +68,41 @@ class LotteryAdmin(UserPassesTestMixin,generic.ListView):
         print(start,end)
         return Ticket.objects.filter(timestamp__gte=start,timestamp__lte=end)
 
-def create_ticket(request):
+def create_ticket(request, username):
     print("called")
-    if request.method == "POST" and request.user.is_authenticated:
+    if request.method == "POST" and userIsKiosk(request.user):
+        try:
+            actual_user = User.objects.get(username=username)
+        except:
+            return HttpResponse(json.dumps({ 'state': 'error',
+                                             'status': 'User not found'
+                                             }))
 
         one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1) # Getting time one hour prior to now from https://stackoverflow.com/questions/7582333/python-get-datetime-of-last-hour
-        num_tickets_last_hr = len(Ticket.objects.filter(submitted_by=request.user,
+        num_tickets_last_hr = len(Ticket.objects.filter(submitted_by=actual_user,
                                                     timestamp__gte=one_hour_ago));
 
         print("num_tickets_last_hr =",str(num_tickets_last_hr))
         if num_tickets_last_hr > 30:
-            return HttpResponse(json.dumps({ 'state':'error','status': "You've submitted too many tickets in the last hour.  Please wait 60 minutes before submitting more tickets." }),content_type="application/json");
+            return HttpResponse(json.dumps({ 'state':'error','error_short_desc':"TICKET_RATE_LIMIT_EXCEEDED",'status': "You've submitted too many tickets in the last hour.  Please wait 60 minutes before submitting more tickets." }),content_type="application/json");
 
 
         print(request.POST['nums'])
         nums = request.POST['nums']
+
+        if len(nums) == 0:
+            return HttpResponse(json.dumps({ 'state':'error','status': "Select 4 numbers before submitting a ticket!" }),content_type="application/json")
 
         split_nums = nums.split(",")
 
         print(split_nums);
         distinct_split_nums = list(set(map(lambda x: int(x.strip()),split_nums))) # Remove duplicate numbers after trimming spaces and converting to ints.  After this, there should only be 4 distinct numbers; this method for removing duplicates is from https://stackoverflow.com/questions/7961363/removing-duplicates-in-lists
 
+        distinct_split_nums.sort();
         numbers_added = []
 
         if len(distinct_split_nums) <= 4 and len(distinct_split_nums) > 0:
-            t = Ticket(submitted_by=request.user,timestamp=datetime.datetime.now())
+            t = Ticket(submitted_by=actual_user,timestamp=datetime.datetime.now())
             t.save()
             for num in distinct_split_nums:
                 if num >= 1 and num <= 36: # Numbers must be between 1 and 36

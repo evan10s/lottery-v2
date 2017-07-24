@@ -91,10 +91,13 @@
       </div>
       <div class="medium-9 columns">
         <h3>Select up to 4 numbers</h3>
-        <h4>Submit as many lottery tickets as you want!  When you're finished, tap I'm Finished.</h4>
+        <h5>Submit as many lottery tickets as you want!  When you're finished, tap I'm Finished.</h5>
         <div class="alert callout small hide" id="max-nums-selected">
           <h5>To select number <span id="max-nums-attempted"></span>, deselect a number you've already selected.</h5>
           <p>Click a number you've selected to deselect it.</p>
+        </div>
+        <div class="alert callout small hide" id="ticket-submit-error">
+          <p>We couldn't process your ticket right now.  Please try again or contact the lottery administrator for assistance.</p>
         </div>
         <table>
           <tbody id="lottery-nums">
@@ -103,7 +106,7 @@
           <div class="button-group large expanded" id="lt-submit-btns"> <!-- lt = lottery ticket -->
             <button class="submit-ticket button">Submit this ticket</button>
             <button class="submit-ticket kiosk-end-session button">Submit + I'm finished</button>
-            <button class="kiosk-end-session button">I'm finshed</button>
+            <button class="kiosk-end-session button">I'm finished</button>
           </div>
           <div id="ticket-submit-loading-bar" class="hide single13"></div>
       </div>

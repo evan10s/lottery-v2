@@ -20,6 +20,7 @@ wsb.listen(async function(a, s) {
       if (await validateBarcode(currentUser)) {
         clearErrorMessage();
         if (await hasUsername(currentUser)) {
+          resetTicketScreen();
           updateTicketsTable(await getRecentTickets(currentUser));
           console.log("got recent tickets");
           switchScreens("loading", "screen-3");
@@ -88,6 +89,7 @@ $(document).ready(function() {
 
   $('#continue').on("click", submitUsername);
   $('.submit-ticket').on("click", submitTicket);
+  $('.kiosk-end-session').on("click", endSession);
 
 
   setupLotteryTicket(1, 36, 6, false);
@@ -114,7 +116,28 @@ function switchScreens(s1, s2) {
   $(s2).fadeIn();
 }
 
+function endSession() {
+  switchScreens("screen-3", "screen-1");
+  transactionInProgress = false;
+}
+
+function resetTicketScreen() {
+  $('.submit-ticket, .submit-ticket.kiosk-end-session').removeAttr("disabled");
+  $("#max-nums-selected, #ticket-submit-error, #ticket-submit-loading-bar").addClass("hide");
+  $('.submit-ticket:not(.kiosk-end-session)').removeClass("success").text("Submit this ticket");
+  $("#lt-submit-btns").removeClass("hide");
+  $('#tickets-list > tr').remove();
+}
+
 function numberClicked() {
+  if ($(".kiosk-end-session.submit-ticket[disabled]").length >= 1) {
+    return;
+  }
+  let $submitTkBtn = $(".submit-ticket:not(.kiosk-end-session)");
+  if ($submitTkBtn.hasClass("success")) {
+    $submitTkBtn.removeClass("success").text("Submit this ticket");
+  }
+
   if (!$(this).hasClass("selected") && $(".selected").length >= 4) {
     $('#max-nums-attempted').text($(this).html());
     $('#max-nums-selected').removeClass("hide");
@@ -224,6 +247,7 @@ async function getRecentTickets(barcode) {
 function updateTicketsTable(result) {
   let tickets = result.tickets;
   console.log(tickets)
+
   for (let t of tickets) {
     $('#tickets-list').append(`<tr>
                                 <td>${t.id}</td>
@@ -232,6 +256,22 @@ function updateTicketsTable(result) {
   }
 
 }
+
+function updateTicketsTableServerResponse(tk) {
+  console.log(tk)
+  let $tkList = $('#tickets-list');
+
+  if ($tkList.children().length === 5) {
+    $('#tickets-list > tr:last-child').remove();
+  }
+
+  $('#tickets-list').prepend(`<tr>
+                              <td>${tk.id}</td>
+                              <td>${tk.nums}</td>
+                              </tr>`)
+}
+
+
 
 function getSelectedNums() {
   let nums = []
@@ -243,11 +283,37 @@ function getSelectedNums() {
 
 function submitTicket() {
   $("#lt-submit-btns, #ticket-submit-loading-bar").toggleClass("hide");
-  let nums = getSelectedNums();
-  console.log("nums is", nums);
-  $(".submit-ticket:not(.kiosk-end-session)").addClass("success").text("Success!");
-  $("#lt-submit-btns, #ticket-submit-loading-bar").toggleClass("hide");
-  $('.selected').removeClass("selected");
+  $('#ticket-submit-error, #max-nums-selected').addClass("hide");
+
+  $.ajax({
+    url: "/api/kiosk/tickets/add/" + currentUser,
+    method: "POST",
+    data: {
+      nums: getSelectedNums().toString()
+    }
+  }).then((result) => {
+    $("#lt-submit-btns, #ticket-submit-loading-bar").toggleClass("hide");
+    $('.selected').removeClass("selected");
+    console.log("result is", result);
+
+    if (result.state === "error") {
+      $("#ticket-submit-error").removeClass("hide");
+      $("#ticket-submit-error > p").text(result.status);
+      if (result.hasOwnProperty("error_short_desc")) {
+        if (result.error_short_desc === "TICKET_RATE_LIMIT_EXCEEDED") {
+          $('.submit-ticket, .submit-ticket.kiosk-end-session').attr("disabled", "disabled");
+        }
+      }
+    } else {
+      $(".submit-ticket:not(.kiosk-end-session)").addClass("success").text("Ticket submitted");
+      updateTicketsTableServerResponse(result);
+    }
+  }, (e) => {
+    $("#lt-submit-btns, #ticket-submit-loading-bar").toggleClass("hide");
+    $('#ticket-submit-error').removeClass("hide");
+    $("#ticket-submit-error").text("We couldn't process your ticket right now.  Please try again or contact the lottery administrator for assistance.");
+  });
+  //.catch((e) => console.error("Ticket submit error", e));
 }
 
 //this code block ($.ajaxSetup) allows Django's CSRF protection to work with AJAX requests and is from http://stackoverflow.com/a/5107878
