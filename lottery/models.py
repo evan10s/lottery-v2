@@ -12,6 +12,7 @@ class Drawing(models.Model):
 class Ticket(models.Model):
     submitted_by = models.ForeignKey(User,on_delete=models.CASCADE) #"""User,unique=True from http://www.b-list.org/weblog/2006/jun/06/django-tips-extending-user-model/
     timestamp = models.DateTimeField('date submitted')
+    submit_method = models.CharField(max_length=200)
     def __str__(self):
         return "#" + str(self.pk) + " - " + str(self.submitted_by) + " - " + str(self.timestamp)
 

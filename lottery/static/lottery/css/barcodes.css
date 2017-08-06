@@ -1,0 +1,22 @@
+#drawing-name {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.barcode {
+  transform: rotate(90deg) !important;
+  float: right;
+}
+
+.barcode-ticket-container {
+  width: 300px;
+  height: 200px;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}

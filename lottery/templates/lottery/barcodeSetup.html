@@ -1,0 +1,31 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Barcode Setup</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
+  <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
+  <link rel="stylesheet" href="{% static 'lottery/css/barcodes.css' %}" />
+  <script src="https://cdn.jsdelivr.net/jsbarcode/3.6.0/JsBarcode.all.min.js"></script>
+  <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+  <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
+    $(document).foundation();
+  </script>
+
+</head>
+
+<body>
+
+  {% for i in ar %}
+    <div>
+      {% include "./barcode.html" with barcode=i%}
+    </div>
+    <br />
+  {% endfor %}
+</body>
+
+</html>

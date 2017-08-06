@@ -16,11 +16,15 @@ $(document).ready(function() {
   })
 
   $('#provision-kiosk').on("click", provisionKioskRedirect);
-
+  $('#generate-barcodes').on("click", genBarcodesRedirect);
 })
 
 function provisionKioskRedirect() {
   window.location = "/api/kiosk/provision";
+}
+
+function genBarcodesRedirect() {
+  window.location = "barcodes";
 }
 
 function updateBtnResultsFinalized() {

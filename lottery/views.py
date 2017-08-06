@@ -10,11 +10,16 @@ from django.contrib.auth.models import User, Group # need to import Group from h
 import random
 from django.contrib.auth import authenticate, login, logout
 # Create your views here.
-class DrawingsView(generic.ListView):
+class DrawingsView(UserPassesTestMixin,generic.ListView):
     template_name = 'lottery/drawings.html'
     context_object_name = 'drawing_list'
+    login_url = '/login'
     def get_queryset(self):
         return Drawing.objects.order_by('-end_date')[:5]
+
+    def test_func(self):
+        return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
+
 
 
 class DrawingParticipantDashboard(UserPassesTestMixin,generic.ListView):
@@ -23,7 +28,7 @@ class DrawingParticipantDashboard(UserPassesTestMixin,generic.ListView):
     login_url = '/login'
 
     def test_func(self):
-        return not self.request.user.is_anonymous
+        return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
 
     def get_context_data(self):
         context = super(DrawingParticipantDashboard, self).get_context_data(**self.kwargs) #getting kwargs to be a template variable from https://stackoverflow.com/a/18233104
@@ -79,6 +84,7 @@ def create_ticket(request, username):
                                              'status': 'User not found'
                                              }))
 
+        # Check maximum ticket submissions
         one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1) # Getting time one hour prior to now from https://stackoverflow.com/questions/7582333/python-get-datetime-of-last-hour
         num_tickets_last_hr = len(Ticket.objects.filter(submitted_by=actual_user,
                                                     timestamp__gte=one_hour_ago));
@@ -103,7 +109,7 @@ def create_ticket(request, username):
         numbers_added = []
 
         if len(distinct_split_nums) <= 4 and len(distinct_split_nums) > 0:
-            t = Ticket(submitted_by=actual_user,timestamp=datetime.datetime.now())
+            t = Ticket(submitted_by=actual_user,timestamp=datetime.datetime.now(),submit_method=("Kiosk %s" % request.user.username))
             t.save()
             for num in distinct_split_nums:
                 if num >= 1 and num <= 36: # Numbers must be between 1 and 36
@@ -267,9 +273,10 @@ def provisionKiosk(request):
             logout(request)
             login(request, kiosk_user);
             return redirect('/kiosk/view/%d' % kiosk_id)
+        return HttpResponse("500 Server Error")
 
 
-    return HttpResponse("Hello, World!")
+    return HttpResponse("403 Forbidden")
 
 
 class Kiosk(UserPassesTestMixin,TemplateView):
@@ -341,8 +348,6 @@ def getRecentTickets(request, username, num):
             'tickets': []
         }
 
-        print("hey");
-
         for t in tks:
             result["tickets"].append({
                 'id': t.pk,
@@ -350,3 +355,11 @@ def getRecentTickets(request, username, num):
             })
         return HttpResponse(json.dumps(result),content_type="application/json")
     return HttpResponse("403 Forbidden");
+
+def generateBarcodeSetup(request, drawing_id):
+    try:
+        drawing = Drawing.objects.get(pk=drawing_id)
+        drawing_name = drawing.drawing_name
+    except:
+        return HttpResponse("404 Not Found")
+    return render(request,"lottery/barcodeSetup.html", context={ 'drawing_name': drawing_name, "ar":[1,2,3]})

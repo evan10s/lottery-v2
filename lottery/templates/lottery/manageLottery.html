@@ -70,7 +70,11 @@
             ask them for their first name the first time they sign in.  You can also print administrator barcodes to authorize
             administrative actions on a kiosk, such as closing it or viewing setup information.</p>
           <p>Click the button below to provision a new kiosk and launch the kiosk on this device.</p>
-          <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
+          <div class="button-group large expanded">
+            <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
+            <button type="button" id="generate-barcodes" class="button large">Generate Access Tickets</button>
+          </div>
+
 
       </div>
       <div class="large-6 cell">
@@ -81,6 +85,8 @@
           <thead>
             <th>ID</th>
             <th>User</th>
+            <th>First name</th>
+            <th>Submitted via</th>
             <th>Numbers</tr>
           </thead>
           <tbody>
@@ -88,6 +94,8 @@
             <tr>
               <td>{{ t.pk }}</td>
               <td>{{ t.submitted_by.username }}</td>
+              <td>{{ t.submitted_by.first_name }}</td>
+              <td>{{ t.submit_method }}
               <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
                 </td>
             </tr>
