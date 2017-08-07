@@ -24,7 +24,11 @@ function provisionKioskRedirect() {
 }
 
 function genBarcodesRedirect() {
-  window.location = "barcodes";
+  if (typeof drawingId === "number") {
+    window.location = drawingId + "/barcodes";
+  } else {
+    console.error("The drawing id is not a number.  The redirect has been cancelled because of this.");
+  }
 }
 
 function updateBtnResultsFinalized() {
