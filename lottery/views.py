@@ -362,4 +362,4 @@ def generateBarcodeSetup(request, drawing_id):
         drawing_name = drawing.drawing_name
     except:
         return HttpResponse("404 Not Found")
-    return render(request,"lottery/barcodeSetup.html", context={ 'drawing_name': drawing_name, "ar":[1,2,3]})
+    return render(request,"lottery/barcodeSetup.html", context={ 'drawing_name': drawing_name, "ar":["ABC123","4F3A9F","4F4H3G"]})
