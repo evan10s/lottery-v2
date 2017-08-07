@@ -1,22 +1,45 @@
 #drawing-name {
   text-transform: uppercase;
   font-weight: bold;
+  font-size: 20px;
 }
 
 .barcode {
   transform: rotate(90deg) !important;
-  float: right;
+  margin-left: -60px;
 }
 
 .barcode-ticket-container {
-  width: 300px;
-  height: 200px;
+  width: 400px;
+  height: 250px;
+  margin-top: 10px;
+  border: 1px black;
 }
 
-.left {
-  float: left;
+.actual-barcode-container {
+  padding-top: 50px;
 }
 
-.right {
-  float: right;
+#info-table > tbody > tr > td {
+  border: 2px black;
+}
+
+.front-indicator {
+  width:30px;
+  text-orientation: sideways;
+  writing-mode:vertical-lr;
+}
+
+.card-info {
+  width: 95%;
+  padding: 3px;
+  border: 1px solid black; //border needs "solid" property - https://www.w3schools.com/css/css_border.asp
+}
+
+#card-info-name {
+  border-bottom: none;
+}
+
+#card-info-top {
+  border-top: none;
 }

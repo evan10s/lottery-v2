@@ -1,18 +1,36 @@
-<div class="row barcode-ticket-container">
-  <div class="medium-10 columns left">
-    <div id="drawing-name">{{ drawing_name }}</div>
-    <div>User Access Card</div>
-    <div>{{ barcode|default:"none"}}</div>
-  </div>
-  <div class="medium-2 columns right">
-    <svg id="barcode-{{ barcode }}" class="barcode">
-    </svg>
+<div class="grid-container grid barcode-ticket-container">
+  <div class="grid-x">
+    <div class="small-8 cell">
+      <div id="drawing-name">{{ drawing_name }}</div>
+      <div>User Access Card</div>
+
+      <br />
+      <br />
+      <div class="card-info" id="card-info-name">Name:</div>
+      <div class="card-info" id="card-info-id">ID: {{ barcode|default:"none"}}</div>
+
+
+    </div>
+
+    <div class="small-1 cell">
+        <div class="front-indicator">
+          <i class="fi-arrow-up"></i>
+          Insert barcode first
+          <i class="fi-arrow-up"></i>
+        </div>
+    </div>
+
+    <div class="cell small-1 actual-barcode-container">
+        <svg id="barcode-{{ barcode }}" class="barcode">
+      </svg>
+    </div>
+
   </div>
 </div>
 <script>
-  JsBarcode("#barcode-{{barcode}}", {{barcode}} , {
+  JsBarcode("#barcode-{{barcode}}", "{barcode}}", {
     format: "CODE128",
-    height: 50,
+    height:100,
     displayValue: false
   });
 </script>

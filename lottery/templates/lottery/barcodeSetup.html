@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/barcodes.css' %}" />
+  <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
+
   <script src="https://cdn.jsdelivr.net/jsbarcode/3.6.0/JsBarcode.all.min.js"></script>
   <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
   <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
@@ -19,13 +21,20 @@
 </head>
 
 <body>
-
-  {% for i in ar %}
-    <div>
-      {% include "./barcode.html" with barcode=i%}
+  <div class="grid-container grid barcode-ticket-container">
+    <div class="grid-x grid-margin-x ">
+      <div class="medium-12 cell">
+        {% for i in ar %}
+        <div>
+          {% include "./barcode.html" with barcode=i%}
+        </div>
+        <br />
+        {% endfor %}
+      </div>
     </div>
-    <br />
-  {% endfor %}
+  </div>
+
+
 </body>
 
 </html>
