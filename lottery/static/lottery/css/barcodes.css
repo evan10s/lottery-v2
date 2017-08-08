@@ -1,23 +1,27 @@
 #drawing-name {
   text-transform: uppercase;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 15px;
+}
+
+body {
+  font-size: 12px;
 }
 
 .barcode {
-  transform: rotate(90deg) !important;
-  margin-left: -60px;
+  vertical-align: middle;
+  margin: 27.375px 0;
 }
 
 .barcode-ticket-container {
-  width: 400px;
-  height: 250px;
-  margin-top: 10px;
-  border: 1px black;
+  width: 300px;
+  height: 135.5px;
+  margin-top: 3.75px;
+  border: 1px black;a
 }
 
-.actual-barcode-container {
-  padding-top: 50px;
+.all-barcodes-container {
+  width: 610px;
 }
 
 #info-table > tbody > tr > td {
@@ -25,7 +29,7 @@
 }
 
 .front-indicator {
-  width:30px;
+  width:22.5px;
   text-orientation: sideways;
   writing-mode:vertical-lr;
 }
@@ -42,4 +46,18 @@
 
 #card-info-top {
   border-top: none;
+}
+
+@media print {
+  .barcode-ticket-container {
+    page-break-inside: avoid;
+  }
+
+  canvas {
+    image-rendering: pixelated; //This makes the QR codes print out not-pixelated, despite what the property value implies.  Found this in this StackOverflow answer: https://stackoverflow.com/a/35064217/5434744
+  }
+
+  .button {
+    display: none;
+  }
 }
