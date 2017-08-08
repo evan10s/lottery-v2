@@ -2,12 +2,12 @@
   <div class="grid-x">
     <div class="small-8 cell">
       <div id="drawing-name">{{ drawing_name }}</div>
-      <div>User Access Card</div>
-
+      <div class="user-access-card">User Access Card</div>
+      {% if admin %}ADMIN{% endif %}
       <br />
       <br />
       <div class="card-info" id="card-info-name">Name:</div>
-      <div class="card-info" id="card-info-id">ID: {{ barcode|default:"none"}}</div>
+      <div class="card-info" id="card-info-id">ID: {{ barcode }}</div>
 
 
     </div>
@@ -20,17 +20,20 @@
         </div>
     </div>
 
-    <div class="cell small-1 actual-barcode-container">
-        <svg id="barcode-{{ barcode }}" class="barcode">
-      </svg>
+    <div class="cell small-3 actual-barcode-container">
+        <canvas id="barcode-{{ barcode }}" class="barcode">
+      </canvas>
     </div>
 
   </div>
 </div>
 <script>
-  JsBarcode("#barcode-{{barcode}}", "{barcode}}", {
-    format: "CODE128",
-    height:100,
-    displayValue: false
-  });
+  (function() {
+    new QRious({
+      element: document.getElementById("barcode-{{barcode}}"),
+      value: "{{barcode}}",
+      size: 75,
+      level: "H"
+    })
+  })();
 </script>
