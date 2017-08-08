@@ -25,7 +25,7 @@ SECRET_KEY = '5g^xt(41+!)+73$fa$5p5rb%l6gfp3e0$fx8dshcly(y6s4p)*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ '192.168.1.183' ]
+ALLOWED_HOSTS = [ '127.0.0.1','192.168.1.183' ]
 LOGIN_URL = '/accounts/login'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition
