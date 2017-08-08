@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^manage$',views.AdminDashboard.as_view(),name="manage"),
     url(r'^manage/(?P<drawing_id>[0-9]+)$',views.LotteryAdmin.as_view(),name="manage_drawing"),
     url(r'^manage/(?P<drawing_id>[0-9]+)/barcodes$',views.generateBarcodeSetup,name="manage_drawing_barcodes"),
+    url(r'^manage/(?P<drawing_id>[0-9]+)/barcodes/generate/r/(?P<num_regular>[0-9]+)/a/(?P<num_admin>[0-9]+)$',views.generateBarcodes,name="manage_drawing_display_generated_barcodes"),
     url(r'^api/manage/results/generate$',views.generateResultsForDrawing,name="generate_results"),
     url(r'^api/manage/results/(?P<drawing_id>[0-9]+)/check$',views.checkIfDrawingHasResults,name="check_for_results"),
     url(r'^api/kiosk/provision$',views.provisionKiosk,name="provision_kiosk"),
