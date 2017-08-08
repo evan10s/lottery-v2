@@ -17,6 +17,7 @@ $(document).ready(function() {
 
   $('#provision-kiosk').on("click", provisionKioskRedirect);
   $('#generate-barcodes').on("click", genBarcodesRedirect);
+
 })
 
 function provisionKioskRedirect() {

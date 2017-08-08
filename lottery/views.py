@@ -9,6 +9,7 @@ from .models import Drawing, Ticket,Number, Results
 from django.contrib.auth.models import User, Group # need to import Group from https://stackoverflow.com/a/6288863/5434744
 import random, string
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count # need to import Count from https://stackoverflow.com/a/6525869/5434744
 # Create your views here.
 class DrawingsView(UserPassesTestMixin,generic.ListView):
     template_name = 'lottery/drawings.html'
@@ -384,7 +385,22 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
         num_regular = min(num_regular,25)
         num_admin = min(num_admin,25)
         codes = []
-        for i in range(num_regular + num_admin):
+
+        #First, see how many unused kiosk user accounts there already
+        existing_reg = User.objects.annotate(ticket_count=Count('ticket')).filter(ticket_count=0, groups__name="kiosk_user") # Getting all users in a group - https://stackoverflow.com/a/39587580/5434744; counting child objects - https://stackoverflow.com/a/6525869/5434744
+        existing_admin = User.objects.filter(groups__name="kiosk_admin",first_name="") # Getting all users in a group - https://stackoverflow.com/a/39587580/5434744
+        print(existing_reg)
+
+        for user in existing_reg:
+            user.first_name = ""
+            user.save()
+            codes.append({ 'barcode':user.username, 'admin':False })
+
+        for user in existing_admin:
+            codes.append({ 'barcode':user.username, 'admin':True })
+
+
+        for i in range(num_regular + num_admin - len(codes)):
             result = id_generator()
             #filter curse words
             while "FUCK" in result or "SHIT" in result or "COCK" in result or "C0CK" in result or "DAMN" in result:
@@ -392,7 +408,7 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
                 result = id_generator()
                 print("retry",result)
             print("using",result)
-            if i < num_regular:
+            if i < num_regular - len(existing_reg):
                 admin = False
             else:
                 admin = True
