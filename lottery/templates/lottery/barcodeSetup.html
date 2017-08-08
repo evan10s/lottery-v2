@@ -8,32 +8,57 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
   <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
-  <link rel="stylesheet" href="{% static 'lottery/css/barcodes.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
 
-  <script src="https://cdn.jsdelivr.net/jsbarcode/3.6.0/JsBarcode.all.min.js"></script>
+</head>
+
+<body>
+  <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+    <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+    <div class="title-bar-title">Lottery</div>
+  </div>
+
+  <div class="top-bar" id="example-menu">
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu>
+        <li class="menu-text">Lottery</li>
+        <li>
+          <a href="{% url 'drawings' %}">Drawings</a></li>
+        </li>
+        {% if user.is_staff %}
+        <li><a href="{% url 'manage' %}">
+          Manage drawings</a></li>
+        <li><a href="/admin">Site admin</a></li>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <li><a href="{% url 'logout' %}">Log out</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+  <div class="grid-container all-barcodes-container">
+    <div class="grid-x grid-margin-x ">
+      <div class="medium-12 cell">
+        <h2>Generate Kiosk Access Cards</h2>
+        <label>How many regular access cards do you need? (Max 25)
+          <input type="number" id="num-regular" value="0">
+        </label>
+        <label>How many admin access cards do you need? (Max 25)
+          <input type="number" id="num-admin" value="0">
+        </label>
+        <label>Just show a preview of the results
+          <input type="checkbox" id="preview-only">
+        </label>
+        <button class="button" id="submit">Generate Cards</button>
+      </div>
+    </div>
+  </div>
   <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
   <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
     $(document).foundation();
   </script>
-
-</head>
-
-<body>
-  <div class="grid-container grid barcode-ticket-container">
-    <div class="grid-x grid-margin-x ">
-      <div class="medium-12 cell">
-        {% for i in ar %}
-        <div>
-          {% include "./barcode.html" with barcode=i%}
-        </div>
-        <br />
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-
+  <script src="{% static "lottery/js/barcodeSetup.js" %}"></script>
 
 </body>
 
