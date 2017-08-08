@@ -3,15 +3,9 @@
 <!doctype HTML>
 <html>
 <head>
-  <style>
-    .log-in-form {
-    border: 1px solid #cacaca;
-    padding: 1rem;
-    border-radius: 0;
-  }
-  </style>
   <title>Manage drawings</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+<link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}" />
 </head>
 <body>
 <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
@@ -81,27 +75,29 @@
         <h5>Eligible tickets</h5>
         <p>Below are all the tickets that are within the date and time range for this drawing.</p>
         <em>Visit "Site admin" to change the drawing start and end time.</em>
-        <table id="ticket-info">
-          <thead>
-            <th>ID</th>
-            <th>User</th>
-            <th>First name</th>
-            <th>Submitted via</th>
-            <th>Numbers</tr>
-          </thead>
-          <tbody>
-            {% for t in tickets%}
-            <tr>
-              <td>{{ t.pk }}</td>
-              <td>{{ t.submitted_by.username }}</td>
-              <td>{{ t.submitted_by.first_name }}</td>
-              <td>{{ t.submit_method }}
-              <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div id="ticket-info-container">
+          <table id="ticket-info">
+            <thead>
+              <th>ID</th>
+              <th>User</th>
+              <th>First name</th>
+              <th>Submitted via</th>
+              <th>Numbers</tr>
+            </thead>
+            <tbody>
+              {% for t in tickets%}
+              <tr>
+                <td>{{ t.pk }}</td>
+                <td>{{ t.submitted_by.username }}</td>
+                <td>{{ t.submitted_by.first_name }}</td>
+                <td>{{ t.submit_method }}
+                <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
+                  </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
   </div>
 </div>
