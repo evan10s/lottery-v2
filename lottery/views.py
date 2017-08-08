@@ -7,7 +7,7 @@ from django import forms
 import json,datetime
 from .models import Drawing, Ticket,Number, Results
 from django.contrib.auth.models import User, Group # need to import Group from https://stackoverflow.com/a/6288863/5434744
-import random
+import random, string
 from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 class DrawingsView(UserPassesTestMixin,generic.ListView):
@@ -362,4 +362,43 @@ def generateBarcodeSetup(request, drawing_id):
         drawing_name = drawing.drawing_name
     except:
         return HttpResponse("404 Not Found")
-    return render(request,"lottery/barcodeSetup.html", context={ 'drawing_name': drawing_name, "ar":["ABC123","4F3A9F","4F4H3G"]})
+    return render(request,"lottery/barcodeSetup.html", context={ 'drawing_name': drawing_name, "ar":[{'b':"ABC123",'a':False },{'b':"4F3A9F",'a':True},{'b':"4F4H3G",'a':False},{'b':"DF8F7J",'a':False}]})
+
+#the id_generator function is from https://stackoverflow.com/a/2257449/5434744
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+def generateBarcodes(request, drawing_id, num_regular, num_admin):
+    if request.user.is_staff:
+        try:
+            drawing = Drawing.objects.get(pk=drawing_id)
+            drawing_name = drawing.drawing_name
+        except:
+            return HttpResponse("404 Not Found")
+        try:
+            num_regular = int(num_regular)
+            num_admin = int(num_admin)
+        except:
+            return HttpResponse("500 Server Error, either the num_regular or num_admin url parameter contains a value that cannot be converted to an int")
+
+        num_regular = min(num_regular,25)
+        num_admin = min(num_admin,25)
+        codes = []
+        for i in range(num_regular + num_admin):
+            result = id_generator()
+            #filter curse words
+            while "FUCK" in result or "SHIT" in result or "COCK" in result or "C0CK" in result or "DAMN" in result:
+                print("bad word",result)
+                result = id_generator()
+                print("retry",result)
+            print("using",result)
+            if i < num_regular:
+                admin = False
+            else:
+                admin = True
+            codes.append({ 'barcode':result, 'admin':admin })
+
+
+        print("codes",codes)
+        return render(request,"lottery/barcodeOutput.html", context={ 'drawing_name': drawing_name,
+        "ar":codes})
