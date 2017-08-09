@@ -53,12 +53,11 @@ h3 {
   width: 100px;
   height: 80px;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
 }
 
 #lottery-nums > tr > td.selected {
-  font-size: 2rem;
-  text-decoration: underline;
+  background-color: #5ca1ce; //this is a shade of the primary color for Foundation 6
 }
 
 #ticket-submit-loading, #lt-submit-btns-container {

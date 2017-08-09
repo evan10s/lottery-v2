@@ -260,7 +260,7 @@ def provisionKiosk(request):
     # For now, just create a new user
     if request.user.is_staff:
         kiosk_id = random.randint(100000,999999) #Generate a random 6-digit key for the kiosk user
-        kiosk_pw = random.randint(10000000000000,99999999999999) #HACK: THIS IS ABSOLUTELY TERRIBLE MAYBE... the kiosk user must have limited permissions: can only add tickets and numbers, cannot touch results, users, groups, or permissions, cannot delete anything
+        kiosk_pw = random.randint(10000000000000,99999999999999)
         user = User.objects.create_user(kiosk_id,"",kiosk_pw)
 
         kiosk_group = Group.objects.get(name="kiosk") #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
@@ -403,15 +403,25 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
         for i in range(num_regular + num_admin - len(codes)):
             result = id_generator()
             #filter curse words
-            while "FUCK" in result or "SHIT" in result or "COCK" in result or "C0CK" in result or "DAMN" in result:
-                print("bad word",result)
+            while User.objects.filter(username=result).count() > 0 or "FUCK" in result or "SHIT" in result or "COCK" in result or "C0CK" in result or "DAMN" in result:
+                print("bad word or username in use",result)
                 result = id_generator()
                 print("retry",result)
             print("using",result)
             if i < num_regular - len(existing_reg):
                 admin = False
+                is_admin_str = "user"
             else:
                 admin = True
+                is_admin_str = "admin"
+            user_id = result
+            user_pw = id_generator(15,"abdegijlmnopqrtuvwxyz0123456789") #Generate a random password for the user.  Some letters are omitted to prevent the password from containing profanity
+            user = User.objects.create_user(user_id,"",user_pw)
+
+
+
+            user_group = Group.objects.get(name="kiosk_%s" % is_admin_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
+            user_group.user_set.add(user)
             codes.append({ 'barcode':result, 'admin':admin })
 
 

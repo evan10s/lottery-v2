@@ -63,15 +63,6 @@ wsb.socket.addEventListener('open', function() {
   wsb.send({
     "msgType": "searchForScanner"
   });
-
-  wsb.send({
-    "msgType": "info",
-    "data": "Scanner connected"
-  });
-  setTimeout(() => wsb.send({
-    "msgType": "data",
-    "barcode": "ABC123"
-  }), 500);
 })
 var animationCycleTime = 1000
 $(document).ready(function() {
@@ -203,8 +194,9 @@ async function submitUsername() {
         username: currentUser
       }
     });
-    if (await submitResult !== "Username saved") {
+    if (await submitResult !== "200 OK") {
       $('#name-submit-error').removeClass("hide");
+      switchScreens("loading", "screen-2", );
     } else {
       switchScreens("loading", "screen-3");
     }
