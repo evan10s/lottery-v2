@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
 from django.views.generic import TemplateView
 from django import forms
 import json,datetime
-from .models import Drawing, Ticket,Number, Results
+from .models import Drawing, Ticket,Number, Results, Answer
 from django.contrib.auth.models import User, Group # need to import Group from https://stackoverflow.com/a/6288863/5434744
 import random, string
 from django.contrib.auth import authenticate, login, logout
@@ -187,6 +187,14 @@ def getTicketsMatchingLottery(request):
 
         return HttpResponse(json.dumps(result),content_type="application/json")
 
+def generate_unique_random_nums(num, a, b):
+	result = []
+	while len(result) < num:
+		x = random.randint(a,b)
+		if x not in result:
+			result.append(x)
+	return result
+
 def generateResultsForDrawing(request):
     if request.method == "POST" and request.user.is_staff:
         try:
@@ -203,7 +211,10 @@ def generateResultsForDrawing(request):
 
         results_users = {}
 
-        drawing_nums = [12,18,24,27]
+        drawing_nums = generate_unique_random_nums(4,1,36)
+        for num in drawing_nums:
+            ans = Answer(assoc_drawing=drawing,value=num)
+            ans.save()
 
         for t in tickets:
             u = t.submitted_by.pk
