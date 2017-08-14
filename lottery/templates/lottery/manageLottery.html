@@ -44,17 +44,6 @@
               <span class="show-for-sr">Enable actions of finality</span>
             </label>
           </div></p>
-          <h4>Get results</h4>
-          <p>Calculating the results for a lottery is final and has no simple "undo."  Don't click the button until you are absolutely ready to end the lottery
-             and see who won.</p>
-          <p>Each user will be given a percent correct based on the number of correct numbers they submitted compared to the total number of numbers they submitted.
-            For this reason, there's no advantage to submitting more or less numbers on a given ticket.  However, if you have an hourly limit for ticket
-          submissions set, users will be able to submit more numbers if they add the maximum number of numbers to each ticket they submit.</p>
-          <p>Users will be displayed from highest to lowest percentage correct.  Disqualified users have their percent correct calculated like any other user,
-             but are sorted to the bottom because their "Disqualify" flag is set to true.</p>
-          <p>To disqualify a user after the fact, go to "Site admin," find the user's results entry, and check the box next to Disqualify.</p>
-
-          <button type="button" disabled="disabled" id="generate-results" class="button large">Processing...</button>
 
           <h4>Kiosks</h4>
           <p>Users submit lottery tickets using kiosks.</p>
@@ -64,10 +53,25 @@
             ask them for their first name the first time they sign in.  You can also print administrator barcodes to authorize
             administrative actions on a kiosk, such as closing it or viewing setup information.</p>
           <p>Click the button below to provision a new kiosk and launch the kiosk on this device.</p>
+          <p><strong>Access kiosks by generating, printing, and cutting out User and Admin Access Cards with the Generate Access Cards button.</strong></p>
           <div class="button-group large expanded">
             <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
-            <button type="button" id="generate-barcodes" class="button large">Generate Access Tickets</button>
+            <button type="button" id="generate-barcodes" class="button large">Generate Access Cards</button>
           </div>
+
+          <h4>Get results</h4>
+          <p>Calculating the results for a lottery is final and has no simple "undo."  Don't click the button until you are absolutely ready to end the lottery
+             and see who won.</p>
+          <p>Each user will be given a percent correct based on the number of correct numbers they submitted compared to the total number of numbers they submitted.
+            Tie-breakers will go to the user who submitted more tickets.  (e.g., 25 correct in 100 is ranked above 1 correct in 4)  For this reason, there's no advantage to submitting more or less numbers on a given ticket.  However, if you have an hourly limit for ticket
+          submissions set, users will be able to submit more numbers if they add the maximum number of numbers to each ticket they submit.</p>
+          <p>Users will be displayed from highest to lowest percentage correct.  Disqualified users have their percent correct calculated like any other user,
+             but are sorted to the bottom because their "Disqualify" flag is set to true.</p>
+          <p>To disqualify a user after the fact, go to "Site admin," find the user's results entry, and check the box next to Disqualify.</p>
+
+          <button type="button" disabled="disabled" id="generate-results" class="button large">Processing...</button>
+
+
 
 
       </div>
