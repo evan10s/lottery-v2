@@ -1,0 +1,24 @@
+{
+  "name": "lotto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evan10s/lottery-v2.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/evan10s/lottery-v2/issues"
+  },
+  "homepage": "https://github.com/evan10s/lottery-v2#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-plugin-syntax-async-generators": "^6.13.0",
+    "babel-preset-env": "^1.6.0"
+  }
+}
