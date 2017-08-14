@@ -4,7 +4,7 @@ $(document).ready(function() {
     type: "GET",
     success: function(data) {
       if (data === "No results") {
-        $('#generate-results').text("End Lottery and Finalize Results").removeAttr('disabled').on('click', generateResults)
+        $('#generate-results').text("End Lottery and Finalize Results").on('click', generateResults)
       } else {
         updateBtnResultsFinalized();
       }
@@ -12,7 +12,12 @@ $(document).ready(function() {
   });
 
   $('#enable-dangerous-actions').on('change', function() {
-    console.log("The check box changed");
+    console.log("The check box changed and the new value is", $(this).val());
+    if ($(this).val() === "on") {
+      $('#generate-results').removeAttr("disabled");
+    } else {
+      $('#generate-results').attr("disabled","disabled");
+    }
   })
 
   $('#provision-kiosk').on("click", provisionKioskRedirect);
