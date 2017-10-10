@@ -394,7 +394,9 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
             return HttpResponse("500 Server Error, either the num_regular or num_admin url parameter contains a value that cannot be converted to an int")
 
         num_regular = min(num_regular,25)
+        num_gen_regular = 0
         num_admin = min(num_admin,25)
+        num_gen_admin = 0
         codes = []
 
         #First, see how many unused kiosk user accounts there already
@@ -403,17 +405,31 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
         print(existing_reg)
 
         for user in existing_reg:
-            user.first_name = ""
-            user.save()
-            codes.append({ 'barcode':user.username, 'admin':False })
+            print(num_gen_regular,num_regular)
+            if num_gen_regular < num_regular:
+                user.first_name = ""
+                user.save()
+                codes.append({ 'barcode':user.username, 'admin':False })
+                num_gen_regular += 1
+            else:
+                print("break reg")
+                break
 
         for user in existing_admin:
-            codes.append({ 'barcode':user.username, 'admin':True })
+            print(num_gen_regular, num_admin)
+            if num_gen_admin < num_admin:
+                codes.append({ 'barcode':user.username, 'admin':True })
+                num_gen_admin += 1
+            else:
+                print("break admin")
+                break
 
 
         for i in range(num_regular + num_admin - len(codes)):
             result = id_generator()
             #filter curse words
+            kiosk_gr_admin_str = "admin"
+            kiosk_gr_user_str = "user"
             while User.objects.filter(username=result).count() > 0 or "FUCK" in result or "SHIT" in result or "COCK" in result or "C0CK" in result or "DAMN" in result:
                 print("bad word or username in use",result)
                 result = id_generator()
@@ -421,21 +437,41 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
             print("using",result)
             if i < num_regular - len(existing_reg):
                 admin = False
-                is_admin_str = "user"
+                is_admin_str = kiosk_gr_user_str
             else:
                 admin = True
-                is_admin_str = "admin"
+                is_admin_str = kiosk_gr_admin_str
             user_id = result
             user_pw = id_generator(15,"abdegijlmnopqrtuvwxyz0123456789") #Generate a random password for the user.  Some letters are omitted to prevent the password from containing profanity
             user = User.objects.create_user(user_id,"",user_pw)
 
 
-
             user_group = Group.objects.get(name="kiosk_%s" % is_admin_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
             user_group.user_set.add(user)
+
+            # Whatever group the user was added to, remove the user from the other group
+            if is_admin_str == kiosk_gr_admin_str:
+                user_gr_remove = Group.objects.get(name="kiosk_%s" % kiosk_gr_user_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
+                user_group.user_set.remove(user)
+            elif is_admin_str == kiosk_gr_user_str:
+                if is_admin_str == kiosk_gr_admin_str:
+                    user_gr_remove = Group.objects.get(name="kiosk_%s" % kiosk_gr_user_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
+                    user_group.user_set.remove(user)
+
             codes.append({ 'barcode':result, 'admin':admin })
 
 
         print("codes",codes)
         return render(request,"lottery/barcodeOutput.html", context={ 'drawing_name': drawing_name,
         "ar":codes})
+
+def getDrawingResults(request, drawing_id):
+    if request.user.is_staff:
+        results = Results.objects.filter(drawing_id=drawing_id)
+
+        results_list = []
+        for r in results:
+            results_list.append({'username':r.for_user.username, 'correct': r.number_correct,
+                                 'possible': r.number_possible,'disqualify': r.disqualify})
+        print(results_list)
+        return HttpResponse(json.dumps(results_list))

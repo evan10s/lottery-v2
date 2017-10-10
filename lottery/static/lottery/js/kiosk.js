@@ -109,6 +109,7 @@ function switchScreens(s1, s2) {
 
 function endSession() {
   switchScreens("screen-3", "screen-1");
+  $("#user-name").val("");
   transactionInProgress = false;
 }
 
