@@ -452,11 +452,11 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
             # Whatever group the user was added to, remove the user from the other group
             if is_admin_str == kiosk_gr_admin_str:
                 user_gr_remove = Group.objects.get(name="kiosk_%s" % kiosk_gr_user_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
-                user_group.user_set.remove(user)
+                user_gr_remove.user_set.remove(user)
             elif is_admin_str == kiosk_gr_user_str:
                 if is_admin_str == kiosk_gr_admin_str:
-                    user_gr_remove = Group.objects.get(name="kiosk_%s" % kiosk_gr_user_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
-                    user_group.user_set.remove(user)
+                    user_gr_remove = Group.objects.get(name="kiosk_%s" % kiosk_gr_admin_str) #this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
+                    user_gr_remove.user_set.remove(user)
 
             codes.append({ 'barcode':result, 'admin':admin })
 
@@ -465,13 +465,20 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
         return render(request,"lottery/barcodeOutput.html", context={ 'drawing_name': drawing_name,
         "ar":codes})
 
+def getPercentCorrect(results_dict):
+    print("comparing correct and possible",results_dict)
+    return results_dict.correct / results_dict.possible
+
 def getDrawingResults(request, drawing_id):
     if request.user.is_staff:
         results = Results.objects.filter(drawing_id=drawing_id)
 
         results_list = []
         for r in results:
-            results_list.append({'username':r.for_user.username, 'correct': r.number_correct,
+            results_list.append({'barcode': r.for_user.username, 'username':r.for_user.first_name, 'correct': r.number_correct,
                                  'possible': r.number_possible,'disqualify': r.disqualify})
+
+        results_list.sort(key=getPercentCorrect)
         print(results_list)
-        return HttpResponse(json.dumps(results_list))
+        return HttpResponse(json.dumps(results_list),content_type="application/json")
+    return HttpResponse("403 Forbidden")
