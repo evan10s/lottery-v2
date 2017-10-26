@@ -48,6 +48,10 @@ body {
   border-top: none;
 }
 
+.highlight {
+    background-color: #fffbcc;
+}
+
 @media print {
   .barcode-ticket-container {
     page-break-inside: avoid;
