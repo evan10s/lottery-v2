@@ -31,7 +31,7 @@ wsb.listen(async function(a, s) {
         }
       } else {
         console.log("Unrecognized barcode")
-        returnToWelcomeWithError("The ticket you just scanned couldn't be validated.  Please see a lottery administrator for more information.");
+        returnToWelcomeWithError("The ticket you just scanned can't be used.  Please see a lottery administrator for more information.");
         transactionInProgress = false;
       }
       // validateBarcode(currentUser).then(function (result) {
@@ -63,6 +63,9 @@ wsb.socket.addEventListener('open', function() {
   wsb.send({
     "msgType": "searchForScanner"
   });
+  // wsb.send({
+  //   "msgType": "searchAcknowledge"
+  // });
 })
 var animationCycleTime = 1000
 $(document).ready(function() {
