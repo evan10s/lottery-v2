@@ -5,6 +5,7 @@ $(document).ready(function() {
     success: function(data) {
       if (data === "No results") {
         $('#generate-results').text("End Lottery and Finalize Results").on('click', generateResults)
+        $("#results-load-status").text("Results not generated")
       } else {
         updateBtnResultsFinalized();
       }
@@ -39,6 +40,7 @@ function genBarcodesRedirect() {
 
 function updateBtnResultsFinalized() {
   $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
+  displayResults();
 }
 
 function generateResults() {
@@ -54,6 +56,53 @@ function generateResults() {
       updateBtnResultsFinalized();
     }
   });
+}
+
+function displayResults() {
+    $.ajax({
+        url: "/api/manage/results/" + drawingId,
+        success: function(data) {
+            console.log(data[0]);
+            showResultsInTable(data);
+        }
+    })
+}
+
+//from MDN - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+function round(number, precision) {
+    let factor = Math.pow(10, precision);
+    let tempNumber = number * factor;
+    let roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
+}
+
+function showResultsInTable(data) {
+    data = data.sort((a,b) =>
+        ((b.disqualify) ? 0 : 1) - ((a.disqualify) ? 0 : 1)
+        || b.correct/b.possible - a.correct/a.possible
+        || b.possible - a.possible);
+    var tableBody = $("#results > tbody");
+    var entry, percentCorrect, dqStatus,
+        dqYes = "Disqualified",
+        dqNo = "",
+        correct,
+        possible;
+    tableBody.empty();
+    for (var i = 0; i < data.length; i++) {
+        entry = data[i];
+        dqStatus = entry.disqualify ? dqYes : dqNo;
+        correct = entry.correct;
+        possible = entry.possible;
+        percentCorrect = round(correct/possible*100,2) + "%";
+        tableBody.append(`<tr>
+            <td>${i + 1}</td>
+            <td>${entry.barcode}</td>
+            <td>${entry.username}</td>
+            <td>${correct}</td>
+            <td>${possible}</td>
+            <td>${percentCorrect}</td>
+            <td>${dqStatus}</td></tr>`);
+    }
 }
 
 //this code block ($.ajaxSetup) allows Django's CSRF protection to work with AJAX requests and is from http://stackoverflow.com/a/5107878
