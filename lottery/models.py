@@ -15,10 +15,22 @@ class Ticket(models.Model):
     submit_method = models.CharField(max_length=200)
     def __str__(self):
         return "#" + str(self.pk) + " - " + str(self.submitted_by) + " - " + str(self.timestamp)
+    class Meta:
+         permissions = (
+            ("view_own_tickets", "Can view own tickets"),
+            ("view_all_tickets", "Can view all tickets"),
+
+            )
 
 class Answer(models.Model):
     assoc_drawing = models.ForeignKey(Drawing,on_delete=models.CASCADE)
     value = models.PositiveIntegerField()
+    def __str__(self):
+        return self.assoc_drawing.drawing_name + ": " + str(self.value)
+    class Meta:
+        permissions = (
+            ("view_answers", "Can view answers"),
+        )
 
 class Number(models.Model):
     assoc_ticket = models.ForeignKey(Ticket,on_delete=models.CASCADE)
@@ -32,5 +44,12 @@ class Results(models.Model):
     number_possible = models.PositiveIntegerField(default=1)
     disqualify = models.BooleanField(default=False) #adding default to boolean field used http://stackoverflow.com/a/8767855
     drawing_id = models.ForeignKey(Drawing,on_delete=models.CASCADE)
+    class Meta:
+        verbose_name_plural = "results" # from https://stackoverflow.com/a/2587829
+        permissions = (
+            ("view_own_results", "Can view own results"),
+            ("view_all_results", "Can view all results"),
+            ("disqualify_results", "Can disqualify results from a drawing"),
+        )
     def __str__(self):
         return str(self.drawing_id) + " - " + str(self.for_user)
