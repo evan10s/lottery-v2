@@ -1,6 +1,7 @@
 var wsb = new channels.WebSocketBridge();
 var currentUser;
 var transactionInProgress = false;
+var kioskClosed = false;
 
 wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
 wsb.listen(async function(a, s) {
@@ -13,48 +14,41 @@ wsb.listen(async function(a, s) {
     if (a.msgType === "info") {
       switchScreens("setup", "screen-1");
     } else if (a.msgType === "data") {
-      currentUser = a.barcode;
-      transactionInProgress = true;
-      switchScreens("screen-1", "loading");
-
-      if (await validateBarcode(currentUser)) {
-        clearErrorMessage();
-        if (await hasUsername(currentUser)) {
-          resetTicketScreen();
-          updateTicketsTable(await getRecentTickets(currentUser));
-          console.log("got recent tickets");
-          switchScreens("loading", "screen-3");
-
-        } else {
-
-          switchScreens("loading", "screen-2");
+            currentUser = a.barcode;
+            if (kioskClosed) {
+                console.log("active for closed");
+                $('#loading').fadeIn();
+            } else {
+                switchScreens("screen-1", "loading");
+                transactionInProgress = true; //transaction can't be in progress if kiosk is closed
+            }
+            if (await validateBarcode(currentUser)) {
+                clearErrorMessage();
+                console.log("inside validateBarcode, kioskClosed is",kioskClosed);
+                if (await isAdmin(currentUser)) {
+                    console.log("admin");
+                    switchScreens("loading","admin");
+                } else if (await hasUsername(currentUser) && !kioskClosed) {
+                    console.log("closed",kioskClosed)
+                    resetTicketScreen();
+                    updateTicketsTable(await getRecentTickets(currentUser));
+                    console.log("got recent tickets");
+                    switchScreens("loading", "screen-3");
+                } else if (!kioskClosed) {
+                    switchScreens("loading", "screen-2");
+                } else {
+                    switchScreens("loading","closed");
+                }
+            } else if (!kioskClosed) {
+                console.log("closed",kioskClosed);
+                console.log("Unrecognized barcode")
+                returnToWelcomeWithError("The ticket you just scanned can't be used.  Please see a lottery administrator for more information.");
+                transactionInProgress = false;
+            }
+        } else if (a.msgType === "searchAcknowledge") {
+          console.log("Scanner search was acknowledged", a);
+          switchScreens("setup", "screen-1");
         }
-      } else {
-        console.log("Unrecognized barcode")
-        returnToWelcomeWithError("The ticket you just scanned can't be used.  Please see a lottery administrator for more information.");
-        transactionInProgress = false;
-      }
-      // validateBarcode(currentUser).then(function (result) {
-      //   console.log(result);
-      //   if (result) {
-      //     console.log("inside true");
-      //     return hasUsername(currentUser);
-      //   } else {
-      //     console.log("inside false");
-      //     Promise.reject("User DNE");
-      //   }
-      // }, returnToWelcomeWithError("That barcode isn't in this system")).then(function (result) {
-      //   if (result) {
-      //     switchScreens("loading","screen-3");
-      //   } else {
-      //     switchScreens("loading","screen-2");
-      //   }
-      // }).catch(function() { console.log("Caught an error"); });
-
-    } else if (a.msgType === "searchAcknowledge") {
-      console.log("Scanner search was acknowledged", a);
-      switchScreens("setup", "screen-1");
-    }
   }
 })
 
@@ -69,7 +63,7 @@ wsb.socket.addEventListener('open', function() {
 })
 var animationCycleTime = 1000
 $(document).ready(function() {
-  $('#screen-1,#screen-2,#screen-3,#loading').hide();
+  $('#screen-1,#screen-2,#screen-3,#loading,#closed,#admin').hide();
   $('#server-address').text(window.location.host);
   $('#kiosk-id').text(kiosk_id);
   setInterval(fadeArrowsOut, 2 * animationCycleTime);
@@ -206,6 +200,31 @@ async function submitUsername() {
     }
 
   }
+}
+
+function closeKiosk() {
+    $('#screen-1,#screen-2,#screen-3,#loading,#admin').fadeOut();
+    kioskClosed = true;
+    $("#closed").fadeIn();
+}
+
+function openKiosk() {
+    $('#screen-1,#screen-2,#screen-3,#loading,#admin,#closed').fadeOut();
+    kioskClosed = false;
+    $("#screen-1").fadeIn();
+}
+
+async function isAdmin(barcode) {
+    var result = $.ajax({
+      url: "/api/kiosk/checkAdmin/" + barcode,
+      method: "GET",
+    });
+
+    console.log("Result of isAdmin:", await result);
+    var resultObj = await result;
+    console.log(resultObj);
+    console.log(resultObj.is_admin);
+    return await resultObj.is_admin;
 }
 
 async function validateBarcode(barcode) {

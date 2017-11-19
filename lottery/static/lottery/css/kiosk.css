@@ -2,6 +2,11 @@
   font-size: 19rem;
 }
 
+.closed-icon {
+  font-size: 19rem;
+  line-height: 200px;
+}
+
 h1 {
   text-align: center;
   font-size: 10rem;

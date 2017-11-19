@@ -8,6 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kiosk</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css" integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
+  <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}" />
   <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}" />
 </head>
@@ -16,9 +18,8 @@
   <div id="setup">
     <div class="row">
       <div class="small-6 small-offset-3 center">
-        <h3>Just one more thing...</h3>
-        <h4>Please open the Lotto Barcode Scanner on another device</h4>
-        <h4>and enter the following details</h4>
+        <h3>Waiting for barcode scanner...</h3>
+        <h4>Please open the Lotto Barcode Scanner app on another device and enter the following details</h4>
         <h2><strong>Server address: </strong><span id="server-address"></span><br />
               <strong>Kiosk ID: </strong><span id="kiosk-id"></span>
           </h2>
@@ -29,6 +30,7 @@
   <div id="screen-1">
     <div class="row">
       <div class="large-12 columns">
+        <h3 id="lottery-name">THANKSGIVING LOTTERY</h3>
         <h1>Welcome</h1>
       </div>
     </div>
@@ -73,6 +75,13 @@
           <button id="continue" type="button" class="button large">Continue</button>
         </div>
       </div>
+      <div class="row">
+          <div class="center medium-6 medium-offset-3">
+              <p>
+                  By pressing Continue, you are agreeing to the Lottery <a href="#" data-open="tos">Terms of Service</a>, <a href="#" data-open="privacy-policy">Privacy Policy</a>, and <a href="#" data-open="prog-policies">Program Policies</a>.
+              </p>
+          </div>
+      </div>
     </div>
   </div>
 
@@ -113,8 +122,132 @@
 
     </div>
   </div>
+  <div id="closed">
+      <div class="row">
+          <div class="large-2 large-offset-5 columns">
+            <i class="center closed-icon fi-x-circle"></i>
+          </div>
+        <div class="large-12 columns">
+          <h1>Closed</h1>
+          <div class="alert callout small center">
+            <p>This kiosk is closed and cannot be used to submit tickets at this time.  Please contact a Lottery Administrator for assistance.</p>
+            <em>Scan an admin barcode for additional options.</em>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div id="admin">
+      <div class="row">
+        <div class="large-12 columns">
+          <h4>Admin</h4>
+          <h5>Reason for kiosk closure</h5>
+          <p>
+              Manually closed
+          </p>
+          <div class="button-group large expanded">
+            <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
+            <button type="button" id="generate-barcodes" class="button large">Generate Access Cards</button>
+          </div>
+        </div>
 
+      </div>
+  </div>
 
+  <div class="reveal" id="tos" data-reveal>
+    <h2 id="modalTitle">Terms of Service</h2>
+    <p>
+        By signing up for and participating in the Thanksgiving Lottery, you agree to abide by the Program Policies and indicate that you have read and understood the Privacy Policy.
+    </p>
+    <p>
+        As a Participant in the Thanksgiving Lottery, you agree to not do anything of the following prohibited actions:
+
+        <ul>
+            <li>
+                    Attempt to submit tickets using a programmatic interface (no GUI) in rapid succession
+                </li>
+                <li>
+                    Attempt to circumvent any limits put in place by the system, including, but not limited to: maximum number of numbers that can be chosen on a ticket, range of numbers allowed to be chosen, maximum number of tickets allowed to be submitted in a certain time period
+                </li>
+                <li>
+                    Attempt to modify results once they have been generated
+                </li>
+                <li>
+                    Attempt to modify or delete a ticket after the ticket has been saved to the database
+                </li>
+                <li>
+                    Access an administrator account without authorization
+                </li>
+            </ul>
+        </p>
+        <p>
+            Violation of any of the above policies may result in sanctions against your participation in the Lottery.
+        </p>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+  </div>
+
+  <div class="reveal" id="privacy-policy" data-reveal>
+    <h2 id="modalTitle">Privacy Policy</h2>
+    <p>
+        The Thankgiving Lottery seeks to protect the privacy of your information.  Personal information collected includes:
+        <ul>
+            <li>
+                Your first name
+            </li>
+        </ul>
+    </p>
+    <p>
+        You agree that we may share your first name in the results of this Lottery.  Your personal information will not be shared with advertisers.
+    </p>
+    <p>
+        We may use online analytics tools to understand how you use the Lottery interfaces.  These tools may place cookies in your browser and record information about your general location and your device, including its operating system and your browser.
+    </p>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="reveal" id="prog-policies" data-reveal>
+    <h2 id="modalTitle">Program Policies</h2>
+    <ul>
+        <li>
+            Participants in the Lottery may only use one access card to submit tickets using a Kiosk.  Once the ticket is scanned and the Participant has entered his/her name, they may not submit any lottery numbers with another access card that is not their own.
+        </li>
+        <li>
+            The usage of unsanctioned automated number entry methods is strictly prohibited.  Lottery-provided Kiosks are exempted from this rule.  Violations of this rule may be detected and responded to using manual and/or automated means.  All violations determined to be intentional will result in disqualification from the Lottery; other violations may also result in disqualification from the Lottery.
+        </li>
+        <li>
+            Once a Ticket is submitted, it cannot be modified or changed.
+        </li>
+        <li>
+            Lottery results are determined using an automated process once the Lottery has ended.  To be counted during the scoring process, tickets must be submitted during the ticket submission window set by the Lottery Administrator(s).  The final ranking will be determined using the following criteria:
+            <ol>
+                <li>
+                    Not disqualified
+                </li>
+                <li>
+                    Percentage of correct numbers submitted vs. total numbers submitted
+                </li>
+                <li>
+                    Total numbers submitted
+                </li>
+            </ol>
+        </li>
+        <li>
+            Once results are determined to be accurate at the discretion of the Lottery Administrators, they are final and may not be contested.
+        </li>
+        <li>
+            The Lottery Administrators reserve the right to disqualify any Participant determined to be in violation of the spirit of the Lottery Terms of Service or Program Policies.
+        </li>
+        <li>
+            Participation in the Lottery is wholly voluntary.  Winning is based solely on chance; the odds of selecting a correct number are 1:9 for the submission of one Ticket with 4 numbers selected.
+        </li>
+    </ul>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 
   <script src="{% static 'lottery/js/vendor/jquery.js' %}"></script>
   <script src="{% static 'lottery/js/vendor/what-input.js' %}"></script>
