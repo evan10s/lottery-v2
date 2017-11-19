@@ -211,7 +211,8 @@ def generateResultsForDrawing(request):
 
         results_users = {}
 
-        drawing_nums = generate_unique_random_nums(4,1,36)
+        drawing_nums = generate_unique_random_nums(2,1,36)
+        MAX_NUMS_PER_TICKET = 4
         for num in drawing_nums:
             ans = Answer(assoc_drawing=drawing,value=num)
             ans.save()
@@ -230,15 +231,15 @@ def generateResultsForDrawing(request):
                 results_users[u] = {
                     'id': u,
                     'name': u_name,
-                    'num_correct': num_correct,
-                    'number_possible': len(drawing_nums),
+                    'num_correct': num_correct*2,
+                    'number_possible': MAX_NUMS_PER_TICKET,
                     'dq':False
                 }
             else:
                 current_num_correct = current_user_obj.get('num_correct')
                 current_num_possible = current_user_obj.get('number_possible')
-                results_users[u]['num_correct'] = current_num_correct + num_correct
-                results_users[u]['number_possible'] = current_num_possible + len(drawing_nums)
+                results_users[u]['num_correct'] = current_num_correct + num_correct*2
+                results_users[u]['number_possible'] = current_num_possible +  MAX_NUMS_PER_TICKET
 
                 print(current_num_correct,current_num_possible)
             print(results_users[u])
@@ -467,7 +468,13 @@ def generateBarcodes(request, drawing_id, num_regular, num_admin):
 
 def getPercentCorrect(results_dict):
     print("comparing correct and possible",results_dict)
-    return results_dict.correct / results_dict.possible
+    return results_dict['correct'] / results_dict['possible']
+
+def isDisqualified(results_dict):
+    if results_dict['disqualify'] == True:
+        return 1
+    else:
+        return 0
 
 def getDrawingResults(request, drawing_id):
     if request.user.is_staff:
@@ -478,7 +485,26 @@ def getDrawingResults(request, drawing_id):
             results_list.append({'barcode': r.for_user.username, 'username':r.for_user.first_name, 'correct': r.number_correct,
                                  'possible': r.number_possible,'disqualify': r.disqualify})
 
-        results_list.sort(key=getPercentCorrect)
+        results_list.sort(key=getPercentCorrect, reverse=True)
+        results_list.sort(key=isDisqualified)
         print(results_list)
         return HttpResponse(json.dumps(results_list),content_type="application/json")
     return HttpResponse("403 Forbidden")
+
+def checkBarcodeAdmin(request, barcode):
+    if request.method == "GET" and userIsKiosk(request.user):
+        found_users = User.objects.filter(username=barcode)
+        if len(found_users) == 1:
+            user = found_users[0]
+            if user.groups.filter(name="kiosk_admin").count() >= 1:
+
+                is_admin = True
+            else:
+                is_admin = False
+            return HttpResponse(json.dumps({ 'barcode': barcode, 'is_admin':is_admin}),content_type="application/json")
+        print("Couldn't find single user to validate admin status for; number of users found: " + str(len(found_users)))
+        return HttpResponse("500 Server Error")
+    return HttpResponse("403 Forbidden")
+
+def generateScoreReports(request, drawing_id):
+    return render(request,"lottery/score_report.html")
