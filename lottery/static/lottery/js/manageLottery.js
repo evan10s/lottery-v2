@@ -5,7 +5,8 @@ $(document).ready(function() {
     success: function(data) {
       if (data === "No results") {
         $('#generate-results').text("End Lottery and Finalize Results").on('click', generateResults)
-        $("#results-load-status").text("Results not generated")
+        $("#results-load-status").text("Results not generated");
+        console.log("made it past");
       } else {
         updateBtnResultsFinalized();
       }
@@ -77,10 +78,10 @@ function round(number, precision) {
 }
 
 function showResultsInTable(data) {
-    data = data.sort((a,b) =>
-        ((b.disqualify) ? 0 : 1) - ((a.disqualify) ? 0 : 1)
-        || b.correct/b.possible - a.correct/a.possible
-        || b.possible - a.possible);
+    // data = data.sort((a,b) =>
+    //     ((b.disqualify) ? 0 : 1) - ((a.disqualify) ? 0 : 1)
+    //     || b.correct/b.possible - a.correct/a.possible
+    //     || b.possible - a.possible);
     var tableBody = $("#results > tbody");
     var entry, percentCorrect, dqStatus,
         dqYes = "Disqualified",
