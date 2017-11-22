@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class NumberInline(admin.TabularInline):
     model = Number
-    extra = 0
+    extra = 4
 
 
 class TicketInline(admin.TabularInline):
@@ -20,7 +20,7 @@ class UserInline(admin.TabularInline):
     model = User
 
 class TicketAdmin(admin.ModelAdmin):
-    fields = ['submitted_by','timestamp']
+    fields = ['submitted_by','timestamp','submit_method']
     inlines = [NumberInline]
 
 

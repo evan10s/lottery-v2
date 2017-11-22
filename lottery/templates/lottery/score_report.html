@@ -1,0 +1,66 @@
+{% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% load static %}
+<!doctype HTML>
+<html>
+<head>
+  <title>Score Report</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+<link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
+<link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
+<link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}" />
+<link rel="stylesheet" href="{% static 'lottery/css/indivReport.css' %}" />
+
+</head>
+<body>
+
+
+<div class="grid-container grid align-center">
+    <div class="grid-x grid-margin-x">
+      <div class="medium-6 cell">
+          <h3>Individual Score Reports</h3>
+
+
+          {% for user in data %}
+            <h3>{{ name }}</h3>
+            <h4>Individual Score Report - {{ user.username }} ({{ user.barcode}})</h4>
+            Points earned for correct numbers: {{ user.points_earned }} <br />
+            # of numbers submitted: {{ user.points_possible }} <br />
+            <strong>Score: {{ user.percent }}% (rank {{ user.rank }} of {{ rank_possible }})</strong><br />
+            <em>Correct numbers are <strong>bold and green</strong>.</em>
+
+            <table id="results">
+              <thead>
+                  <th>ID</th>
+                  <th>Numbers</th>
+                  <th>Submission method</th>
+              </thead>
+              <tbody>
+                  {% for t in user.tickets %}
+                  <tr>
+                      <td>{{ t.id }}</td>
+                      <td>{{ t.numbers }}</td>
+                      <td>{{ t.method }}</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+
+            {% include "./sr_ticket.html" %}
+
+            <p>
+                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong>.
+            </p>
+
+          {% endfor %}
+
+
+      </div>
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="{% static "lottery/js/scoreReports.js" %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
+  $(document).foundation();
+</script>
+</body>
+</html>

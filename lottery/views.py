@@ -507,4 +507,64 @@ def checkBarcodeAdmin(request, barcode):
     return HttpResponse("403 Forbidden")
 
 def generateScoreReports(request, drawing_id):
-    return render(request,"lottery/score_report.html")
+    return render(request,"lottery/score_report.html",context={
+    'answers': [23, 35],
+    'name': 'Thanksgiving Lottery',
+    'start_date': 'Nov 12, 2017 5:00 PM',
+    'end_date': 'Nov 12, 2017 10:00 PM',
+    'rank_possible': 6,
+    'data': [
+        {
+            'username': 'Cliff',
+            'barcode': '7GH3SF',
+            'tickets': [
+                {
+                    'id': 55,
+                    'numbers': '12, 14, 15, 16',
+                    'method': 'Kiosk'
+                },
+                {
+                    'id': 59,
+                    'numbers': '21, 24, 25, 26',
+                    'method': 'Kiosk'
+                },
+                {
+                    'id': 78,
+                    'numbers': '32, 34, 35, 36',
+                    'method': 'Kiosk'
+                }
+            ],
+            'points_earned': 27,
+            'points_possible': 54,
+            'percent': 27/54*100,
+            'rank': 3
+        },
+        {
+            'username': 'Randy',
+            'barcode': 'G7JK34',
+            'tickets': [
+                {
+                    'id': 42,
+                    'numbers': '17, 23, 25, 36',
+                    'method': 'Kiosk'
+                },
+                {
+                    'id': 43,
+                    'numbers': '22, 24, 26, 28',
+                    'method': 'Kiosk'
+                },
+                {
+                    'id': 44,
+                    'numbers': '18, 20, 21, 23',
+                    'method': 'Kiosk'
+                }
+
+            ],
+            'points_earned': 18,
+            'points_possible': 27,
+            'percent': 33.33,
+            'rank': 4
+        }
+    ],
+
+    })

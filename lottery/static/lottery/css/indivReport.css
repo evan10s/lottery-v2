@@ -1,0 +1,52 @@
+.ticket {
+    border: solid black 1px;
+    border-radius: 6px;
+    width: 200px;
+    height: 57px;
+}
+
+.ticket-id {
+    width: 90px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: inline-block;
+
+}
+
+.ticket-id-desc {
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.ticket-id-num {
+    text-align: center;
+}
+
+.correct {
+    font-weight: bold;
+    color: green;
+}
+
+.ticket-numbers {
+    display: inline-block;
+    width: 50px;
+}
+
+.top-row, .bottom-row {
+    text-align: center;
+}
+
+.ticket-score {
+    display: inline-block;
+    border-left: solid 1px black;
+    width: 45px;
+    padding-left: 5px;
+    height: 57px;
+    vertical-align: top;
+}
+
+.ticket-score > div {
+    margin-top: 16.5px;
+    margin-bottom: 16.5px;
+    text-align: center;
+}
