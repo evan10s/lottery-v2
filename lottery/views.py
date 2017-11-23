@@ -91,7 +91,7 @@ def create_ticket(request, username):
                                                     timestamp__gte=one_hour_ago));
 
         print("num_tickets_last_hr =",str(num_tickets_last_hr))
-        if num_tickets_last_hr > 30:
+        if num_tickets_last_hr > 100:
             return HttpResponse(json.dumps({ 'state':'error','error_short_desc':"TICKET_RATE_LIMIT_EXCEEDED",'status': "You've submitted too many tickets in the last hour.  Please wait 60 minutes before submitting more tickets." }),content_type="application/json");
 
 
@@ -157,8 +157,8 @@ def getTicketsMatchingLottery(request):
         #print(str(drawing_id));
         #print(str(start_time))
         tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date,timestamp__lte=drawing.end_date)
-        print(len(tickets))
-        print(tickets[36].number_set.all()[0].value)
+        #print(len(tickets))
+        #print(tickets[36].number_set.all()[0].value)
 
         """
         {
@@ -183,7 +183,7 @@ def getTicketsMatchingLottery(request):
                 'numbers': [ n.value for n in t.number_set.all() ]
             })
 
-        print(result)
+        #print(result)
 
         return HttpResponse(json.dumps(result),content_type="application/json")
 
@@ -507,64 +507,279 @@ def checkBarcodeAdmin(request, barcode):
     return HttpResponse("403 Forbidden")
 
 def generateScoreReports(request, drawing_id):
-    return render(request,"lottery/score_report.html",context={
-    'answers': [23, 35],
-    'name': 'Thanksgiving Lottery',
-    'start_date': 'Nov 12, 2017 5:00 PM',
-    'end_date': 'Nov 12, 2017 10:00 PM',
-    'rank_possible': 6,
-    'data': [
-        {
-            'username': 'Cliff',
-            'barcode': '7GH3SF',
-            'tickets': [
-                {
-                    'id': 55,
-                    'numbers': '12, 14, 15, 16',
-                    'method': 'Kiosk'
-                },
-                {
-                    'id': 59,
-                    'numbers': '21, 24, 25, 26',
-                    'method': 'Kiosk'
-                },
-                {
-                    'id': 78,
-                    'numbers': '32, 34, 35, 36',
-                    'method': 'Kiosk'
-                }
-            ],
-            'points_earned': 27,
-            'points_possible': 54,
-            'percent': 27/54*100,
-            'rank': 3
-        },
-        {
-            'username': 'Randy',
-            'barcode': 'G7JK34',
-            'tickets': [
-                {
-                    'id': 42,
-                    'numbers': '17, 23, 25, 36',
-                    'method': 'Kiosk'
-                },
-                {
-                    'id': 43,
-                    'numbers': '22, 24, 26, 28',
-                    'method': 'Kiosk'
-                },
-                {
-                    'id': 44,
-                    'numbers': '18, 20, 21, 23',
-                    'method': 'Kiosk'
-                }
+    if request.method == "GET" and request.user.is_staff:
 
-            ],
-            'points_earned': 18,
-            'points_possible': 27,
-            'percent': 33.33,
-            'rank': 4
+
+        lottery = Drawing.objects.get(pk=drawing_id)
+        lottery_name = lottery.drawing_name
+        start_date = lottery.start_date
+        end_date = lottery.end_date
+        answers = lottery.answer_set.all()
+        answers_nums = []
+        for a in answers:
+            answers_nums.append(a.value)
+        print(lottery)
+        print(answers)
+        print(start_date)
+        print(end_date)
+        results = Results.objects.filter(drawing_id=drawing_id)
+        print(results)
+        ranks_possible = len(results)
+        print(results)
+        print(ranks_possible)
+
+        result = {
+            'answers': answers_nums,
+            'name': lottery_name,
+            'start_date': start_date,
+            'end_date': end_date,
+            'rank_possible': ranks_possible,
+            'data': []
         }
-    ],
 
-    })
+        for r in results:
+            to_add = {
+                'username': r.for_user.first_name,
+                'barcode': r.for_user.username,
+                'tickets': [],
+                'points_earned': r.number_correct,
+                'points_possible': r.number_possible,
+                'percent': r.number_correct / r.number_possible*100,
+                'rank': 0
+            }
+            user_tickets = Ticket.objects.filter(timestamp__gte=start_date,
+            timestamp__lte=end_date, submitted_by=r.for_user)
+
+
+            for t in user_tickets:
+                ticket = {
+                    'numbers': []
+                }
+                points = 0
+                for n in t.number_set.all():
+                    num = n.value
+                    correct = num in answers_nums
+                    if correct:
+                        points += 2
+                    ticket['numbers'].append({
+                        'number':num,
+                        'correct': num in answers_nums
+                    })
+
+                ticket['points'] = points
+                to_add['tickets'].append(ticket)
+
+            result['data'].append(to_add)
+
+        print(result)
+        return render(request,"lottery/score_report.html",context=result)
+        """{
+        'answers': answers,
+        'name': lottery_name,
+        'start_date': start_date,
+        'end_date': end_date,
+        'rank_possible': ranks_possible,
+        'data': [
+            {
+                'username': 'Cliff',
+                'barcode': '7GH3SF',
+                'tickets': [
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 19,
+                            'correct': False
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 2,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 11,
+                            'correct': False
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 19,
+                            'correct': False
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 0,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    },
+                    {
+                        'id': 55,
+                        'numbers': [{
+                            'number': 12,
+                            'correct': True
+                        },
+                        {
+                            'number': 15,
+                            'correct': False
+                        },
+                        {
+                            'number': 18,
+                            'correct': True
+                        },
+                        {
+                            'number': 28,
+                            'correct': False
+                        }],
+                        'points': 4,
+                        'method': 'Kiosk'
+                    }
+                ],
+                'points_earned': 27,
+                'points_possible': 54,
+                'percent': 27/54*100,
+                'rank': 3
+            }],
+
+        }
+        """
+    return HttpResponse("403 Forbidden")

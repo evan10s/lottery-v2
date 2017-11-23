@@ -16,39 +16,29 @@
 
 <div class="grid-container grid align-center">
     <div class="grid-x grid-margin-x">
-      <div class="medium-6 cell">
-          <h3>Individual Score Reports</h3>
+      <div class="medium-8 cell">
+          <h3>Score Sheets</h3>
 
 
           {% for user in data %}
             <h3>{{ name }}</h3>
-            <h4>Individual Score Report - {{ user.username }} ({{ user.barcode}})</h4>
+            <h4>Score Sheet - {{ user.username }} ({{ user.barcode}})</h4>
             Points earned for correct numbers: {{ user.points_earned }} <br />
             # of numbers submitted: {{ user.points_possible }} <br />
-            <strong>Score: {{ user.percent }}% (rank {{ user.rank }} of {{ rank_possible }})</strong><br />
-            <em>Correct numbers are <strong>bold and green</strong>.</em>
-
-            <table id="results">
-              <thead>
-                  <th>ID</th>
-                  <th>Numbers</th>
-                  <th>Submission method</th>
-              </thead>
-              <tbody>
-                  {% for t in user.tickets %}
-                  <tr>
-                      <td>{{ t.id }}</td>
-                      <td>{{ t.numbers }}</td>
-                      <td>{{ t.method }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-            </table>
-
-            {% include "./sr_ticket.html" %}
+            <strong>Score: {{ user.percent|floatformat }}% (rank {{ user.rank }} of {{ rank_possible }})</strong><br />
 
             <p>
-                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong>.
+                The winning numbers are {{ answers }}.
+            </p>
+            <em>Correct numbers are <span class="correct">bold and green</span>.</em>
+
+            <div class="ticket-list-container">
+                {% for t in user.tickets %}
+                    {% include "./sr_ticket.html" with ticket_id=forloop.counter numbers=t.numbers points=t.points %}
+                {% endfor %}
+            </div>
+            <p>
+                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong>
             </p>
 
           {% endfor %}

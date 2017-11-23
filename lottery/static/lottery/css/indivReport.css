@@ -1,8 +1,18 @@
+.ticket-list-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
 .ticket {
     border: solid black 1px;
     border-radius: 6px;
-    width: 200px;
+    width: 220px;
     height: 57px;
+    margin: auto;
+    margin-bottom: 20px;
 }
 
 .ticket-id {
@@ -29,7 +39,10 @@
 
 .ticket-numbers {
     display: inline-block;
-    width: 50px;
+    width: 55px;
+    font-size: 1.1rem;
+    border-left: solid 1px black;
+    padding-left: 2px;
 }
 
 .top-row, .bottom-row {
@@ -39,14 +52,14 @@
 .ticket-score {
     display: inline-block;
     border-left: solid 1px black;
-    width: 45px;
+    width: 60px;
     padding-left: 5px;
     height: 57px;
     vertical-align: top;
 }
 
 .ticket-score > div {
-    margin-top: 16.5px;
-    margin-bottom: 16.5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
     text-align: center;
 }
