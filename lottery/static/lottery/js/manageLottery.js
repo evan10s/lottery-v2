@@ -4,7 +4,7 @@ $(document).ready(function() {
     type: "GET",
     success: function(data) {
       if (data === "No results") {
-        $('#generate-results').text("End Lottery and Finalize Results").on('click', generateResults)
+        $('#generate-results').text("End Lottery and Finalize Results").on('click', confirmCustomAnswers);
         $("#results-load-status").text("Results not generated");
         console.log("made it past");
       } else {
@@ -24,8 +24,40 @@ $(document).ready(function() {
 
   $('#provision-kiosk').on("click", provisionKioskRedirect);
   $('#generate-barcodes').on("click", genBarcodesRedirect);
+  $('#submit-custom-answers').on("click",genResultsWithAnswers);
 
 })
+
+function confirmCustomAnswers() {
+    $('#choose-ans').foundation('open');
+}
+
+function genResultsWithAnswers() {
+    $('#submit-custom-answers').attr("disabled","disabled")
+                               .text("Processing...")
+                               .off();
+
+    let ans1 = $('#ans-1').val(),
+        ans2 = $('#ans-2').val();
+
+    console.log("ans1:", ans1);
+    console.log("ans2:", ans2);
+
+    $.ajax({
+      url: "/api/manage/results/generate",
+      type: "POST",
+      data: {
+        'drawing_id': drawingId,
+        'answer_1': ans1,
+        'answer_2': ans2
+      },
+      success: function(data) {
+        console.log(data);
+        $('#choose-ans').foundation('close');
+        updateBtnResultsFinalized();
+      }
+    });
+}
 
 function provisionKioskRedirect() {
   window.location = "/api/kiosk/provision";
@@ -40,6 +72,7 @@ function genBarcodesRedirect() {
 }
 
 function updateBtnResultsFinalized() {
+    console.log("in updateBtnResultsFinalized");
   $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
   displayResults();
 }
