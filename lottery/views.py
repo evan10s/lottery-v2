@@ -10,6 +10,8 @@ from django.contrib.auth.models import User, Group # need to import Group from h
 import random, string
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count # need to import Count from https://stackoverflow.com/a/6525869/5434744
+from operator import itemgetter
+
 # Create your views here.
 class DrawingsView(UserPassesTestMixin,generic.ListView):
     template_name = 'lottery/drawings.html'
@@ -206,17 +208,34 @@ def generateResultsForDrawing(request):
         if existing_results > 0:
             return HttpResponse("Results already made")
 
+        try:
+            drawing_nums = [int(request.POST['answer_1']),
+                       int(request.POST['answer_2'])]
+            drawing_nums = list(set(drawing_nums))
+
+            answers_provided = True
+        except:
+            print("Answers not provided; generating")
+            answers_provided = False
+
         drawing = Drawing.objects.filter(pk=drawing_id)[0]
         tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date,timestamp__lte=drawing.end_date)
 
         results_users = {}
 
-        drawing_nums = generate_unique_random_nums(2,1,36)
-        MAX_NUMS_PER_TICKET = 4
+        if not answers_provided:
+            print("Generating answers")
+            drawing_nums = generate_unique_random_nums(2,1,36)
+            while abs(drawing_nums[0] - drawing_nums[1]) <= 3:
+                print("Generated numbers for answers are too close; trying again")
+                drawing_nums = generate_unique_random_nums(2,1,36)
+
+
         for num in drawing_nums:
             ans = Answer(assoc_drawing=drawing,value=num)
             ans.save()
 
+        MAX_NUMS_PER_TICKET = 4
         for t in tickets:
             u = t.submitted_by.pk
             u_name = t.submitted_by.username
@@ -482,11 +501,16 @@ def getDrawingResults(request, drawing_id):
 
         results_list = []
         for r in results:
-            results_list.append({'barcode': r.for_user.username, 'username':r.for_user.first_name, 'correct': r.number_correct,
-                                 'possible': r.number_possible,'disqualify': r.disqualify})
+            results_list.append({
+            'barcode': r.for_user.username, 'username':r.for_user.first_name,
+            'correct': r.number_correct,
+            'possible': r.number_possible,
+            'percent': r.number_correct / r.number_possible * 100,
+            'disqualify': r.disqualify,
+            'not_disqualified': not r.disqualify
+            })
 
-        results_list.sort(key=getPercentCorrect, reverse=True)
-        results_list.sort(key=isDisqualified)
+        results_list.sort(key=itemgetter('not_disqualified','percent','possible'),reverse=True)
         print(results_list)
         return HttpResponse(json.dumps(results_list),content_type="application/json")
     return HttpResponse("403 Forbidden")
@@ -545,15 +569,20 @@ def generateScoreReports(request, drawing_id):
                 'points_earned': r.number_correct,
                 'points_possible': r.number_possible,
                 'percent': r.number_correct / r.number_possible*100,
-                'rank': 0
+                'not_disqualified': not r.disqualify
             }
             user_tickets = Ticket.objects.filter(timestamp__gte=start_date,
             timestamp__lte=end_date, submitted_by=r.for_user)
 
 
             for t in user_tickets:
+                if "Kiosk" in t.submit_method:
+                    method = "Kiosk"
+                else:
+                    method = t.submit_method
                 ticket = {
-                    'numbers': []
+                    'numbers': [],
+                    'method': method
                 }
                 points = 0
                 for n in t.number_set.all():
@@ -572,6 +601,7 @@ def generateScoreReports(request, drawing_id):
             result['data'].append(to_add)
 
         print(result)
+        result['data'].sort(key=itemgetter('not_disqualified','percent','points_possible'),reverse=True)
         return render(request,"lottery/score_report.html",context=result)
         """{
         'answers': answers,
