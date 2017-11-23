@@ -17,30 +17,55 @@
 <div class="grid-container grid align-center">
     <div class="grid-x grid-margin-x">
       <div class="medium-8 cell">
-          <h3>Score Sheets</h3>
-
-
           {% for user in data %}
+          <div class="user-report">
+
             <h3>{{ name }}</h3>
-            <h4>Score Sheet - {{ user.username }} ({{ user.barcode}})</h4>
-            Points earned for correct numbers: {{ user.points_earned }} <br />
-            # of numbers submitted: {{ user.points_possible }} <br />
-            <strong>Score: {{ user.percent|floatformat }}% (rank {{ user.rank }} of {{ rank_possible }})</strong><br />
+            <h4>Score Report - {{ user.username }} ({{ user.barcode}})</h4>
+            <strong>Points earned for correct numbers:</strong> {{ user.points_earned }} <br />
+            <strong># of numbers submitted:</strong> {{ user.points_possible }} <br />
+            {% if not user.not_disqualified %}
+            <em>(Disqualified)</em>
+            {% endif %}
+            <strong>Score: {{ user.percent|floatformat }}% (rank {{ forloop.counter }} of {{ rank_possible }})</strong><br />
 
             <p>
                 The winning numbers are {{ answers }}.
             </p>
+            <p>
+                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong> <!-- That sentence doesn't have a period at the end because end_date includes "a.m." so the sentence doesn't need two periods. -->  Below are the tickets you submitted that were included in this lottery.
+            </p>
             <em>Correct numbers are <span class="correct">bold and green</span>.</em>
 
-            <div class="ticket-list-container">
-                {% for t in user.tickets %}
-                    {% include "./sr_ticket.html" with ticket_id=forloop.counter numbers=t.numbers points=t.points %}
-                {% endfor %}
-            </div>
-            <p>
-                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong>
-            </p>
-
+            <table id="results">
+              <thead>
+                  <th>ID</th>
+                  <th>Numbers</th>
+                  <th>Points</th>
+                  <th>Submission method</th>
+              </thead>
+              <tbody>
+                  {% for t in user.tickets %}
+                  <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{% for n in t.numbers %}
+                          {% if n.correct %}
+                          <span class="correct">
+                          {% endif %}
+                          {{ n.number }}
+                          {% if n.correct %}</span>{% endif %}
+                      {% endfor %}</td>
+                      <td>
+                          {{ t.points }}
+                      </td>
+                      <td>
+                          {{ t.method }}
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+        </div>
           {% endfor %}
 
 
