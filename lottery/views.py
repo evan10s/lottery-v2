@@ -356,12 +356,14 @@ def checkForName(request, username):
     return HttpResponse("403 Forbidden")
 
 def validateBarcode(request, barcode):
-    print(len(User.objects.filter(username="ACD1243")),"len filter acd123")
     if request.method == "GET" and userIsKiosk(request.user):
         print("request.user.username",barcode)
         found_users = User.objects.filter(username=barcode)
         if len(found_users) == 1:
-            return HttpResponse("User exists")
+            if not userIsKiosk(found_users[0]) and found_users[0].is_active:
+                return HttpResponse("User exists")
+            else:
+                return HttpResponse("User is ineligible")
         return HttpResponse("User not found");
     return HttpResponse("403 Forbidden")
 
