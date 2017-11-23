@@ -73,6 +73,10 @@
 
           <button type="button" disabled="disabled" id="generate-results" class="button large">Processing...</button>
 
+          {% if drawing_id %}
+          <a id="indiv-score-report-link" href="{% url 'generate_individual_score_reports' drawing_id %}">Print individual score reports</a>
+          {% endif %}
+
           <div id="results-table">
             <h5>Lottery Results</h5>
             <table id="results">
@@ -122,6 +126,26 @@
         </div>
       </div>
   </div>
+</div>
+
+<div class="reveal" id="choose-ans" data-reveal>
+  <h2 id="modalTitle">Choose Lottery Answers</h2>
+  <p>
+      If you want the lottery results calculated using numbers you provide, enter them in the boxes below.  You must choose 2 unique integers between 1 and 36, inclusive.
+  </p>
+  <p>
+      Leave the boxes blank to have 2 answers generated for you.  The chosen numbers will be unique integers and have a difference of at least 4.
+  </p>
+  <label>Enter the first answer:
+    <input type="number" id="ans-1" value="">
+  </label>
+  <label>Enter the second answer:
+    <input type="number" id="ans-2" value="">
+  </label>
+  <button type="button" id="submit-custom-answers" class="button large">Submit Answers and Process Results</button>
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+      <span aria-hidden="true">&times;</span>
+  </button>
 </div>
 <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
 <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
