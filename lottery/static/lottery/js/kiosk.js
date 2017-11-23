@@ -18,9 +18,10 @@ wsb.listen(async function(a, s) {
             if (kioskClosed) {
                 console.log("active for closed");
                 $('#loading').fadeIn();
+                transactionInProgress = false;
             } else {
                 switchScreens("screen-1", "loading");
-                transactionInProgress = true; //transaction can't be in progress if kiosk is closed
+                transactionInProgress = false; //transaction can't be in progress if kiosk is closed
             }
             if (await validateBarcode(currentUser)) {
                 clearErrorMessage();
@@ -28,6 +29,7 @@ wsb.listen(async function(a, s) {
                 if (await isAdmin(currentUser)) {
                     console.log("admin");
                     switchScreens("loading","admin");
+                    transactionInProgress = false;
                 } else if (await hasUsername(currentUser) && !kioskClosed) {
                     console.log("closed",kioskClosed)
                     resetTicketScreen();
