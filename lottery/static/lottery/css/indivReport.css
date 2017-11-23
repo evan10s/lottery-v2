@@ -63,3 +63,16 @@
     margin-bottom: 1px;
     text-align: center;
 }
+
+@media print {
+  table {
+    page-break-inside: avoid;
+  }
+
+  .user-report {
+      page-break-after: always;
+  }
+  .button {
+    display: none;
+  }
+}
