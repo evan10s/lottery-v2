@@ -12,7 +12,7 @@ h1 {
   font-size: 10rem;
 }
 
-h3 {
+h2, h3, h4, h5, h6, h7 {
   text-align: center;
 }
 
@@ -69,12 +69,23 @@ h3 {
   width: 100%;
 }
 
-#ticket-submit-loading-bar, #lt-submit-btns {
+#ticket-submit-loading-bar, #lt-submit-btns,
+#scratchoff-submit-loading-bar, #scratchoff-submit-btns {
   margin: auto;
 }
 
 #ticket-submit-loading-bar {
   margin-top: 65px;
+}
+
+#scratchoff-table {
+    margin-left: auto;
+    margin-right: auto;
+    width: 400px;
+}
+
+#scratchoff-table > tbody > td {
+    text-align: center;
 }
 
 

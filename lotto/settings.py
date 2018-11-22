@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '5g^xt(41+!)+73$fa$5p5rb%l6gfp3e0$fx8dshcly(y6s4p)*'
+SECRET_KEY = 'nbq78w5+(0jz%81v^$zyjsits0f-wl^6*3j$t+*9sq_e52ttr8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.230', '192.168.0.10' ]
+ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.149', '192.168.0.10' ]
 LOGIN_URL = '/accounts/login'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition

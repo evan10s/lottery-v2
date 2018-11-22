@@ -14,19 +14,18 @@ $(document).ready(function() {
   });
 
   $('#enable-dangerous-actions').on('change', function() {
-    console.log("The check box changed and the new value is", $(this).val());
     if ($(this).val() === "on") {
       $('#generate-results').removeAttr("disabled");
     } else {
       $('#generate-results').attr("disabled","disabled");
     }
-  })
+  });
 
   $('#provision-kiosk').on("click", provisionKioskRedirect);
   $('#generate-barcodes').on("click", genBarcodesRedirect);
   $('#submit-custom-answers').on("click",genResultsWithAnswers);
 
-})
+});
 
 function confirmCustomAnswers() {
     $('#choose-ans').foundation('open');
@@ -40,9 +39,6 @@ function genResultsWithAnswers() {
     let ans1 = $('#ans-1').val(),
         ans2 = $('#ans-2').val();
 
-    console.log("ans1:", ans1);
-    console.log("ans2:", ans2);
-
     $.ajax({
       url: "/api/manage/results/generate",
       type: "POST",
@@ -52,7 +48,6 @@ function genResultsWithAnswers() {
         'answer_2': ans2
       },
       success: function(data) {
-        console.log(data);
         $('#choose-ans').foundation('close');
         updateBtnResultsFinalized();
       }
@@ -72,31 +67,15 @@ function genBarcodesRedirect() {
 }
 
 function updateBtnResultsFinalized() {
-    console.log("in updateBtnResultsFinalized");
   $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
   displayResults();
 }
 
-function generateResults() {
-  $('#generate-results').text('Processing...').attr('disabled', 'disabled');
-  $.ajax({
-    url: "/api/manage/results/generate",
-    type: "POST",
-    data: {
-      'drawing_id': drawingId
-    },
-    success: function(data) {
-      console.log(data);
-      updateBtnResultsFinalized();
-    }
-  });
-}
 
 function displayResults() {
     $.ajax({
         url: "/api/manage/results/" + drawingId,
         success: function(data) {
-            console.log(data[0]);
             showResultsInTable(data);
         }
     })
@@ -111,10 +90,6 @@ function round(number, precision) {
 }
 
 function showResultsInTable(data) {
-    // data = data.sort((a,b) =>
-    //     ((b.disqualify) ? 0 : 1) - ((a.disqualify) ? 0 : 1)
-    //     || b.correct/b.possible - a.correct/a.possible
-    //     || b.possible - a.possible);
     var tableBody = $("#results > tbody");
     var entry, percentCorrect, dqStatus,
         dqYes = "Disqualified",
@@ -125,16 +100,16 @@ function showResultsInTable(data) {
     for (var i = 0; i < data.length; i++) {
         entry = data[i];
         dqStatus = entry.disqualify ? dqYes : dqNo;
-        correct = entry.correct;
-        possible = entry.possible;
-        percentCorrect = round(correct/possible*100,2) + "%";
         tableBody.append(`<tr>
             <td>${i + 1}</td>
             <td>${entry.barcode}</td>
             <td>${entry.username}</td>
-            <td>${correct}</td>
-            <td>${possible}</td>
-            <td>${percentCorrect}</td>
+            <td>${round(entry.lottery_percent, 2)}% 
+             (${entry.lottery_correct}/${entry.lottery_possible})
+            </td>
+            <td>${round(entry.scratchoffs_percent, 2)}%
+            (${entry.scratchoffs_correct}/${entry.scratchoffs_possible})</td>
+            <td>${round(entry.overall_score, 2)}%</td>
             <td>${dqStatus}</td></tr>`);
     }
 }
