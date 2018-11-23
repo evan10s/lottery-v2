@@ -77,11 +77,6 @@ class LotteryAdmin(UserPassesTestMixin, generic.ListView):
             isStaff = False
         return isStaff
 
-    def get_context_data(self):
-        context = super(LotteryAdmin, self).get_context_data(
-            **self.kwargs)  # getting kwargs to be a template variable from https://stackoverflow.com/a/18233104
-        return context
-
     def get_queryset(self):
         drawing_id = int(self.kwargs['drawing_id'])
         drawing = Drawing.objects.filter(pk=drawing_id)[0]
@@ -90,16 +85,29 @@ class LotteryAdmin(UserPassesTestMixin, generic.ListView):
         print(start, end)
         return Ticket.objects.filter(timestamp__gte=start, timestamp__lte=end)
 
+    def get_scratchoffs(self):
+        drawing_id = int(self.kwargs['drawing_id'])
+        drawing = Drawing.objects.filter(pk=drawing_id)[0]
+        start = drawing.start_date
+        end = drawing.end_date
+        return Scratchoff.objects.filter(timestamp__gte=start, timestamp__lte=end)
+
+    def get_context_data(self):
+        context = super(LotteryAdmin, self).get_context_data(
+            **self.kwargs)  # getting kwargs to be a template variable from https://stackoverflow.com/a/18233104
+        context['scratchoffs'] = self.get_scratchoffs()
+        return context
+
 
 def create_ticket(request, username):
     print("called")
-    if request.method == "POST" and userIsKiosk(request.user):
+    if request.method == "POST" and (request.user.is_staff or userIsKiosk(request.user)):
         try:
             actual_user = User.objects.get(username=username)
         except:
             return HttpResponse(json.dumps({'state': 'error',
                                             'status': 'User not found'
-                                            }))
+                                            }), content_type="application/json")
 
         # Check maximum ticket submissions
         one_hour_ago = datetime.datetime.now() - datetime.timedelta(
@@ -130,9 +138,11 @@ def create_ticket(request, username):
         distinct_split_nums.sort()
         numbers_added = []
 
+        submit_method = ("Kiosk %s" % request.user.username) if not request.POST.get("paperTicket", False) else "Paper ticket"
+
         if 4 >= len(distinct_split_nums) > 0:
             t = Ticket(submitted_by=actual_user, timestamp=datetime.datetime.now(),
-                       submit_method=("Kiosk %s" % request.user.username))
+                       submit_method=submit_method)
             t.save()
             for num in distinct_split_nums:
                 if 1 <= num <= 36:  # Numbers must be between 1 and 36
@@ -634,7 +644,7 @@ def generateScoreReports(request, drawing_id):
 
         results = Results.objects.filter(drawing_id=drawing_id)
         ranks_possible = len(results)
-
+        answers_nums.sort()
         result = {
             'answers': str(answers_nums)[1:-1],
             'name': lottery_name,
@@ -645,14 +655,30 @@ def generateScoreReports(request, drawing_id):
         }
 
         for r in results:
+            lottery_percent = (r.drawing_number_correct / r.drawing_number_possible * 100) \
+                if r.drawing_number_possible is not 0 else 0
+            scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
+                if r.scratchoff_number_possible is not 0 else 0
+            lottery_total_pts_share = r.drawing_number_possible / (
+                        r.drawing_number_possible + r.scratchoff_number_possible)
+            scratchoff_total_pts_share = r.scratchoff_number_possible / (
+                        r.drawing_number_possible + r.scratchoff_number_possible)
+            overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
+
             to_add = {
-                'username': r.for_user.first_name,
-                'barcode': r.for_user.username,
+                'barcode': r.for_user.username, 'username': r.for_user.first_name,
+                'lottery_correct': r.drawing_number_correct,
+                'lottery_possible': r.drawing_number_possible,
+                'lottery_percent': lottery_percent,
+                'scratchoffs_correct': r.scratchoff_number_correct,
+                'scratchoffs_possible': r.scratchoff_number_possible,
+                'scratchoffs_percent': scratchoff_percent,
+                'total_possible': r.drawing_number_possible + r.scratchoff_number_possible,
+                'overall_score': overall_score,
+                'disqualify': r.disqualify,
+                'not_disqualified': not r.disqualify,
                 'tickets': [],
-                'points_earned': r.number_correct,
-                'points_possible': r.number_possible,
-                'percent': r.number_correct / r.number_possible * 100,
-                'not_disqualified': not r.disqualify
+                'scratchoffs': []
             }
             user_tickets = Ticket.objects.filter(timestamp__gte=start_date,
                                                  timestamp__lte=end_date, submitted_by=r.for_user)
@@ -682,7 +708,7 @@ def generateScoreReports(request, drawing_id):
 
             result['data'].append(to_add)
 
-        result['data'].sort(key=itemgetter('not_disqualified', 'percent', 'points_possible'), reverse=True)
+        result['data'].sort(key=itemgetter('not_disqualified', 'overall_score', 'total_possible'), reverse=True)
         return render(request, "lottery/score_report.html", context=result)
     return HttpResponse("403 Forbidden")
 
@@ -742,3 +768,7 @@ def create_scratchoff(request, username):
                       }
 
         return HttpResponse(json.dumps(result_obj), content_type="application/json")
+
+def addPaperTickets(request):
+    if request.method == "GET" and request.user.is_staff:
+        return render(request, "lottery/addPaperTickets.html")

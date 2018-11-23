@@ -3,164 +3,215 @@
 <!doctype HTML>
 <html>
 <head>
-  <title>Manage drawings</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
-<link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}" />
-<link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
-<link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
+    <title>Manage drawings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css"
+          integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}"/>
 </head>
 <body>
 <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
-  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
-  <div class="title-bar-title">Lottery</div>
+    <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+    <div class="title-bar-title">Lottery</div>
 </div>
 
 <div class="top-bar" id="example-menu">
-  <div class="top-bar-left">
-    <ul class="dropdown menu" data-dropdown-menu>
-      <li class="menu-text">Lottery</li>
-      <li>
-        <a href="{% url 'drawings' %}">Drawings</a></li>
-      </li>
-      {% if user.is_staff %}
-      <li><a href="{% url 'manage' %}">
-        Manage drawings</a></li>
-      <li><a href="/admin">Site admin</a></li>
-      {% endif %}
-      {% if user.is_authenticated %}
-      <li><a href="{% url 'logout' %}">Log out</a></li>
-      {% endif %}
-    </ul>
-  </div>
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li class="menu-text">Lottery</li>
+            <li>
+                <a href="{% url 'drawings' %}">Drawings</a></li>
+            </li>
+            {% if user.is_staff %}
+                <li><a href="{% url 'manage' %}">
+                    Manage drawings</a></li>
+                <li><a href="/admin">Site admin</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}">Log out</a></li>
+            {% endif %}
+        </ul>
+    </div>
 </div>
 
 <div class="grid-container grid align-center">
     <div class="grid-x grid-margin-x">
-      <div class="large-6 cell">
-          <h3>Drawing admin</h3>
-          <p>You're managing drawing #{{ drawing_id }}</p>
-          <p>You can't delete an individual ticket from this view.  If a user has submitted fraudulent tickets, you should disqualify them from the drawing when running the results for the drawing.</p>
-          <p>Enable actions of finality<div class="switch">
-            <input class="switch-input" id="enable-dangerous-actions" type="checkbox">
-            <label class="switch-paddle" for="enable-dangerous-actions">
-              <span class="show-for-sr">Enable actions of finality</span>
-            </label>
-          </div></p>
+        <div class="large-6 cell">
+            <h3>Drawing admin</h3>
+            <p>You're managing drawing #{{ drawing_id }}</p>
+            <p>You can't delete an individual ticket from this view. If a user has submitted fraudulent tickets, you
+                should disqualify them from the drawing when running the results for the drawing.</p>
+            <p>Enable actions of finality
+            <div class="switch">
+                <input class="switch-input" id="enable-dangerous-actions" type="checkbox">
+                <label class="switch-paddle" for="enable-dangerous-actions">
+                    <span class="show-for-sr">Enable actions of finality</span>
+                </label>
+            </div>
+            </p>
 
-          <h4>Kiosks</h4>
-          <p>Users submit lottery tickets using kiosks.</p>
-          <p>A kiosk consists of a tablet device (should be touchscreen) paired with a phone.  The tablet will run the kiosk web application,
-            and the phone will run an Android app that communicates scanned barcodes to the kiosk.</p>
-          <p>Users sign into a kiosk using a barcode you generate.  Simply hand each person a barcode, and the kiosk will
-            ask them for their first name the first time they sign in.  You can also print administrator barcodes to authorize
-            administrative actions on a kiosk, such as closing it or viewing setup information.</p>
-          <p>Click the button below to provision a new kiosk and launch the kiosk on this device.</p>
-          <p><strong>Access kiosks by generating, printing, and cutting out User and Admin Access Cards with the Generate Access Cards button.</strong></p>
-          <div class="button-group large expanded">
-            <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
-            <button type="button" id="generate-barcodes" class="button large">Generate Access Cards</button>
-          </div>
+            <h4>Kiosks</h4>
+            <p>Users submit lottery tickets using kiosks.</p>
+            <p>A kiosk consists of a tablet device (should be touchscreen) paired with a phone. The tablet will run the
+                kiosk web application,
+                and the phone will run an Android app that communicates scanned barcodes to the kiosk.</p>
+            <p>Users sign into a kiosk using a barcode you generate. Simply hand each person a barcode, and the kiosk
+                will
+                ask them for their first name the first time they sign in. You can also print administrator barcodes to
+                authorize
+                administrative actions on a kiosk, such as closing it or viewing setup information.</p>
+            <p>Click the button below to provision a new kiosk and launch the kiosk on this device.</p>
+            <p><strong>Access kiosks by generating, printing, and cutting out User and Admin Access Cards with the
+                Generate Access Cards button.</strong></p>
+            <div class="button-group large expanded">
+                <button type="button" id="provision-kiosk" class="button large">Provision Kiosk</button>
+                <button type="button" id="generate-barcodes" class="button large">Generate Access Cards</button>
+            </div>
 
-          <h4>Get results</h4>
-          <p>Calculating the results for a lottery is final and has no simple "undo."  Don't click the button until you are absolutely ready to end the lottery
-             and see who won.</p>
-          <p>Each user will be given a score determined by the number of correct numbers they choose relative to the total number of numbers they select.
-            Tie-breakers will go to the user who submitted more tickets.  (e.g., 25 correct in 100 is ranked above 1 correct in 4)  For this reason, there's no advantage to submitting more or less numbers on a given ticket.  However, if you have an hourly limit for ticket
-          submissions set, users will be able to submit more numbers if they add the maximum number of numbers to each ticket they submit.</p>
-          <p>Users will be displayed from highest to lowest percentage correct.  Disqualified users have their percent correct calculated like any other user,
-             but are sorted to the bottom because their "Disqualify" flag is set to true.</p>
-          <p>To disqualify a user after the fact, go to "Site admin," find the user's results entry, and check the box next to Disqualify.</p>
+            <h4>Get results</h4>
+            <p>Calculating the results for a lottery is final and has no simple "undo." Don't click the button until you
+                are absolutely ready to end the lottery
+                and see who won.</p>
+            <p>Each user will be given a score determined by the number of correct numbers they choose relative to the
+                total number of numbers they select.
+                Tie-breakers will go to the user who submitted more tickets. (e.g., 25 correct in 100 is ranked above 1
+                correct in 4) For this reason, there's no advantage to submitting more or less numbers on a given
+                ticket. However, if you have an hourly limit for ticket
+                submissions set, users will be able to submit more numbers if they add the maximum number of numbers to
+                each ticket they submit.</p>
+            <p>Users will be displayed from highest to lowest percentage correct. Disqualified users have their percent
+                correct calculated like any other user,
+                but are sorted to the bottom because their "Disqualify" flag is set to true.</p>
+            <p>To disqualify a user after the fact, go to "Site admin," find the user's results entry, and check the box
+                next to Disqualify.</p>
 
-          <button type="button" disabled="disabled" id="generate-results" class="button large">Processing...</button>
+            <button type="button" disabled="disabled" id="generate-results" class="button large">Processing...</button>
+            <a class="button" href="{% url 'add_paper_tickets' %}">Record paper tickets</a>
+            {% if drawing_id %}
+                <a id="indiv-score-report-link" href="{% url 'generate_individual_score_reports' drawing_id %}">Print
+                    individual score reports</a>
+            {% endif %}
 
-          {% if drawing_id %}
-          <a id="indiv-score-report-link" href="{% url 'generate_individual_score_reports' drawing_id %}">Print individual score reports</a>
-          {% endif %}
-
-          <div id="results-table">
-            <h5>Lottery Results</h5>
-            <table id="results">
-              <thead>
-                <th>Rank</th>
-                <th>Barcode</th>
-                <th>Name</th>
-                <th>Lottery Score</th>
-                <th>Scratchoff Score</th>
-                <th>Overall Score</th>
-                <th>Disqualified</th>
-              </thead>
-              <tbody>
-                  <tr><td id="results-load-status" colspan="6">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
+            <div id="results-table">
+                <h5>Lottery Results</h5>
+                <table id="results">
+                    <thead>
+                    <th>Rank</th>
+                    <th>Barcode</th>
+                    <th>Name</th>
+                    <th>Lottery Score</th>
+                    <th>Scratchoff Score</th>
+                    <th>Overall Score</th>
+                    <th>Disqualified</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td id="results-load-status" colspan="6">Loading...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
 
-      </div>
-      <div class="large-6 cell">
-        <h5>Eligible tickets</h5>
-        <p>Below are all the tickets that are within the date and time range for this drawing.</p>
-        <em>Visit "Site admin" to change the drawing start and end time.</em>
-        <div id="ticket-info-container">
-          <table id="ticket-info">
-            <thead>
-              <th>ID</th>
-              <th>User</th>
-              <th>First name</th>
-              <th>Submitted via</th>
-              <th>Numbers</th>
-            </thead>
-            <tbody>
-              {% for t in tickets%}
-              <tr>
-                <td>{{ t.pk }}</td>
-                <td>{{ t.submitted_by.username }}</td>
-                <td>{{ t.submitted_by.first_name }}</td>
-                <td>{{ t.submit_method }}
-                <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{num.value}}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}
-                  </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
         </div>
-      </div>
-  </div>
+        <div class="large-6 cell">
+            <h5>Eligible tickets</h5>
+            <p>Below are all the tickets that are within the date and time range for this drawing.</p>
+            <em>Visit "Site admin" to change the drawing start and end time.</em>
+            <div id="ticket-info-container">
+                <table id="ticket-info">
+                    <thead>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>First name</th>
+                    <th>Submitted via</th>
+                    <th>Numbers</th>
+                    </thead>
+                    <tbody>
+                    {% for t in tickets %}
+                        <tr>
+                            <td>{{ t.pk }}</td>
+                            <td>{{ t.submitted_by.username }}</td>
+                            <td>{{ t.submitted_by.first_name }}</td>
+                            <td>{{ t.submit_method }}
+                            <td>{% for num in t.number_set.all %}{% if not forloop.first %}, {% endif %}{{ num.value }}{% comment %}if statement to avoid trailing comma from http://www.djangopro.com/2010/09/django-template-putting-commas-between-a-list-of-items/ {% endcomment%}{% endfor %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h5>Eligible scratchoffs</h5>
+            <p>Below are all the scratchoffs that are within the date and time range for this drawing.</p>
+            <em>Visit "Site admin" to change the drawing start and end time.</em>
+            <div id="ticket-info-container">
+                <table id="ticket-info">
+                    <thead>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>First name</th>
+                    <th>Submitted via</th>
+                    <th>Number chosen</th>
+                    <th>Answer</th>
+                    <th>Correct</th>
+                    </thead>
+                    <tbody>
+                    {% for s in scratchoffs %}
+                        <tr>
+                            <td>{{ s.pk }}</td>
+                            <td>{{ s.submitted_by.username }}</td>
+                            <td>{{ s.submitted_by.first_name }}</td>
+                            <td>{{ s.submit_method }}
+                            <td>{{ s.number_chosen }}</td>
+                            <td>{{ s.answer }}</td>
+                            <td>{% if s.number_chosen == s.answer %}Yes{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="reveal" id="choose-ans" data-reveal>
-  <h2 id="modalTitle">Choose Lottery Answers</h2>
-  <p>
-      If you want the lottery results calculated using numbers you provide, enter them in the boxes below.  You must choose 2 unique integers between 1 and 36, inclusive.
-  </p>
-  <p>
-      Leave the boxes blank to have 2 answers generated for you.  The chosen numbers will be unique integers and have a difference of at least 4.
-  </p>
-  <label>Enter the first answer:
-    <input type="number" id="ans-1" value="">
-  </label>
-  <label>Enter the second answer:
-    <input type="number" id="ans-2" value="">
-  </label>
-  <button type="button" id="submit-custom-answers" class="button large">Submit Answers and Process Results</button>
-  <button class="close-button" data-close aria-label="Close modal" type="button">
-      <span aria-hidden="true">&times;</span>
-  </button>
+    <h2 id="modalTitle">Choose Lottery Answers</h2>
+    <p>
+        If you want the lottery results calculated using numbers you provide, enter them in the boxes below. You must
+        choose 2 unique integers between 1 and 36, inclusive.
+    </p>
+    <p>
+        Leave the boxes blank to have 2 answers generated for you. The chosen numbers will be unique integers and have a
+        difference of at least 4.
+    </p>
+    <label>Enter the first answer:
+        <input type="number" id="ans-1" value="">
+    </label>
+    <label>Enter the second answer:
+        <input type="number" id="ans-2" value="">
+    </label>
+    <button type="button" id="submit-custom-answers" class="button large">Submit Answers and Process Results</button>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
 <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
 <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
 <script src="{% static "lottery/js/manageLottery.js" %}"></script>
 <script>
-  {% if drawing_id %}
-    var haveDrawingId = true;
-    var drawingId = {{ drawing_id }};
-  {% else %}
-    var haveDrawingId = false;
-  {% endif %}
+    {% if drawing_id %}
+        var haveDrawingId = true;
+        var drawingId = {{ drawing_id }};
+    {% else %}
+        var haveDrawingId = false;
+    {% endif %}
 
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
-  $(document).foundation();
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js"
+        integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script>
+<script>
+    $(document).foundation();
 </script>
 </body>
 </html>

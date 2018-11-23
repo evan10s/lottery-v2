@@ -16,6 +16,13 @@ h2, h3, h4, h5, h6, h7 {
   text-align: center;
 }
 
+body {
+  -webkit-user-select: none;
+     -moz-user-select: -moz-none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
 .scanner-arrow {
   text-align: center;
 }

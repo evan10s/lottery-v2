@@ -52,7 +52,7 @@ wsb.listen(async function (a, s) {
             switchScreens("setup", "screen-1");
         }
     }
-})
+});
 
 wsb.socket.addEventListener('open', function () {
     console.log("Connected to websocket");
@@ -62,8 +62,24 @@ wsb.socket.addEventListener('open', function () {
     // wsb.send({
     //   "msgType": "searchAcknowledge"
     // });
-})
-var animationCycleTime = 1000
+});
+
+function toggleFullScreen() {
+  var doc = window.document;
+  var docEl = doc.documentElement;
+
+  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    requestFullScreen.call(docEl);
+  }
+  else {
+    cancelFullScreen.call(doc);
+  }
+}
+
+var animationCycleTime = 1000;
 $(document).ready(function () {
     $('#screen-1,#screen-2,#screen-3,#screen-4,#loading,#closed,#admin').hide();
     $('#server-address').text(window.location.host);
@@ -79,22 +95,21 @@ $(document).ready(function () {
 
 
     setupScratchoffTicket();
-    $('#screen-4').css("height", window.innerHeight);
-    var s4Height = $('#s4-center-vertical').height();
-    var s4Margin = (window.innerHeight - s4Height) / 2;
-    $('#s4-center-vertical').css("padding-top", s4Margin / 2);
+    //$('#screen-4').css("height", window.innerHeight);
+    //var s4Height = $('#s4-center-vertical').height();
+    //var s4Margin = (window.innerHeight - s4Height) / 2;
+    //$('#s4-center-vertical').css("padding-top", s4Margin / 2);
 
     $('#continue').on("click", submitUsername);
     $('.submit-ticket').on("click", submitTicket);
     $('.kiosk-end-session').on("click", endSession);
 
-    switchScreens("setup", "screen-4")
     setupLotteryTicket(1, 36, 6, false);
 
     $('#lottery-nums > tr').on("click", "td:not(.no-num)", numberClicked);
     $('#scratchoff > tr').on("click", "td", scratchoffItemPicked);
     $('.reset-scratchoff').on("click", resetScratchoffScreen);
-
+    $('#enable-fullscreen').on("click", toggleFullScreen);
 });
 
 function fadeArrowsOut() {
@@ -116,13 +131,19 @@ function switchScreens(s1, s2) {
     $(s2).fadeIn();
 }
 
+
 function endSession() {
-    switchScreens("screen-3", "screen-1");
-    switchScreens("screen-4", "screen-1");
-    $("#user-name").val("");
-    transactionInProgress = false;
-    resetTicketScreen();
-    resetScratchoffScreen();
+    console.log($('#screen-3').attr("style") !== "display: none;");
+    if ($('#screen-3').attr("style") !== "display: none;") {
+        switchScreens("screen-3", "screen-4");
+    } else {
+        switchScreens("screen-4", "screen-1");
+        $("#user-name").val("");
+        transactionInProgress = false;
+        resetTicketScreen();
+        resetScratchoffScreen();
+    }
+
 }
 
 function resetTicketScreen() {
@@ -149,8 +170,6 @@ function numberClicked() {
         $('#max-nums-selected').addClass("hide");
         $(this).toggleClass("selected");
     }
-
-    console.log($(this).html());
 }
 
 function scratchoffItemPicked() {
@@ -193,7 +212,7 @@ function setupScratchoffTicket() {
     for (let row = 1; row <= 4; row++) {
         appendStr += "<tr>";
         for (let col = 1; col <= 4; col++) {
-            appendStr += `<td><img src="/static/lottery/scratchoff-imgs/dollar.jpg" alt="?" width="100" height="100" data-number="${(row - 1) * 4 + col}"
+            appendStr += `<td><img src="/static/lottery/scratchoff-imgs/dollar.jpg" alt="?" width="100" height="100" draggable="false" data-number="${(row - 1) * 4 + col}"
                             data-selected="0"></td>`
         }
         appendStr += "</tr>";

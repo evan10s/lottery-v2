@@ -1,0 +1,98 @@
+{% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% load static %}
+<!doctype HTML>
+<html>
+<head>
+    <title>Record paper tickets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css"
+          integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}"/>
+    <link rel="stylesheet" href="{% static 'lottery/css/kiosk.css' %}"/>
+</head>
+<body>
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+    <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+    <div class="title-bar-title">Lottery</div>
+</div>
+
+<div class="top-bar" id="example-menu">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li class="menu-text">Lottery</li>
+            <li>
+                <a href="{% url 'drawings' %}">Drawings</a></li>
+            </li>
+            {% if user.is_staff %}
+                <li><a href="{% url 'manage' %}">
+                    Manage drawings</a></li>
+                <li><a href="/admin">Site admin</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}">Log out</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<div class="grid-container grid align-center">
+    <div class="grid-x grid-margin-x">
+        <div class="large-12 cell">
+            <h3>Admin: record paper tickets</h3>
+            <h3>Select up to 4 numbers</h3>
+            <label>Barcode:
+                <input style="text-transform: uppercase;" type="text" id="barcode" value="" placeholder="Enter ticket barcode...">
+            </label>
+            <div class="alert callout small hide" id="max-nums-selected">
+                <h5>To select number <span id="max-nums-attempted"></span>, deselect a number you've already selected.
+                </h5>
+                <p>Click a number you've selected to deselect it.</p>
+            </div>
+            <div class="alert callout small hide" id="ticket-submit-error">
+                <p>We couldn't process your ticket right now. Please try again or contact the lottery administrator for
+                    assistance.</p>
+            </div>
+            <table>
+                <tbody id="lottery-nums">
+                </tbody>
+            </table>
+            <div class="button-group large expanded" id="lt-submit-btns"> <!-- lt = lottery ticket -->
+                <button class="submit-ticket button">Submit this ticket</button>
+                <button class="submit-ticket kiosk-end-session button">Submit + I'm finished</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="reveal" id="choose-ans" data-reveal>
+    <h2 id="modalTitle">Choose Lottery Answers</h2>
+    <p>
+        If you want the lottery results calculated using numbers you provide, enter them in the boxes below. You must
+        choose 2 unique integers between 1 and 36, inclusive.
+    </p>
+    <p>
+        Leave the boxes blank to have 2 answers generated for you. The chosen numbers will be unique integers and have a
+        difference of at least 4.
+    </p>
+    <label>Enter the first answer:
+        <input type="number" id="ans-1" value="">
+    </label>
+    <label>Enter the second answer:
+        <input type="number" id="ans-2" value="">
+    </label>
+    <button type="button" id="submit-custom-answers" class="button large">Submit Answers and Process Results</button>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js"
+        integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script>
+<script>
+    $(document).foundation();
+</script>
+<script src="{% static "lottery/js/paperTickets.js" %}"></script>
+</body>
+</html>

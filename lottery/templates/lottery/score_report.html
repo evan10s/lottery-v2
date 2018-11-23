@@ -22,13 +22,23 @@
 
             <h3>{{ name }}</h3>
             <h4>Score Report - {{ user.username }} ({{ user.barcode}})</h4>
-            <strong>Points earned for correct numbers:</strong> {{ user.points_earned }} <br />
-            <strong># of numbers submitted:</strong> {{ user.points_possible }} <br />
+
+            <h5>Lottery Component</h5>
+            <strong>Points earned for correct numbers:</strong> {{ user.lottery_correct }} <br />
+            <strong># of numbers submitted:</strong> {{ user.lottery_possible }} <br />
+            <strong>Lottery score:</strong> {{ user.lottery_percent | floatformat }}% <br />
+            <br />
+            <h5>Scratchoff Component</h5>
+            <strong>Scratchoffs won:</strong> {{ user.scratchoffs_correct }} <br />
+            <strong>Scratchoffs played:</strong> {{ user.scratchoffs_possible }}<br />
+            <strong>Scratchoffs score:</strong> {{ user.scratchoffs_percent | floatformat }}% <br />
+            <br />
+            <h5>Overall Score</h5>
             {% if not user.not_disqualified %}
             <em>(Disqualified)</em>
             {% endif %}
-            <strong>Score: {{ user.percent|floatformat }}% (rank {{ forloop.counter }} of {{ rank_possible }})</strong><br />
-
+            <strong>Overall score: {{ user.overall_score|floatformat }}% (rank {{ forloop.counter }} of {{ rank_possible }})</strong><br />
+            <em>The overall score is a weighted average of your lottery and scratchoff scores.</em>
             <p>
                 The winning numbers are {{ answers }}.
             </p>
