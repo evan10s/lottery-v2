@@ -4,6 +4,7 @@ import random
 import string
 from operator import itemgetter
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User, \
@@ -14,8 +15,11 @@ from django.shortcuts import render, redirect
 from django.views import generic
 from django.views.generic import TemplateView
 
+from rdoclient import RandomOrgClient
+
 from .models import Drawing, Ticket, Number, Results, Answer, Scratchoff
 
+r = RandomOrgClient(settings.RANDOM_ORG_API_KEY)
 
 # Create your views here.
 class DrawingsView(UserPassesTestMixin, generic.ListView):
@@ -225,6 +229,12 @@ def getTicketsMatchingLottery(request):
 
 
 def generate_unique_random_nums(num, a, b):
+    if settings.ENTROPY_DRIVER == settings.ENTROPY_DRIVER_RANDOM:
+        print(f"Generating {num} unique numbers between {a} and {b} using Random.org")
+        random_org_results = r.generate_integers(num, a, b, replacement=False)
+        print(f"Random numbers from Random.org: {random_org_results}")
+        return random_org_results
+
     result = []
     while len(result) < num:
         x = random.randint(a, b)
@@ -734,15 +744,26 @@ def create_scratchoff(request, username):
                                                                 timestamp__gte=one_hour_ago))
 
         print("num_scratchoffs_last_hr =", str(num_scratchoffs_last_hr))
-        if num_scratchoffs_last_hr > 100:
+        if num_scratchoffs_last_hr >= 50:
             return HttpResponse(json.dumps({'state': 'error', 'error_short_desc': "SCRATCHOFF_RATE_LIMIT_EXCEEDED",
                                             'status': "You've submitted too many scratchoffs in the last hour.  Please wait 60 minutes before submitting more scratchoffs."}),
                                 content_type="application/json")
 
         random.shuffle(animals)
-        answer = random.randint(1, 16)
 
-        print(request.POST['num'])
+        if settings.ENTROPY_DRIVER == settings.ENTROPY_DRIVER_RANDOM:
+            try:
+                answer = r.generate_integers(1, 1, 16)[0]
+            except Exception as e:
+                print("An exception occurred while trying to use Random.org to obtain a scratchoff answer")
+                print(e)
+                return HttpResponse(
+                    json.dumps({'state': 'error', 'status': "Unable to obtain a random number for the scratchoff. Please ask a Lottery Administrator for assistance."}),
+                    content_type="application/json")
+        else:
+            answer = random.randint(1, 16)
+
+        print(request.POST['num'], answer)
         num = int(request.POST['num'])
 
         if answer == num:

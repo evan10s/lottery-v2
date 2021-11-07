@@ -1,6 +1,7 @@
 var wsb = new channels.WebSocketBridge();
 var currentUser;
 var transactionInProgress = false;
+let processingScratchoff = false;
 var kioskClosed = false;
 
 wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
@@ -62,6 +63,7 @@ wsb.socket.addEventListener('open', function () {
     // wsb.send({
     //   "msgType": "searchAcknowledge"
     // });
+    switchScreens("setup", "screen-2")
 });
 
 function toggleFullScreen() {
@@ -79,11 +81,31 @@ function toggleFullScreen() {
   }
 }
 
-var animationCycleTime = 1000;
+function generateSetupBarcode(kioskId, serverUrl) {
+    const kioskConfig = {
+        kioskId,
+        serverUrl
+    }
+
+    new QRious({
+        element: document.getElementById("kiosk-config-barcode"),
+        value: JSON.stringify(kioskConfig),
+        size: 150,
+        level: "L"
+    })
+}
+
+const animationCycleTime = 1000;
 $(document).ready(function () {
     $('#screen-1,#screen-2,#screen-3,#screen-4,#loading,#closed,#admin').hide();
-    $('#server-address').text(window.location.host);
+
+    const serverUrl = window.location.host;
+
+    $('#server-address').text(serverUrl);
     $('#kiosk-id').text(kiosk_id);
+
+    generateSetupBarcode(kiosk_id, serverUrl);
+
     setInterval(fadeArrowsOut, 2 * animationCycleTime);
     setTimeout(function () {
         setInterval(fadeArrowsIn, 2 * animationCycleTime)
@@ -93,6 +115,12 @@ $(document).ready(function () {
     var blockMargin = (window.innerHeight - blockHeight) / 2;
     $('#s2-center-vertical').css("padding-top", blockMargin);
 
+    // let colorIdx = 0;
+    // let colors = ["#a491d3", "#23b5d3", "#2c4251", "#ffc857", "#fe6d73"];
+    // setInterval(() => {
+    //     document.body.style.backgroundColor = colors[colorIdx];
+    //     colorIdx = (colorIdx + 1) % colors.length
+    // }, 3000)
 
     setupScratchoffTicket();
     //$('#screen-4').css("height", window.innerHeight);
@@ -174,8 +202,10 @@ function numberClicked() {
 
 function scratchoffItemPicked() {
     let numberPicked = parseInt($(this).children("img").attr('data-number'));
-
-    submitScratchoff(numberPicked, $(this).children("img"));
+    if (!processingScratchoff) {
+        processingScratchoff = true;
+        submitScratchoff(numberPicked, $(this).children("img"));
+    }
 }
 
 function setupLotteryTicket(startNum, endNum, rowLength, offsetEvenRows) {
@@ -401,6 +431,7 @@ function submitScratchoff(num, imgToUpdate) {
 
     if ($('#scratchoff > tr > td > img[data-selected="1"]').length >= 1) {
         $('#max-scratchoff-squares-selected').removeClass("hide");
+        processingScratchoff = false;
         return;
     }
 
@@ -434,7 +465,9 @@ function submitScratchoff(num, imgToUpdate) {
             //$(".submit-ticket:not(.kiosk-end-session)").addClass("success").text("Ticket submitted");
             //updateTicketsTableServerResponse(result);
         }
+        processingScratchoff = false;
     }, (e) => {
+        processingScratchoff = false;
         console.log("Error: ", e);
 
         $('#scratchoff-submit-error').removeClass("hide");

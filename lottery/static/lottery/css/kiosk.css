@@ -1,88 +1,102 @@
+body, h1, h2, h3, h4, h5, h6, p, div, strong, em {
+    font-family: Poppins, sans-serif;
+}
+
 .barcode-arrow {
-  font-size: 19rem;
+    font-size: 19rem;
 }
 
 .closed-icon {
-  font-size: 19rem;
-  line-height: 200px;
+    font-size: 19rem;
+    line-height: 200px;
 }
 
 h1 {
-  text-align: center;
-  font-size: 10rem;
+    text-align: center;
+    font-size: 10rem;
 }
 
 h2, h3, h4, h5, h6, h7 {
-  text-align: center;
+    text-align: center;
+}
+
+.pretty-outline {
+    border: 1pt solid #E3EBEF;
+    margin-left: 100px;
+    margin-right: 100px;
+    box-shadow: 3px 3px 4px 0 #D9D9D9
 }
 
 body {
-  -webkit-user-select: none;
-     -moz-user-select: -moz-none;
-      -ms-user-select: none;
-          user-select: none;
+    transition: background-color .5s ease-in-out;
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+
 }
 
 .scanner-arrow {
-  text-align: center;
+    text-align: center;
 }
 
 #loading-bar {
-  position:absolute;
-  left: 50%;
-  bottom: 50%;
-  margin-left: -60px;
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    margin-left: -60px;
 }
 
 #loading {
-  display:none;
-  height: 100%;
+    display: none;
+    height: 100%;
 }
 
 .center-vertical {
-  vertical-align: middle;
-  margin-top: auto;
-  margin-bottom: auto;
+    vertical-align: middle;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 
 #continue {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 
 .center {
-  text-align: center;
+    text-align: center;
 }
 
 #user-name {
-  text-align: center;
-  font-size: 1.75rem;
-  height: 51px;
+    text-align: center;
+    font-size: 1.75rem;
+    height: 51px;
 }
 
 
 #lottery-nums > tr > td {
-  width: 100px;
-  height: 80px;
-  text-align: center;
-  font-size: 2rem;
+    width: 100px;
+    height: 80px;
+    text-align: center;
+    font-size: 2rem;
 }
 
 #lottery-nums > tr > td.selected {
-  background-color: #5ca1ce; //this is a shade of the primary color for Foundation 6
+    background-color: #5ca1ce;
+/ / this is a shade of the primary color for Foundation 6
 }
 
 #ticket-submit-loading, #lt-submit-btns-container {
-  width: 100%;
+    width: 100%;
 }
 
 #ticket-submit-loading-bar, #lt-submit-btns,
 #scratchoff-submit-loading-bar, #scratchoff-submit-btns {
-  margin: auto;
+    margin: auto;
 }
 
 #ticket-submit-loading-bar {
-  margin-top: 65px;
+    margin-top: 65px;
 }
 
 #scratchoff-table {
@@ -122,26 +136,38 @@ SOFTWARE.
 
 */
 .single13 {
-      height: 10px;
-      width: 120px;
-      border-radius: 4px;
-      background: -webkit-linear-gradient(right, #ef4836, #f5d76e, #ef4836);
-      background: linear-gradient(270deg, #ef4836, #f5d76e, #ef4836);
-      background-size: 400% 400%;
-      -webkit-animation: single13anim 3s ease-in-out infinite;
-      animation: single13anim 3s ease-in-out infinite;
-   }
+    height: 10px;
+    width: 120px;
+    border-radius: 4px;
+    background: -webkit-linear-gradient(right, #ef4836, #f5d76e, #ef4836);
+    background: linear-gradient(270deg, #ef4836, #f5d76e, #ef4836);
+    background-size: 400% 400%;
+    -webkit-animation: single13anim 3s ease-in-out infinite;
+    animation: single13anim 3s ease-in-out infinite;
+}
 
-   @-webkit-keyframes single13anim {
-      0%{background-position: 0% 50%}
-      50%{background-position: 100% 50%}
-      100%{background-position: 0% 50%}
-   }
+@-webkit-keyframes single13anim {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
 
-   @keyframes single13anim {
-      0%{background-position: 0% 50%}
-      50%{background-position: 100% 50%}
-      100%{background-position: 0% 50%}
-   }
+@keyframes single13anim {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
 
-   /* end from https://boguz.github.io/Spinners/ */
+/* end from https://boguz.github.io/Spinners/ */

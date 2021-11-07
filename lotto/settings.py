@@ -20,12 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!j0$^@)8#=g0yhm(pxamz3=d!^k@tf+p-y-atzo!dwkkx+zj6q'
+SECRET_KEY = os.environ.get("SECRET_KEY")
+RANDOM_ORG_API_KEY = os.environ.get("RANDOM_ORG_API_KEY")
+
+ENTROPY_DRIVER = os.environ.get("ENTROPY_DRIVER", "local")
+ENTROPY_DRIVER_LOCAL = "local"
+ENTROPY_DRIVER_RANDOM = "random"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.168', '192.168.0.10', '192.168.150.134' ]
+ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.168', '192.168.0.10', '192.168.150.117', '192.168.2.46', '128.61.61.51']
 LOGIN_URL = '/accounts/login'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition
