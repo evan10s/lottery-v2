@@ -112,10 +112,15 @@
                     </tbody>
                 </table>
             </div>
-
-
         </div>
         <div class="large-6 cell">
+            <h5>Lottery analytics</h5>
+            <p><strong>Total lottery tickets submitted:</strong> <span id="num-lottery-tickets">Loading...</span></p>
+            <p><strong>Total scratchoffs submitted:</strong> <span id="num-scratchoffs">Loading...</span></p>
+            <p><strong>Number of correct scratchoffs:</strong> <span id="num-scratchoffs-correct">Loading...</span></p>
+            <div id="drawing-hist-container"></div>
+            <div id="scratchoff-hist-container"></div>
+
             <h5>Eligible tickets</h5>
             <p>Below are all the tickets that are within the date and time range for this drawing.</p>
             <em>Visit "Site admin" to change the drawing start and end time.</em>
@@ -213,5 +218,6 @@
 <script>
     $(document).foundation();
 </script>
+<script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
 </body>
 </html>

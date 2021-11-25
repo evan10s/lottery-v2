@@ -243,6 +243,58 @@ def generate_unique_random_nums(num, a, b):
     return result
 
 
+def generate_ticket_num_hist_for_drawing(request, drawing_id):
+    if request.method == "GET" and request.user.is_staff:
+        try:
+            # drawing_id = int(drawing_id)
+            pass
+        except:
+            return HttpResponse("Bad drawing id")
+
+        drawing = Drawing.objects.filter(pk=drawing_id)[0]
+        tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date, timestamp__lte=drawing.end_date)
+
+        nums = []
+
+        for t in tickets:
+            for n in t.number_set.all():
+                nums.append(n.value)
+
+        return HttpResponse(json.dumps({ "numbers": nums }), content_type="application/json")
+
+
+def generate_lottery_analytics(request, drawing_id):
+    if request.method == "GET" and request.user.is_staff:
+        drawing = Drawing.objects.filter(pk=drawing_id)[0]
+        tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date, timestamp__lte=drawing.end_date)
+
+        drawing_nums = []
+
+        for t in tickets:
+            for n in t.number_set.all():
+                drawing_nums.append(n.value)
+
+        scratchoffs = Scratchoff.objects.filter(timestamp__gte=drawing.start_date, timestamp__lte=drawing.end_date)
+        scratchoff_nums = []
+        scratchoff_correct = 0
+        for s in scratchoffs:
+            if s.number_chosen == s.answer:
+                scratchoff_correct += 1
+            scratchoff_nums.append(s.number_chosen)
+
+        return HttpResponse(json.dumps({
+            "drawing": {
+                "total_nums": len(drawing_nums),
+                "numbers": drawing_nums
+            },
+            "scratchoff": {
+                "total_nums": len(scratchoff_nums),
+                "correct": scratchoff_correct,
+                "numbers": scratchoff_nums
+            }
+        }), content_type="application/json")
+
+
 def generateResultsForDrawing(request):
     if request.method == "POST" and request.user.is_staff:
         try:

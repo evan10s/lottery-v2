@@ -1,8 +1,23 @@
-var wsb = new channels.WebSocketBridge();
-var currentUser;
-var transactionInProgress = false;
+const wsb = new channels.WebSocketBridge();
+let currentUser;
+let transactionInProgress = false;
 let processingScratchoff = false;
-var kioskClosed = false;
+let kioskClosed = false;
+const colors = ["#a491d3", "#23b5d3", "#2c4251", "#ffc857", "#fe6d73"];
+
+const facts = [
+    "The Thanksgiving Lottery is so old, we don't remember when it started.",
+    "Randy claims there was also once a New Year's Eve Lottery.",
+    "The modern Thanksgiving Lottery was founded in 2013.",
+    "The ultra-modern Thanksgiving Lottery was founded in 2017.",
+    "{int} turtles are currently stuck inside this iPad.",
+    "The Thanksgiving Lottery now uses Random.org to source entropy.",
+    "Protect your Lottery Access Card as you would a credit card."
+]
+
+function pickRandomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 
 wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
 wsb.listen(async function (a, s) {
@@ -13,7 +28,7 @@ wsb.listen(async function (a, s) {
     }
     if (!transactionInProgress) {
         if (a.msgType === "info") {
-            switchScreens("setup", "screen-1");
+            switchScreens("setup", "screen-1-new");
         } else if (a.msgType === "data") {
             currentUser = a.barcode;
             if (kioskClosed) {
@@ -21,7 +36,7 @@ wsb.listen(async function (a, s) {
                 $('#loading').fadeIn();
                 transactionInProgress = false;
             } else {
-                switchScreens("screen-1", "loading");
+                switchScreens("screen-1-new", "loading");
                 transactionInProgress = false; //transaction can't be in progress if kiosk is closed
             }
             if (await validateBarcode(currentUser)) {
@@ -50,7 +65,7 @@ wsb.listen(async function (a, s) {
             }
         } else if (a.msgType === "searchAcknowledge") {
             console.log("Scanner search was acknowledged", a);
-            switchScreens("setup", "screen-1");
+            switchScreens("setup", "screen-1-new");
         }
     }
 });
@@ -63,17 +78,17 @@ wsb.socket.addEventListener('open', function () {
     // wsb.send({
     //   "msgType": "searchAcknowledge"
     // });
-    switchScreens("setup", "screen-2")
+    // switchScreens("setup", "screen-1-new")
 });
 
 function toggleFullScreen() {
-  var doc = window.document;
-  var docEl = doc.documentElement;
+    const doc = window.document;
+    const docEl = doc.documentElement;
 
-  var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-  var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
-  if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
     requestFullScreen.call(docEl);
   }
   else {
@@ -95,10 +110,28 @@ function generateSetupBarcode(kioskId, serverUrl) {
     })
 }
 
+/**
+ * Vertically centers a div.  But be sure it actually has a height when you call this function (e.g., it can center
+ * something that is invisible (still has height/width but not on screen) but not something that is hidden (no height/width).
+ */
+function verticallyCenter(container, selector) {
+    $(container).css("height", window.innerHeight);
+    const blockHeight = $(selector).height();
+    const blockMargin = (window.innerHeight - blockHeight) / 2;
+    if (blockHeight === 0) {
+        console.warn(`verticallyCenter ${selector}: block height is 0!`)
+    } else {
+        console.log(`verticallyCenter ${selector}: block height is ${blockHeight}`)
+    }
+    $(selector).css("padding-top", blockMargin);
+}
+
 const animationCycleTime = 1000;
 $(document).ready(function () {
-    $('#screen-1,#screen-2,#screen-3,#screen-4,#loading,#closed,#admin').hide();
+    $('#screen-1,#screen-3,#screen-4,#loading,#admin').hide();
 
+    verticallyCenter('#closed', '#closed-center-vertical');
+    $('#closed').hide().removeClass('invisible')
     const serverUrl = window.location.host;
 
     $('#server-address').text(serverUrl);
@@ -110,23 +143,12 @@ $(document).ready(function () {
     setTimeout(function () {
         setInterval(fadeArrowsIn, 2 * animationCycleTime)
     }, animationCycleTime)
-    $("#screen-2").css("height", window.innerHeight);
-    var blockHeight = $('#s2-center-vertical').height();
-    var blockMargin = (window.innerHeight - blockHeight) / 2;
-    $('#s2-center-vertical').css("padding-top", blockMargin);
 
-    // let colorIdx = 0;
-    // let colors = ["#a491d3", "#23b5d3", "#2c4251", "#ffc857", "#fe6d73"];
-    // setInterval(() => {
-    //     document.body.style.backgroundColor = colors[colorIdx];
-    //     colorIdx = (colorIdx + 1) % colors.length
-    // }, 3000)
+    verticallyCenter('#screen-1-new', '#s1-center-vertical');
+    verticallyCenter('#screen-2', '#s2-center-vertical');
+    $('#screen-2').hide().removeClass('invisible');
 
     setupScratchoffTicket();
-    //$('#screen-4').css("height", window.innerHeight);
-    //var s4Height = $('#s4-center-vertical').height();
-    //var s4Margin = (window.innerHeight - s4Height) / 2;
-    //$('#s4-center-vertical').css("padding-top", s4Margin / 2);
 
     $('#continue').on("click", submitUsername);
     $('.submit-ticket').on("click", submitTicket);
@@ -141,13 +163,13 @@ $(document).ready(function () {
 });
 
 function fadeArrowsOut() {
-    $("i.barcode-arrow").animate({
+    $("i.barcode-arrow-small").animate({
         opacity: .6
     }, animationCycleTime);
 }
 
 function fadeArrowsIn() {
-    $("i.barcode-arrow").animate({
+    $("i.barcode-arrow-small").animate({
         opacity: 1
     }, animationCycleTime);
 }
@@ -156,22 +178,22 @@ function switchScreens(s1, s2) {
     s1 = "#" + s1;
     s2 = "#" + s2;
     $(s1).fadeOut();
+    $(s2).removeClass("invisible")
     $(s2).fadeIn();
 }
 
-
 function endSession() {
-    console.log($('#screen-3').attr("style") !== "display: none;");
+    $('.pretty-outline-footer').css("background-color", pickRandomElement(colors));
+
     if ($('#screen-3').attr("style") !== "display: none;") {
         switchScreens("screen-3", "screen-4");
     } else {
-        switchScreens("screen-4", "screen-1");
+        switchScreens("screen-4", "screen-1-new");
         $("#user-name").val("");
         transactionInProgress = false;
         resetTicketScreen();
         resetScratchoffScreen();
     }
-
 }
 
 function resetTicketScreen() {
@@ -223,7 +245,6 @@ function setupLotteryTicket(startNum, endNum, rowLength, offsetEvenRows) {
             appendStr += "<tr>";
         }
 
-
         for (let col = 0; col < rowLength; col++) {
             appendStr += `<td>${currentNum}</td>`;
             if (currentNum === endNum) {
@@ -252,9 +273,9 @@ function setupScratchoffTicket() {
 
 function returnToWelcomeWithError(msg) {
     console.log("Error, returning to screen-1 (welcome)", "The specific error is:", msg);
-    $('#screen-1,#screen-2,#screen-3,#loading').fadeOut();
+    $('#screen-1-new,#screen-2,#screen-3,#loading').fadeOut();
     $('#s1-error-msg > h5').text(msg).parent().removeClass("hide");
-    $("#screen-1").fadeIn();
+    $("#screen-1-new").fadeIn();
 }
 
 function clearErrorMessage() {
@@ -262,12 +283,12 @@ function clearErrorMessage() {
 }
 
 async function submitUsername() {
-    var usernameVal = $('#user-name').val();
+    const usernameVal = $('#user-name').val();
     if (usernameVal === "") {
         $('#name-submit-error').removeClass("hide");
     } else {
         switchScreens("screen-2", "loading");
-        var submitResult = $.ajax({
+        const submitResult = $.ajax({
             url: "/api/kiosk/saveName",
             method: "POST",
             data: {
@@ -286,32 +307,30 @@ async function submitUsername() {
 }
 
 function closeKiosk() {
-    $('#screen-1,#screen-2,#screen-3,#loading,#admin').fadeOut();
+    $('#screen-1-new,#screen-2,#screen-3,#loading,#admin').fadeOut();
     kioskClosed = true;
     $("#closed").fadeIn();
 }
 
 function openKiosk() {
-    $('#screen-1,#screen-2,#screen-3,#loading,#admin,#closed').fadeOut();
+    $('#screen-1-new,#screen-2,#screen-3,#loading,#admin,#closed').fadeOut();
     kioskClosed = false;
-    $("#screen-1").fadeIn();
+    $("#screen-1-new").fadeIn();
 }
 
 async function isAdmin(barcode) {
-    var result = $.ajax({
+    const result = $.ajax({
         url: "/api/kiosk/checkAdmin/" + barcode,
         method: "GET",
     });
 
-    console.log("Result of isAdmin:", await result);
-    var resultObj = await result;
-    console.log(resultObj);
-    console.log(resultObj.is_admin);
+    const resultObj = await result;
+
     return await resultObj.is_admin;
 }
 
 async function validateBarcode(barcode) {
-    var result = $.ajax({
+    const result = $.ajax({
         url: "/api/kiosk/validateBarcode/" + barcode,
         method: "GET",
     });
@@ -321,7 +340,7 @@ async function validateBarcode(barcode) {
 }
 
 async function hasUsername(barcode) {
-    var result = $.ajax({
+    const result = $.ajax({
         url: "/api/kiosk/" + barcode + "/checkForName",
         method: "GET"
     });
@@ -330,8 +349,8 @@ async function hasUsername(barcode) {
 }
 
 async function getRecentTickets(barcode) {
-    var num = 5; //Get 5 recent tickets at most
-    var result = $.ajax({
+    const num = 5; //Get 5 recent tickets at most
+    const result = $.ajax({
         url: "/api/kiosk/" + barcode + "/recentTickets/" + num,
         method: "GET"
     });
@@ -479,11 +498,11 @@ function submitScratchoff(num, imgToUpdate) {
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
         function getCookie(name) {
-            var cookieValue = null;
+            let cookieValue = null;
             if (document.cookie && document.cookie != '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = jQuery.trim(cookies[i]);
                     // Does this cookie string begin with the name we want?
                     if (cookie.substring(0, name.length + 1) == (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));

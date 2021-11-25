@@ -6,6 +6,11 @@ body, h1, h2, h3, h4, h5, h6, p, div, strong, em {
     font-size: 19rem;
 }
 
+.barcode-arrow-small {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 .closed-icon {
     font-size: 19rem;
     line-height: 200px;
@@ -20,11 +25,43 @@ h2, h3, h4, h5, h6, h7 {
     text-align: center;
 }
 
-.pretty-outline {
+.pretty-outline-dialog {
     border: 1pt solid #E3EBEF;
     margin-left: 100px;
     margin-right: 100px;
+    padding-top: 15px;
     box-shadow: 3px 3px 4px 0 #D9D9D9
+}
+
+.pretty-outline {
+    border: 1pt solid #E3EBEF;
+    margin-left: 75px;
+    margin-right: 75px;
+    padding: 30px;
+    box-shadow: 3px 3px 4px 0 #D9D9D9
+}
+
+.pretty-outline-footer {
+    font-size: 2.3em;
+    margin-top: -35px;
+    text-align: center;
+    line-height: 70px;
+    margin-left: auto;
+    width: 75%;
+    height: 70px;
+    margin-right: auto;
+    position: relative;
+    z-index: 1;
+    vertical-align: middle;
+}
+
+.bg-purple {
+    background-color: #9629E7;
+    color: white;
+}
+
+.bdr-orange {
+    border-color: orange;
 }
 
 body {
@@ -33,7 +70,6 @@ body {
     -moz-user-select: -moz-none;
     -ms-user-select: none;
     user-select: none;
-
 }
 
 .scanner-arrow {
@@ -58,7 +94,6 @@ body {
     margin-bottom: auto;
 }
 
-
 #continue {
     margin: 0 auto;
 }
@@ -72,7 +107,6 @@ body {
     font-size: 1.75rem;
     height: 51px;
 }
-
 
 #lottery-nums > tr > td {
     width: 100px;
@@ -107,6 +141,35 @@ body {
 
 #scratchoff-table > tbody > td {
     text-align: center;
+}
+
+.message-above {
+    text-align: center;
+    font-size: 3rem;
+    padding-bottom: 45px;
+}
+
+.message-below {
+    text-align: center;
+    font-size: 1.6rem;
+    padding-top: 45px;
+}
+
+#closed-title {
+    text-align: center;
+    font-size: 4rem;
+}
+
+.bg-red {
+    background-color: #B00020;
+}
+
+.text-white {
+    color: white;
+}
+
+.text-red {
+    color: #B00020;
 }
 
 

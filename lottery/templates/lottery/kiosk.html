@@ -69,12 +69,26 @@
         </div>
     </div>
 </div>
+<div id="screen-1-new" class="invisible">
+    <div class="row">
+        <div class="large-12 columns">
+            <div id="s1-center-vertical">
+                <div class="message-above"><span id="lottery-name">Thanksgiving Lottery</span></div>
+                <div class="pretty-outline">
+                    <h1>Welcome</h1>
+                </div>
+                <div class="pretty-outline-footer bg-purple"><i class="barcode-arrow-small fi-arrow-down"></i> Scan your ticket to begin <i class="barcode-arrow-small fi-arrow-down"></i></div>
+                <div class="message-below"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="loading">
     <div id="loading-bar" class="single13"></div>
 </div>
-<div id="screen-2">
+<div id="screen-2" class="invisible">
     <div id="s2-center-vertical">
-        <div class="pretty-outline">
+        <div class="pretty-outline-dialog">
             <div class="row">
                 <div class="medium-12 center">
                     <h3>What's your name?</h3>
@@ -178,17 +192,14 @@
         </div>
     </div>
 </div>
-<div id="closed">
+<div id="closed" class="invisible">
     <div class="row">
-        <div class="large-2 large-offset-5 columns">
-            <i class="center closed-icon fi-x-circle"></i>
-        </div>
         <div class="large-12 columns">
-            <h1>Closed</h1>
-            <div class="alert callout small center">
-                <p>This kiosk is closed and cannot be used to submit tickets at this time. Please contact a
-                    Lottery Administrator for assistance.</p>
-                <em>Scan an admin barcode for additional options.</em>
+            <div id="closed-center-vertical">
+                <div class="pretty-outline text-red" id="closed-title">
+                    <i class="fi-alert"></i> Kiosk Closed
+                </div>
+                <div class="pretty-outline-footer bg-red text-white">You can't submit tickets here.</div>
             </div>
         </div>
     </div>
@@ -197,10 +208,7 @@
     <div class="row">
         <div class="large-12 columns">
             <h4>Admin</h4>
-            <h5>Reason for kiosk closure</h5>
-            <p>
-                Manually closed
-            </p>
+            <p>Use your powers wisely</p>
             <div class="button-group large expanded">
                 <button type="button" onclick="openKiosk()" class="button large">Open Kiosk</button>
                 <button type="button" onclick="closeKiosk()" class="button large">Close Kiosk</button>
@@ -213,11 +221,12 @@
 <div class="reveal" id="tos" data-reveal>
     <h2 id="modalTitle">Terms of Service</h2>
     <p>
-        By signing up for and participating in the Thanksgiving Lottery, you agree to these Terms and indicate
+        By signing up for and participating in the Thanksgiving Lottery (<strong><em>"Lottery"</em></strong>), you agree to these Terms and indicate
         that you have read and understood the Privacy Policy.
     </p>
     <p>
-        As a Participant in the Thanksgiving Lottery, you agree to abide by the following rules:
+        As a person using a Lottery-sanctioned automated submission device (<strong><em>"Kiosk"</em></strong>) and/or submitting entries to one or more of the in the Thanksgiving Lottery (<strong><em>"Participant"</em></strong>),
+        you agree to abide by the following rules:
 
     <ul>
         <li>
@@ -233,12 +242,18 @@
             Lottery.
         </li>
         <li>
-            Once a Ticket is submitted, it cannot be modified or changed.
+            When paper modes of submissions are provided, Participants are strictly prohibited from making submissions
+            on behalf of another Participant.  Upon discovery or reporting of such an occurrence, the affected submissions
+            will be invalidated.
+        </li>
+        <li>
+            Once a Ticket is submitted, it cannot be modified.
         </li>
         <li>
             Lottery results are determined using an automated process once the Lottery has ended. To be counted
-            during the scoring process, tickets must be submitted during the ticket submission window set by the
-            Lottery Administrator(s). The final ranking will be determined using the following criteria:
+            during the scoring process, tickets must be submitted during the ticket submission window set by the member(s)
+            of the Thanksgiving Lottery Organizing Committee (<strong><em>"Lottery Administrators"</em></strong>).
+            The final ranking will be determined using the following criteria:
             <ol>
                 <li>
                     Not disqualified
@@ -256,8 +271,8 @@
             are final and may not be contested.
         </li>
         <li>
-            The Lottery Administrator(s) reserve the right to disqualify any Participant determined to be in
-            violation of the spirit of the Lottery Terms of Service.
+            The Lottery Administrator(s) reserve the right to disqualify any Participant for any reason at their sole
+            discretion, including but not limited to violations of these Terms of Service.
         </li>
         <li>
             Participation in the Lottery is wholly voluntary. Winning is based solely on chance; the odds of

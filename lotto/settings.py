@@ -30,7 +30,7 @@ ENTROPY_DRIVER_RANDOM = "random"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.168', '192.168.0.10', '192.168.150.117', '192.168.2.46', '128.61.61.51']
+ALLOWED_HOSTS = [ '127.0.0.1', '192.168.1.183', '192.168.1.170', '192.168.1.168', '192.168.0.10', '192.168.150.117', '192.168.2.46', '128.61.61.51', '192.168.150.148']
 LOGIN_URL = '/accounts/login'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition

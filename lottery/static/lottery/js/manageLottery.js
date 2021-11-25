@@ -1,29 +1,89 @@
-$(document).ready(function() {
-  $.ajax({
-    url: "/api/manage/results/" + drawingId + "/check",
-    type: "GET",
-    success: function(data) {
-      if (data === "No results") {
-        $('#generate-results').text("End Lottery and Finalize Results").on('click', confirmCustomAnswers);
-        $("#results-load-status").text("Results not generated");
-        console.log("made it past");
-      } else {
-        updateBtnResultsFinalized();
-      }
-    }
-  });
+//from MDN - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+function round(number, precision) {
+    let factor = Math.pow(10, precision);
+    let tempNumber = number * factor;
+    let roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
+}
 
-  $('#enable-dangerous-actions').on('change', function() {
-    if ($(this).val() === "on") {
-      $('#generate-results').removeAttr("disabled");
-    } else {
-      $('#generate-results').attr("disabled","disabled");
-    }
-  });
+$(document).ready(function () {
+    $.ajax({
+        url: `/api/manage/results/${drawingId}/check`,
+        type: "GET",
+        success: function (data) {
+            if (data === "No results") {
+                $('#generate-results').text("End Lottery and Finalize Results").on('click', confirmCustomAnswers);
+                $("#results-load-status").text("Results not generated");
+                console.log("made it past");
+            } else {
+                updateBtnResultsFinalized();
+            }
+        }
+    });
 
-  $('#provision-kiosk').on("click", provisionKioskRedirect);
-  $('#generate-barcodes').on("click", genBarcodesRedirect);
-  $('#submit-custom-answers').on("click",genResultsWithAnswers);
+    $.ajax({
+        url: `/api/manage/${drawingId}/analytics/lottery/histogram`,
+        type: "GET",
+        success: function (data) {
+            console.log("hist data", data.numbers)
+
+            $('#num-lottery-tickets').text(data.drawing.total_nums)
+            $('#num-scratchoffs').text(data.scratchoff.total_nums)
+            $('#num-scratchoffs-correct').text(`${data.scratchoff.correct} (${data.scratchoff.total_nums === 0 ? 0 : round(data.scratchoff.correct / data.scratchoff.total_nums * 100, 2)}%)`)
+
+            Plotly.newPlot("drawing-hist-container", [{
+                    x: data.drawing.numbers,
+                    type: "histogram",
+                    autobinx: false,
+                    xbins: {
+                        start: 1,
+                        end: 36,
+                        size: 1
+                    },
+                }],
+                {
+                    title: {
+                      text: `Ticket Numbers`
+                    },
+                    xaxis: {
+                        dtick: 5
+                    }
+                }
+            )
+
+            Plotly.newPlot("scratchoff-hist-container", [{
+                    x: data.scratchoff.numbers,
+                    type: "histogram",
+                    autobinx: false,
+                    xbins: {
+                        start: 1,
+                        end: 16,
+                        size: 1
+                    },
+                }],
+                {
+                    title: {
+                        text: `Scratchoff Numbers`
+                    },
+                    xaxis: {
+                        dtick: 2
+                    }
+                }
+            )
+        }
+    });
+
+    $('#enable-dangerous-actions').on('change', function () {
+        if ($(this).val() === "on") {
+            $('#generate-results').removeAttr("disabled");
+        } else {
+            $('#generate-results').attr("disabled", "disabled");
+        }
+    });
+
+    $('#provision-kiosk').on("click", provisionKioskRedirect);
+    $('#generate-barcodes').on("click", genBarcodesRedirect);
+    $('#submit-custom-answers').on("click", genResultsWithAnswers);
 
 });
 
@@ -32,61 +92,53 @@ function confirmCustomAnswers() {
 }
 
 function genResultsWithAnswers() {
-    $('#submit-custom-answers').attr("disabled","disabled")
-                               .text("Processing...")
-                               .off();
+    $('#submit-custom-answers').attr("disabled", "disabled")
+        .text("Processing...")
+        .off();
 
     let ans1 = $('#ans-1').val(),
         ans2 = $('#ans-2').val();
 
     $.ajax({
-      url: "/api/manage/results/generate",
-      type: "POST",
-      data: {
-        'drawing_id': drawingId,
-        'answer_1': ans1,
-        'answer_2': ans2
-      },
-      success: function(data) {
-        $('#choose-ans').foundation('close');
-        updateBtnResultsFinalized();
-      }
+        url: "/api/manage/results/generate",
+        type: "POST",
+        data: {
+            'drawing_id': drawingId,
+            'answer_1': ans1,
+            'answer_2': ans2
+        },
+        success: function (data) {
+            $('#choose-ans').foundation('close');
+            updateBtnResultsFinalized();
+        }
     });
 }
 
 function provisionKioskRedirect() {
-  window.location = "/api/kiosk/provision";
+    window.location = "/api/kiosk/provision";
 }
 
 function genBarcodesRedirect() {
-  if (typeof drawingId === "number") {
-    window.location = drawingId + "/barcodes";
-  } else {
-    console.error("The drawing id is not a number.  The redirect has been cancelled because of this.");
-  }
+    if (typeof drawingId === "number") {
+        window.location = drawingId + "/barcodes";
+    } else {
+        console.error("The drawing id is not a number.  The redirect has been cancelled because of this.");
+    }
 }
 
 function updateBtnResultsFinalized() {
-  $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
-  displayResults();
+    $('#generate-results').text('Results Finalized').addClass('success').off().removeAttr('disabled');
+    displayResults();
 }
 
 
 function displayResults() {
     $.ajax({
         url: "/api/manage/results/" + drawingId,
-        success: function(data) {
+        success: function (data) {
             showResultsInTable(data);
         }
     })
-}
-
-//from MDN - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
-function round(number, precision) {
-    let factor = Math.pow(10, precision);
-    let tempNumber = number * factor;
-    let roundedTempNumber = Math.round(tempNumber);
-    return roundedTempNumber / factor;
 }
 
 function showResultsInTable(data) {
@@ -116,26 +168,27 @@ function showResultsInTable(data) {
 
 //this code block ($.ajaxSetup) allows Django's CSRF protection to work with AJAX requests and is from http://stackoverflow.com/a/5107878
 $.ajaxSetup({
-  beforeSend: function(xhr, settings) {
-    function getCookie(name) {
-      var cookieValue = null;
-      if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-          var cookie = jQuery.trim(cookies[i]);
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) == (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
+    beforeSend: function (xhr, settings) {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
-      }
-      return cookieValue;
+
+        if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+            // Only send the token to relative URLs i.e. locally.
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
     }
-    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-      // Only send the token to relative URLs i.e. locally.
-      xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-    }
-  }
 });
 //end of code block from http://stackoverflow.com/a/5107878
