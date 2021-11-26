@@ -34,10 +34,10 @@ wsb.listen(async function (a, s) {
             if (kioskClosed) {
                 console.log("active for closed");
                 $('#loading').fadeIn();
-                transactionInProgress = false;
+                transactionInProgress = false;  //transaction can't be in progress if kiosk is closed
             } else {
                 switchScreens("screen-1-new", "loading");
-                transactionInProgress = false; //transaction can't be in progress if kiosk is closed
+                transactionInProgress = true;
             }
             if (await validateBarcode(currentUser)) {
                 clearErrorMessage();
