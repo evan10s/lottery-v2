@@ -165,26 +165,26 @@
                 <h2><strong><em>Scratch and win!</em></strong></h2>
                 <h5>Find the turtle and he might just have a special surprise for you!</h5>
                 <div class="alert callout small hide" id="max-scratchoff-squares-selected">
-                    <h5>To select this square, click Try Again below.</h5>
+                    <h5>To select this square, click Play Again below.</h5>
                 </div>
                 <div class="alert callout small hide" id="scratchoff-submit-error">
                     <p>We couldn't process your ticket right now. Please try again or contact the lottery
                         administrator for assistance.</p>
                 </div>
                 <div class="success callout small hide" id="scratchoff-submit-correct">
-                    <p>Nice job! You found the turtle! He'll give you a little bonus when scoring time comes around!</p>
+                    <h5>Winner!</h5>
+                    <h5 id="scratchoff-correct-text"></h5>
                 </div>
                 <div class="primary callout small hide" id="scratchoff-submit-incorrect">
                     <h5>Better luck next time!</h5>
-                    <h5>Oops, you found <span id="scratchoff-animal"></span>, not a turtle! Tap Try Again to see if you
-                        can catch him!</h5>
+                    <h5 id="scratchoff-incorrect-text"></h5>
                 </div>
                 <table id="scratchoff-table" class="unstriped">
                     <tbody id="scratchoff">
                     </tbody>
                 </table>
                 <div class="button-group large expanded center" id="scratchoff-submit-btns">
-                    <button class="reset-scratchoff button hide">Try again</button>
+                    <button class="reset-scratchoff button hide">Play again</button>
                     <button class="kiosk-end-session button">I'm finished</button>
                 </div>
                 <div id="scratchoff-submit-loading-bar" class="hide single13"></div>
@@ -331,6 +331,7 @@
 <script src="{% static 'lottery/js/vendor/what-input.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js"
         integrity="sha256-Nd2xznOkrE9HkrAMi4xWy/hXkQraXioBg9iYsBrcFrs=" crossorigin="anonymous"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).foundation();
 </script>

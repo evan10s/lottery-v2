@@ -55,8 +55,8 @@ class Results(models.Model):
                                  on_delete=models.CASCADE)  # """User,unique=True from http://www.b-list.org/weblog/2006/jun/06/django-tips-extending-user-model/
     drawing_number_correct = models.PositiveIntegerField(default=0)
     drawing_number_possible = models.PositiveIntegerField(default=1)
-    scratchoff_number_correct = models.PositiveIntegerField(default=0)
-    scratchoff_number_possible = models.PositiveIntegerField(default=1)
+    scratchoff_number_correct = models.FloatField(default=0)
+    scratchoff_number_possible = models.FloatField(default=1)
     disqualify = models.BooleanField(
         default=False)  # adding default to boolean field used http://stackoverflow.com/a/8767855
     drawing_id = models.ForeignKey(Drawing, on_delete=models.CASCADE)
@@ -79,7 +79,9 @@ class Scratchoff(models.Model):
     timestamp = models.DateTimeField('date submitted')
     submit_method = models.CharField(max_length=200)
     number_chosen = models.PositiveIntegerField()
-    answer = models.PositiveIntegerField()
+    answer = models.PositiveIntegerField(null=True)
+    points_awarded = models.FloatField()
+    points_possible = models.FloatField()
 
     class Meta:
         permissions = (

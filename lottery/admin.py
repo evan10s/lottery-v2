@@ -99,6 +99,10 @@ class TicketAdmin(admin.ModelAdmin):
     list_filter = (TicketsLotteryFilter, TicketsTypeFilter)
 
 
+class ScratchoffAdmin(admin.ModelAdmin):
+    fields = ["submitted_by", "timestamp", "submit_method", "number_chosen", "points_awarded", "points_possible"]
+
+
 admin.site.site_header = "Lottery Admin"  # from this StackOverflow answer: http://stackoverflow.com/a/24983231
 
 admin.site.unregister(User)
@@ -107,4 +111,4 @@ admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Number)
 admin.site.register(Drawing, DrawingAdmin)
 admin.site.register(Results, ResultsAdmin)
-admin.site.register(Scratchoff)
+admin.site.register(Scratchoff, ScratchoffAdmin)

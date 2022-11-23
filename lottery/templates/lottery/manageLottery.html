@@ -118,8 +118,10 @@
             <p><strong>Total lottery tickets submitted:</strong> <span id="num-lottery-tickets">Loading...</span></p>
             <p><strong>Total scratchoffs submitted:</strong> <span id="num-scratchoffs">Loading...</span></p>
             <p><strong>Number of correct scratchoffs:</strong> <span id="num-scratchoffs-correct">Loading...</span></p>
+            <p><strong>Scratchoff points:</strong> <span id="scratchoff-points">Loading...</span></p>
             <div id="drawing-hist-container"></div>
             <div id="scratchoff-hist-container"></div>
+            <div id="scratchoff-points-hist-container"></div>
 
             <h5>Eligible tickets</h5>
             <p>Below are all the tickets that are within the date and time range for this drawing.</p>
@@ -158,7 +160,7 @@
                     <th>First name</th>
                     <th>Submitted via</th>
                     <th>Number chosen</th>
-                    <th>Answer</th>
+                    <th>Points</th>
                     <th>Correct</th>
                     </thead>
                     <tbody>
@@ -169,8 +171,8 @@
                             <td>{{ s.submitted_by.first_name }}</td>
                             <td>{{ s.submit_method }}
                             <td>{{ s.number_chosen }}</td>
-                            <td>{{ s.answer }}</td>
-                            <td>{% if s.number_chosen == s.answer %}Yes{% endif %}</td>
+                            <td>{{ s.points_awarded }}</td>
+                            <td>{% if s.points_awarded > 0 %}Yes{% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

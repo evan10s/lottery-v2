@@ -155,6 +155,10 @@ body {
     padding-top: 45px;
 }
 
+.no-border {
+    border: none !important;
+}
+
 #closed-title {
     text-align: center;
     font-size: 4rem;
@@ -232,5 +236,4 @@ SOFTWARE.
         background-position: 0% 50%
     }
 }
-
 /* end from https://boguz.github.io/Spinners/ */

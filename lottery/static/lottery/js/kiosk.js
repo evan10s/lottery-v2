@@ -1,4 +1,5 @@
 const wsb = new channels.WebSocketBridge();
+
 let currentUser;
 let transactionInProgress = false;
 let processingScratchoff = false;
@@ -14,6 +15,62 @@ const facts = [
     "The Thanksgiving Lottery now uses Random.org to source entropy.",
     "Protect your Lottery Access Card as you would a credit card."
 ]
+
+function aAn(word, capitalize) {
+    const a = capitalize ? "a" : "A";
+    const an = capitalize ? "an" : "An";
+    if (["a", "e", "i", "o", "u"].find(x => x === word.substring(0).toLowerCase())) {
+        return an;
+    }
+
+    return a;
+}
+
+const scratchoffPhrases = {
+    0: (animal) => pickRandomElement([
+        `Shucks! Seems this ${animal} can't offer you anything.`,
+        `Rats! TurtleTastics already took all of this points this ${animal} had.`,
+        `Sorry, this ${animal} doesn't have anything for you.`,
+        `Thanksgiving is a time for generosity! That's why this ${animal} has ... oh, oops. This ${animal} has no points for you. Sorry!`,
+        `Yay! I just got my paycheck! Oh, your scratchoff points? Looks like you didn't get any because all you found was this ${animal}.`,
+        `YOU JUST WON THE LOTTERY! *checks notes* Oh, wait. Huh. No, you didn't. All you found was this useless ${animal}.`,
+        `Hmm, maybe check for a turtle under that rock? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle behind that desk? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle over that hill? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle beyond that stop sign? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle under that used tissue? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle in the loft? This ${animal} certainly isn't one.`,
+        `Hmm, maybe check for a turtle in the microwave? This ${animal} certainly isn't one.`,
+        `This just in! You won 0 points from this ${animal}.`,
+        `Sorry, that ${animal} just won't do. Find a turtle if you want points!`,
+        `Oooh boy! This is your time to shine! You've won 0 points. Oh, wait, oops!`,
+        `A point? A point is worth so, so much in your quest to win the lottery. Instead, all you got was this inspirational message. Oof.`,
+        `What's better than ${aAn(animal, true)} ${animal}? ${aAn(animal, true)} ${animal} who gives you 4 points. Too bad it doesn't have anything to give you.`,
+        `Rats! 0 points! This is worse than turkey.`,
+        `I wish I could say you won. But you lost. Enjoy your ${animal}.`,
+    ]),
+    1: (turtle) => pickRandomElement([
+        `This ${turtle} offers you: 1 point.`,
+        `Yippee! Yippee! You get 1 point courtesy of the ${turtle} you just found.`,
+        `Yay! You got 1 point from this ${turtle}.`,
+        `Hoodoo! This ${turtle} gave you 1 point!`,
+        `@${turtle.replaceAll(" ", "_")} Venmo'd you 1 point. Hooray!`,
+        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's a point courtesy of ${turtle} instead.`,
+        `1 point? That's all you get? Yep! Send thanks to that ${turtle} you just found!`,
+        `The exchange rate between a point and a dollar? Maybe you should worry more about winning the lottery first.`,
+        `What's better than a ${turtle}? ${aAn(turtle, true)} ${turtle} who gives you 4 points. Too bad he only has 1 point to give you!`,
+    ]),
+    4: (turtle) => pickRandomElement([
+        `Amazing! Here's 4 points for finding a rare ${turtle}.`,
+        `Did you really just find a ${turtle}?! Here's 4 points!`,
+        `Oooh boy! This is your time to shine! You've won 4 points. Oh, hoodoo! Hoodoo! HOOODOOOO!`,
+        `You just found gold! Not really, but here's 4 points from ${turtle} instead!`,
+        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's 4 points from ${turtle} instead.`,
+        `You found a ${turtle}! He has 4 points for you.`,
+        `What's better than ${aAn(turtle, true)} ${turtle}? ${aAn(turtle, true)} ${turtle} who gives you 4 points. And that's what just happened!`,
+        `It's ${turtle} and he has 4 points for you. Yay!`,
+    ])
+}
 
 function pickRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -60,7 +117,7 @@ wsb.listen(async function (a, s) {
             } else if (!kioskClosed) {
                 console.log("closed", kioskClosed);
                 console.log("Unrecognized barcode")
-                returnToWelcomeWithError("The ticket you just scanned can't be used.  Please see a lottery administrator for more information.");
+                returnToWelcomeWithError("The ticket you just scanned can't be used. Please see a lottery administrator for more information.");
                 transactionInProgress = false;
             }
         } else if (a.msgType === "searchAcknowledge") {
@@ -75,10 +132,6 @@ wsb.socket.addEventListener('open', function () {
     wsb.send({
         "msgType": "searchForScanner"
     });
-    // wsb.send({
-    //   "msgType": "searchAcknowledge"
-    // });
-    // switchScreens("setup", "screen-1-new")
 });
 
 function toggleFullScreen() {
@@ -88,12 +141,11 @@ function toggleFullScreen() {
     const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
     const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
 
-    if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-    requestFullScreen.call(docEl);
-  }
-  else {
-    cancelFullScreen.call(doc);
-  }
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+        requestFullScreen.call(docEl);
+    } else {
+        cancelFullScreen.call(doc);
+    }
 }
 
 function generateSetupBarcode(kioskId, serverUrl) {
@@ -112,7 +164,7 @@ function generateSetupBarcode(kioskId, serverUrl) {
 
 /**
  * Vertically centers a div.  But be sure it actually has a height when you call this function (e.g., it can center
- * something that is invisible (still has height/width but not on screen) but not something that is hidden (no height/width).
+ * something that is invisible (still has height/width but not on screen) but not something that is hidden (no height/width)).
  */
 function verticallyCenter(container, selector) {
     $(container).css("height", window.innerHeight);
@@ -429,6 +481,7 @@ function submitTicket() {
 
 function resetScratchoffScreen() {
     restoreChangedScratchoffSquares();
+    $("#scratchoff-table").removeClass("hide");
     $('#scratchoff-submit-incorrect, #scratchoff-submit-error, #scratchoff-submit-correct, #max-scratchoff-squares-selected').addClass("hide");
     $('.reset-scratchoff').removeClass("hide");
 
@@ -440,9 +493,17 @@ function restoreChangedScratchoffSquares() {
         .attr("data-selected", "0");
 }
 
-function getAnimalString(animal) {
-    let article = animal.search(/[aeiou]/) === 0 ? "an" : "a";
-    return `${article} ${animal}`;
+function scratchoffJackpot(animal_file, animal, points, phrase) {
+    Swal.fire({
+        title: "JACKPOT!",
+        text: phrase,
+        iconHtml: `<img alt="${animal}" src="/static/lottery/scratchoff-imgs/${animal_file}" />`,
+        customClass: {
+            icon: 'no-border'
+        }
+    }).then(() => {
+        resetScratchoffScreen()
+    })
 }
 
 function submitScratchoff(num, imgToUpdate) {
@@ -471,18 +532,41 @@ function submitScratchoff(num, imgToUpdate) {
             }
         } else {
             $(".reset-scratchoff").removeClass("hide");
-            imgToUpdate.attr("data-selected", 1);
-
-            if (result.won) {
-                $("#scratchoff-submit-correct").removeClass("hide");
+            if (imgToUpdate) {
+                imgToUpdate.attr("data-selected", 1);
             } else {
-                $("#scratchoff-submit-incorrect").removeClass("hide");
-                console.log(result.animal);
-                $("#scratchoff-animal").text(getAnimalString(result.animal));
+                console.warn("submitScratchoff imgToUpdate is null")
             }
-            imgToUpdate.attr("src", `/static/lottery/scratchoff-imgs/${result.animal}.jpg`)
-            //$(".submit-ticket:not(.kiosk-end-session)").addClass("success").text("Ticket submitted");
-            //updateTicketsTableServerResponse(result);
+
+            if (result.points == null) {
+                console.error("Scratchoff result points are null/undefined:", result)
+                $("#scratchoff-submit-error").removeClass("hide");
+                $("#scratchoff-submit-error > p").text("Your scratchoff was submitted, but we are unable to show you the result. Please contact a Lottery Administrator for assistance.");
+            } else if (!result.animal) {
+                console.error("Scratchoff result is winning but animal is false-y:", result)
+                $("#scratchoff-submit-error").removeClass("hide");
+                $("#scratchoff-submit-error > p").text(result.status);
+            } else {
+                const correctIncorrect = result.won ? "correct" : "incorrect";
+
+                const resultTextElement = `#scratchoff-${correctIncorrect}-text`;
+                const resultElement = `#scratchoff-submit-${correctIncorrect}`;
+
+                const phrase = scratchoffPhrases[result.points](result.animal);
+
+                if (result.points === 4) {
+                    scratchoffJackpot(result.animal_file, result.animal, result.points, phrase)
+                } else {
+                    $(resultTextElement).text(phrase)
+                    $(resultElement).removeClass("hide");
+                }
+            }
+
+            if (imgToUpdate) {
+                imgToUpdate.attr("src", `/static/lottery/scratchoff-imgs/${result.animal_file}`)
+            } else {
+                console.warn("submitScratchoff imgToUpdate is null")
+            }
         }
         processingScratchoff = false;
     }, (e) => {

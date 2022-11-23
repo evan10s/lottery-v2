@@ -2,6 +2,7 @@ import datetime
 import json
 import random
 import string
+import uuid
 from operator import itemgetter
 
 from django.conf import settings
@@ -20,6 +21,7 @@ from rdoclient import RandomOrgClient
 from .models import Drawing, Ticket, Number, Results, Answer, Scratchoff
 
 r = RandomOrgClient(settings.RANDOM_ORG_API_KEY)
+
 
 # Create your views here.
 class DrawingsView(UserPassesTestMixin, generic.ListView):
@@ -142,7 +144,8 @@ def create_ticket(request, username):
         distinct_split_nums.sort()
         numbers_added = []
 
-        submit_method = ("Kiosk %s" % request.user.username) if not request.POST.get("paperTicket", False) else "Paper ticket"
+        submit_method = ("Kiosk %s" % request.user.username) if not request.POST.get("paperTicket",
+                                                                                     False) else "Paper ticket"
 
         if 4 >= len(distinct_split_nums) > 0:
             t = Ticket(submitted_by=actual_user, timestamp=datetime.datetime.now(),
@@ -158,7 +161,7 @@ def create_ticket(request, username):
         else:
             return HttpResponse(json.dumps(
                 {'state': 'error', 'status': "Ticket can't be submitted because it has more than 4 numbers"}),
-                                content_type="application/json")
+                content_type="application/json")
 
         # Resources used in converting timestamp to a string:
         # https://stackoverflow.com/questions/10624937/convert-datetime-object-to-a-string-of-date-only-in-python
@@ -260,7 +263,7 @@ def generate_ticket_num_hist_for_drawing(request, drawing_id):
             for n in t.number_set.all():
                 nums.append(n.value)
 
-        return HttpResponse(json.dumps({ "numbers": nums }), content_type="application/json")
+        return HttpResponse(json.dumps({"numbers": nums}), content_type="application/json")
 
 
 def generate_lottery_analytics(request, drawing_id):
@@ -277,8 +280,14 @@ def generate_lottery_analytics(request, drawing_id):
         scratchoffs = Scratchoff.objects.filter(timestamp__gte=drawing.start_date, timestamp__lte=drawing.end_date)
         scratchoff_nums = []
         scratchoff_correct = 0
+        scratchoff_points_awarded_total = 0
+        scratchoff_points_possible_total = 0
+        scratchoff_points = []
         for s in scratchoffs:
-            if s.number_chosen == s.answer:
+            scratchoff_points_awarded_total += s.points_awarded
+            scratchoff_points_possible_total += s.points_possible
+            scratchoff_points.append(s.points_awarded)
+            if s.points_awarded > 0:
                 scratchoff_correct += 1
             scratchoff_nums.append(s.number_chosen)
 
@@ -290,7 +299,10 @@ def generate_lottery_analytics(request, drawing_id):
             "scratchoff": {
                 "total_nums": len(scratchoff_nums),
                 "correct": scratchoff_correct,
-                "numbers": scratchoff_nums
+                "numbers": scratchoff_nums,
+                "points_earned": scratchoff_points_awarded_total,
+                "points_possible": scratchoff_points_possible_total,
+                "points": scratchoff_points,
             }
         }), content_type="application/json")
 
@@ -367,7 +379,9 @@ def generateResultsForDrawing(request):
         for s in scratchoffs:
             u = s.submitted_by.pk
             u_name = s.submitted_by.username
-            points_earned = 1 if s.number_chosen == s.answer else 0
+            points_earned = s.points_awarded
+            points_possible = s.points_possible
+            print(points_possible)
 
             current_user_obj = results_users.get(u, False)
             if not current_user_obj:
@@ -377,14 +391,14 @@ def generateResultsForDrawing(request):
                     'num_correct': 0,
                     'number_possible': 0,
                     'scratchoff_points_earned': points_earned,
-                    'scratchoff_points_possible': 1,
+                    'scratchoff_points_possible': points_possible,
                     'dq': False
                 }
             else:
                 current_points_earned = current_user_obj.get('scratchoff_points_earned')
                 current_points_possible = current_user_obj.get('scratchoff_points_possible')
                 results_users[u]['scratchoff_points_earned'] = current_points_earned + points_earned
-                results_users[u]['scratchoff_points_possible'] = current_points_possible + 1
+                results_users[u]['scratchoff_points_possible'] = current_points_possible + points_possible
 
         for result in results_users:
             print("result", result)
@@ -424,7 +438,7 @@ def provisionKiosk(request):
             name="kiosk")  # this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
         kiosk_group.user_set.add(user)
 
-        # this part of the code (autheticating and signing in as the kiosk user, and logging out the current user)
+        # this part of the code (authenticating and signing in as the kiosk user, and logging out the current user)
         # is from the Django v1.11 docs - https://docs.djangoproject.com/en/1.11/topics/auth/default/#how-to-log-a-user-in
         # and https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.logout
         kiosk_user = authenticate(request, username=kiosk_id, password=kiosk_pw)
@@ -651,10 +665,12 @@ def getDrawingResults(request, drawing_id):
             lottery_percent = (r.drawing_number_correct / r.drawing_number_possible * 100) \
                 if r.drawing_number_possible is not 0 else 0
             scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
-                                  if r.scratchoff_number_possible is not 0 else 0
-            lottery_total_pts_share = r.drawing_number_possible / (r.drawing_number_possible + r.scratchoff_number_possible)
-            scratchoff_total_pts_share = r.scratchoff_number_possible / (r.drawing_number_possible + r.scratchoff_number_possible)
-            overall_score = lottery_percent*lottery_total_pts_share + scratchoff_percent*scratchoff_total_pts_share
+                if r.scratchoff_number_possible is not 0 else 0
+            lottery_total_pts_share = r.drawing_number_possible / (
+                        r.drawing_number_possible + r.scratchoff_number_possible)
+            scratchoff_total_pts_share = r.scratchoff_number_possible / (
+                        r.drawing_number_possible + r.scratchoff_number_possible)
+            overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
 
             results_list.append({
                 'barcode': r.for_user.username, 'username': r.for_user.first_name,
@@ -665,7 +681,7 @@ def getDrawingResults(request, drawing_id):
                 'scratchoffs_possible': r.scratchoff_number_possible,
                 'scratchoffs_percent': scratchoff_percent,
                 'total_possible': r.drawing_number_possible + r.scratchoff_number_possible,
-                'overall_score':overall_score,
+                'overall_score': overall_score,
                 'disqualify': r.disqualify,
                 'not_disqualified': not r.disqualify
             })
@@ -722,9 +738,9 @@ def generateScoreReports(request, drawing_id):
             scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
                 if r.scratchoff_number_possible is not 0 else 0
             lottery_total_pts_share = r.drawing_number_possible / (
-                        r.drawing_number_possible + r.scratchoff_number_possible)
+                    r.drawing_number_possible + r.scratchoff_number_possible)
             scratchoff_total_pts_share = r.scratchoff_number_possible / (
-                        r.drawing_number_possible + r.scratchoff_number_possible)
+                    r.drawing_number_possible + r.scratchoff_number_possible)
             overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
 
             to_add = {
@@ -777,70 +793,145 @@ def generateScoreReports(request, drawing_id):
 
 ### Scratchoff
 def create_scratchoff(request, username):
-    animals = ["alligator", "bear", "bird", "cat",
-               "dog", "fish", "gorilla", "horse",
-               "lion", "ostrich", "pig", "porcupine",
-               "snake", "spider", "tiger", "zebra"]
+    losing_animals = [
+        ("alligator", ".jpg"),
+        ("bear", ".jpg"),
+        ("bird", ".jpg"),
+        ("cat", ".jpg"),
+        ("dog", ".jpg"),
+        ("fish", ".jpg"),
+        ("gorilla", ".jpg"),
+        ("horse", ".jpg"),
+        ("lion", ".jpg"),
+        ("ostrich", ".jpg"),
+        ("pig", ".jpg"),
+        ("porcupine", ".jpg"),
+        ("snake", ".jpg"),
+        ("spider", ".jpg"),
+        ("tiger", ".jpg"),
+        ("zebra", ".jpg"),
+    ]
+
+    winning_1pt_animals = [
+        ("blue shell turtle", ".png"),
+        ("brown shell turtle", ".jpg"),
+        ("geometric shell turtle", ".png"),
+        ("gray shell turtle", ".jpg"),
+        ("leopard shell turtle", ".png"),
+        ("orange shell turtle", ".jpg"),
+        ("patterned shell turtle", ".png"),
+        ("purple shell turtle", ".jpg"),
+        ("red shell turtle", ".jpg"),
+        ("Southwest shell turtle", ".png"),
+        ("spotted shell turtle", ".png"),
+        ("striped shell turtle", ".png"),
+        ("tiedye shell turtle", ".png"),
+        ("yella shell turtle", ".png"),
+    ]
+    winning_4pt_animals = [
+        ("diamond turtle", ".png"),
+        ("golden turtle", ".png"),
+    ]
+    request_id = str(uuid.uuid4())
+    print(request_id, "user is kiosk", userIsKiosk(request.user))
     if request.method == "POST" and userIsKiosk(request.user):
         try:
             actual_user = User.objects.get(username=username)
         except:
             return HttpResponse(json.dumps({'state': 'error',
-                                            'status': 'User not found'
+                                            'status': 'User not found',
+                                            'request_id': request_id,
                                             }), content_type="application/json")
 
+        chosen_num = int(request.POST['num'])
+        if chosen_num is None:
+            return HttpResponse(
+                json.dumps({
+                    'state': 'error',
+                    'status': "Select a number before submitting a scratchoff!",
+                    'request_id': request_id,
+                }),
+                content_type="application/json")
+
         # Check maximum scratchoff submissions
-        one_hour_ago = datetime.datetime.now() - datetime.timedelta(
-            hours=1)  # Getting time one hour prior to now from https://stackoverflow.com/questions/7582333/python-get-datetime-of-last-hour
+        one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
         num_scratchoffs_last_hr = len(Scratchoff.objects.filter(submitted_by=actual_user,
                                                                 timestamp__gte=one_hour_ago))
 
         print("num_scratchoffs_last_hr =", str(num_scratchoffs_last_hr))
-        if num_scratchoffs_last_hr >= 50:
-            return HttpResponse(json.dumps({'state': 'error', 'error_short_desc': "SCRATCHOFF_RATE_LIMIT_EXCEEDED",
-                                            'status': "You've submitted too many scratchoffs in the last hour.  Please wait 60 minutes before submitting more scratchoffs."}),
+        if num_scratchoffs_last_hr >= 100:
+            return HttpResponse(json.dumps({'state': 'error',
+                                            'error_short_desc': "SCRATCHOFF_RATE_LIMIT_EXCEEDED",
+                                            'status': "You've submitted too many scratchoffs in the last hour. Please wait 60 minutes before submitting more scratchoffs.",
+                                            'request_id': request_id,
+                                            }),
                                 content_type="application/json")
 
-        random.shuffle(animals)
+        random.shuffle(losing_animals)
+        random.shuffle(winning_1pt_animals)
+        random.shuffle(winning_4pt_animals)
 
-        if settings.ENTROPY_DRIVER == settings.ENTROPY_DRIVER_RANDOM:
-            try:
-                answer = r.generate_integers(1, 1, 16)[0]
-            except Exception as e:
-                print("An exception occurred while trying to use Random.org to obtain a scratchoff answer")
-                print(e)
-                return HttpResponse(
-                    json.dumps({'state': 'error', 'status': "Unable to obtain a random number for the scratchoff. Please ask a Lottery Administrator for assistance."}),
-                    content_type="application/json")
-        else:
-            answer = random.randint(1, 16)
-
-        print(request.POST['num'], answer)
-        num = int(request.POST['num'])
-
-        if answer == num:
-            animal = "turtle"
-        else:
-            animal = animals[num - 1]
-
-        if num is None:
+        try:
+            # 4 rounds with a 1 in 16 chance of winning. 3 of the 4 rounds are worth 1 point. 1 round is worth 4 points.
+            # If no rounds are won, 0 points.
+            # If one round is won, the user receives the point value of that round.
+            # If multiple rounds are won, the user receives the max point value.
+            round_points_possible = [1, 1, 1, 4]
+            random.shuffle(round_points_possible)  # Put the 4 in a random spot
+            round_points_earned = [0, 0, 0, 0]
+            print(request_id, "Scratchoff points possible:", round_points_possible)
+            for i in range(len(round_points_possible)):
+                answer = generate_unique_random_nums(1, 1, 16)[0]
+                print(type(answer), answer, type(chosen_num), chosen_num)
+                if answer == chosen_num:
+                    round_points_earned[i] = round_points_possible[i]
+                    print(request_id, f"Scratchoff round {i} won")
+                print(request_id, f"Scratchoff points earned:", round_points_earned)
+        except Exception as e:
+            print(f"[{request_id}] An exception occurred while trying to use Random.org to obtain a scratchoff answer")
+            print(e)
             return HttpResponse(
-                json.dumps({'state': 'error', 'status': "Select a number before submitting a scratchoff!"}),
+                json.dumps({'state': 'error',
+                            'status': f"Scratchoffs are temporarily unavailable. Please ask a Lottery Administrator for assistance. Correlation ID: {request_id}"}),
                 content_type="application/json")
 
-        s = Scratchoff(submitted_by=actual_user, timestamp=datetime.datetime.now(),
+        points_awarded = max(round_points_earned)
+
+        if points_awarded == 4:
+            return_animal = winning_4pt_animals[0]
+        elif points_awarded == 1:
+            return_animal = winning_1pt_animals[0]
+        elif points_awarded == 0:
+            return_animal = losing_animals[chosen_num - 1]
+        else:
+            print(request_id, f"Scratchoff {actual_user}: points_awarded is not 0, 1, or 4, actual value:",
+                  points_awarded)
+            return HttpResponse(
+                json.dumps({'state': 'error',
+                            'status': f"Scratchoffs are temporarily unavailable. Please ask a Lottery Administrator for assistance. Correlation ID: {request_id}"}),
+                content_type="application/json")
+
+        s = Scratchoff(submitted_by=actual_user,
+                       timestamp=datetime.datetime.now(),
                        submit_method=("Kiosk %s" % request.user.username),
-                       number_chosen=num, answer=answer)
+                       number_chosen=chosen_num,
+                       points_awarded=points_awarded,
+                       points_possible=1.75)
         s.save()
 
         result_obj = {'state': "success",
                       'status': "Scratchoff submitted successfully",
-                      'animal': animal,
-                      'won': animal == "turtle",
-                      'answer': answer
+                      'animal': return_animal[0],
+                      'animal_file': "".join(return_animal),
+                      'won': points_awarded > 0,
+                      'points': points_awarded,
+                      'request_id': request_id,
                       }
 
         return HttpResponse(json.dumps(result_obj), content_type="application/json")
+    else:
+        return HttpResponse("Unauthorized", content_type="application/json")
+
 
 def addPaperTickets(request):
     if request.method == "GET" and request.user.is_staff:

@@ -6,6 +6,14 @@ function round(number, precision) {
     return roundedTempNumber / factor;
 }
 
+function calculatePercent(a, b, precision) {
+    if (b === 0) {
+        return 0
+    }
+
+    return round(a / b * 100, precision)
+}
+
 $(document).ready(function () {
     $.ajax({
         url: `/api/manage/results/${drawingId}/check`,
@@ -30,7 +38,7 @@ $(document).ready(function () {
             $('#num-lottery-tickets').text(data.drawing.total_nums)
             $('#num-scratchoffs').text(data.scratchoff.total_nums)
             $('#num-scratchoffs-correct').text(`${data.scratchoff.correct} (${data.scratchoff.total_nums === 0 ? 0 : round(data.scratchoff.correct / data.scratchoff.total_nums * 100, 2)}%)`)
-
+            $('#scratchoff-points').text(`${data.scratchoff.points_earned} / ${data.scratchoff.points_possible} (${calculatePercent(data.scratchoff.points_earned, data.scratchoff.points_possible, 2)}%)`)
             Plotly.newPlot("drawing-hist-container", [{
                     x: data.drawing.numbers,
                     type: "histogram",
@@ -67,6 +75,26 @@ $(document).ready(function () {
                     },
                     xaxis: {
                         dtick: 2
+                    }
+                }
+            )
+
+            Plotly.newPlot("scratchoff-points-hist-container", [{
+                    x: data.scratchoff.points,
+                    type: "histogram",
+                    autobinx: false,
+                    xbins: {
+                        start: 0,
+                        end: 5,
+                        size: 1
+                    },
+                }],
+                {
+                    title: {
+                        text: `Scratchoff Points`
+                    },
+                    xaxis: {
+                        dtick: 1
                     }
                 }
             )
@@ -152,6 +180,7 @@ function showResultsInTable(data) {
     for (var i = 0; i < data.length; i++) {
         entry = data[i];
         dqStatus = entry.disqualify ? dqYes : dqNo;
+        console.log(entry)
         tableBody.append(`<tr>
             <td>${i + 1}</td>
             <td>${entry.barcode}</td>
