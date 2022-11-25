@@ -102,6 +102,7 @@ class LotteryAdmin(UserPassesTestMixin, generic.ListView):
         context = super(LotteryAdmin, self).get_context_data(
             **self.kwargs)  # getting kwargs to be a template variable from https://stackoverflow.com/a/18233104
         context['scratchoffs'] = self.get_scratchoffs()
+        context['entropy_driver'] = settings.ENTROPY_DRIVER
         return context
 
 
@@ -231,10 +232,10 @@ def getTicketsMatchingLottery(request):
         return HttpResponse(json.dumps(result), content_type="application/json")
 
 
-def generate_unique_random_nums(num, a, b):
+def generate_unique_random_nums(num, a, b, replacement=False):
     if settings.ENTROPY_DRIVER == settings.ENTROPY_DRIVER_RANDOM:
-        print(f"Generating {num} unique numbers between {a} and {b} using Random.org")
-        random_org_results = r.generate_integers(num, a, b, replacement=False)
+        print(f"Generating {num}{'' if replacement else ' unique'} numbers between {a} and {b} using Random.org")
+        random_org_results = r.generate_integers(num, a, b, replacement=replacement)
         print(f"Random numbers from Random.org: {random_org_results}")
         return random_org_results
 
@@ -687,7 +688,6 @@ def getDrawingResults(request, drawing_id):
             })
 
         results_list.sort(key=itemgetter('not_disqualified', 'overall_score', 'total_possible'), reverse=True)
-        print(results_list)
         return HttpResponse(json.dumps(results_list), content_type="application/json")
     return HttpResponse("403 Forbidden")
 
@@ -880,9 +880,10 @@ def create_scratchoff(request, username):
             random.shuffle(round_points_possible)  # Put the 4 in a random spot
             round_points_earned = [0, 0, 0, 0]
             print(request_id, "Scratchoff points possible:", round_points_possible)
+            answers = generate_unique_random_nums(4, 1, 16, replacement=True)
+            print(request_id, "Scratchoff answers:", answers)
             for i in range(len(round_points_possible)):
-                answer = generate_unique_random_nums(1, 1, 16)[0]
-                print(type(answer), answer, type(chosen_num), chosen_num)
+                answer = answers[i]
                 if answer == chosen_num:
                     round_points_earned[i] = round_points_possible[i]
                     print(request_id, f"Scratchoff round {i} won")

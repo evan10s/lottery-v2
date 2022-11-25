@@ -11,7 +11,8 @@
           integrity="sha256-itWEYdFWzZPBG78bJOOiQIn06QCgN/F0wMDcC4nOhxY=" crossorigin="anonymous"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;500;600;700&display=swap"
+          rel="stylesheet">
     <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}"/>
     <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}"/>
     <link rel="stylesheet" href="{% static 'lottery/css/foundation-icons.css' %}"/>
@@ -29,14 +30,13 @@
                 <p>Use the QR code below and the new Lotto Scan app to configure a barcode scanner for this kiosk.</p>
             </div>
 
-
             <div>
                 <canvas id="kiosk-config-barcode">
                 </canvas>
             </div>
 
-            <div
-                ><strong>Server address: </strong><span id="server-address"></span><br/>
+            <div>
+                <strong>Server address: </strong><span id="server-address"></span><br/>
                 <strong>Kiosk ID: </strong><span id="kiosk-id"></span>
             </div>
 
@@ -77,7 +77,8 @@
                 <div class="pretty-outline">
                     <h1>Welcome</h1>
                 </div>
-                <div class="pretty-outline-footer bg-purple"><i class="barcode-arrow-small fi-arrow-down"></i> Scan your ticket to begin <i class="barcode-arrow-small fi-arrow-down"></i></div>
+                <div class="pretty-outline-footer bg-purple"><i class="barcode-arrow-small fi-arrow-down"></i> Scan your
+                    ticket to begin <i class="barcode-arrow-small fi-arrow-down"></i></div>
                 <div class="message-below"></div>
             </div>
         </div>
@@ -151,8 +152,8 @@
             </table>
             <div class="button-group large expanded" id="lt-submit-btns"> <!-- lt = lottery ticket -->
                 <button class="submit-ticket button">Submit this ticket</button>
-                <button class="submit-ticket kiosk-end-session button">Submit + I'm finished</button>
-                <button class="kiosk-end-session button">Cancel</button>
+                <button class="submit-ticket kiosk-end-session button">Submit + go back</button>
+                <button class="kiosk-end-session button">Go back</button>
             </div>
             <div id="ticket-submit-loading-bar" class="hide single13"></div>
         </div>
@@ -185,9 +186,38 @@
                 </table>
                 <div class="button-group large expanded center" id="scratchoff-submit-btns">
                     <button class="reset-scratchoff button hide">Play again</button>
-                    <button class="kiosk-end-session button">I'm finished</button>
+                    <button class="kiosk-end-session button">Go back</button>
                 </div>
                 <div id="scratchoff-submit-loading-bar" class="hide single13"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="select-game" class="invisible">
+    <div id="select-game-center-vertical">
+        <div class="row">
+            <div class="medium-12 columns text-center">
+                <h1>Select game</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="medium-12 columns select-game-entry-container">
+                <div class="select-game-entry border-silver" id="select-game-lottery">
+                    <img src="/static/lottery/img/lottery.png"/>
+                    <h2>Lottery</h2>
+                </div>
+                <div class="select-game-entry border-silver" id="select-game-scratchoff">
+                    <img src="/static/lottery/img/scratchoff.png"/>
+                    <h2>Scratchoff</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="medium-6 columns medium-offset-3 center">
+                <div class="button-group large expanded center">
+                    <button class="kiosk-end-session button">I'm finished</button>
+                </div>
+                <small><a href="#" data-open="image-attributions">View image attributions</a></small>
             </div>
         </div>
     </div>
@@ -221,11 +251,14 @@
 <div class="reveal" id="tos" data-reveal>
     <h2 id="modalTitle">Terms of Service</h2>
     <p>
-        By signing up for and participating in the Thanksgiving Lottery (<strong><em>"Lottery"</em></strong>), you agree to these Terms and indicate
+        By signing up for and participating in the Thanksgiving Lottery (<strong><em>"Lottery"</em></strong>), you agree
+        to these Terms and indicate
         that you have read and understood the Privacy Policy.
     </p>
     <p>
-        As a person using a Lottery-sanctioned automated submission device (<strong><em>"Kiosk"</em></strong>) and/or submitting entries to one or more of the in the Thanksgiving Lottery (<strong><em>"Participant"</em></strong>),
+        As a person using a Lottery-sanctioned automated submission device (<strong><em>"Kiosk"</em></strong>) and/or
+        submitting entries to one or more of the games in the Thanksgiving Lottery
+        (<strong><em>"Participant"</em></strong>),
         you agree to abide by the following rules:
 
     <ul>
@@ -235,24 +268,45 @@
             numbers with another access card that is not their own.
         </li>
         <li>
-            The usage of unsanctioned automated number entry methods is strictly prohibited. Lottery-provided
-            Kiosks are exempted from this rule. Violations of this rule may be detected and responded to using
-            manual and/or automated means. All violations determined to be intentional will result in
-            disqualification from the Lottery; other violations may also result in disqualification from the
-            Lottery.
+            Duplication of access cards is prohibited via any means. Lost access cards may be replaced at the discretion
+            of the Thanksgiving Lottery Organizing Committee (<strong><em>"Lottery Administrators"</em></strong>).
         </li>
         <li>
-            When paper modes of submissions are provided, Participants are strictly prohibited from making submissions
-            on behalf of another Participant.  Upon discovery or reporting of such an occurrence, the affected submissions
-            will be invalidated.
+            The usage of unsanctioned automated number entry methods is strictly prohibited. Lottery-sanctioned
+            Kiosks are exempted from this rule. Abusing access methods provided via Lottery-sanctioned kiosks, including
+            setting up unauthorized Kiosks, is strictly prohibited. Additionally, tampering with equipment related to
+            the operation of Lottery-sanctioned Kiosks, including network infrastructure, barcode scanners, and cables,
+            is prohibited.<br/>
+            <br/>
+            Violations of these rules will result in disqualification from the Lottery. Violations may be detected
+            and/or responded to via manual and/or automated rules.
         </li>
         <li>
-            Once a Ticket is submitted, it cannot be modified.
+            Fraudulent ticket submissions by any means are prohibited.
+            <ul>
+                <li>
+                    When paper modes of submissions are provided, Participants are strictly prohibited from making
+                    submissions on behalf of another Participant. Upon discovery or reporting of such an occurrence,
+                    the affected submissions will be invalidated, and the Participant who submitted the fraudulent
+                    tickets will be disqualified from the Lottery.
+                </li>
+                <li>
+                    Usage via any means of another participant's access card or an additional access card beyond the
+                    first is prohibited. Tickets and Scratchoffs submitted in this manner will be invalidated, and
+                    the violator will be disqualified from the Lottery.
+                </li>
+            </ul>
+        </li>
+        <li>
+            Once a Ticket or Scratchoff is submitted, it cannot be modified. However, the Lottery Administrators
+            may, at their discretion, invalidate and remove from consideration any Ticket or Scratchoff deemed to be
+            submitted via any method in violation of these Terms.
         </li>
         <li>
             Lottery results are determined using an automated process once the Lottery has ended. To be counted
-            during the scoring process, tickets must be submitted during the ticket submission window set by the member(s)
-            of the Thanksgiving Lottery Organizing Committee (<strong><em>"Lottery Administrators"</em></strong>).
+            during the scoring process, tickets must be submitted during the ticket submission window set by the
+            member(s)
+            of the Lottery Administrators.
             The final ranking will be determined using the following criteria:
             <ol>
                 <li>
@@ -280,12 +334,20 @@
             selected. There is a 64 in 315 chance of selecting one correct number.
         </li>
         <li>
-            You may also be offered a Scratchoff game to play. The odds of winning the Scratchoff game are 1 in 16.
+            You may also be offered a Scratchoff game to play. Scratchoffs may award 0, 1, or 4 points. Each Scratchoff
+            adds 1.75 points to the Scratchoff points possible. Each Scratchoff entry has 4 chances of winning.
+            There are three (3) drawings with odds of 1 in 16 to win 1 point. There is one (1) drawing with odds of
+            1 in 16 to win 4 points. All drawings are conducted in series in a random order. The maximum points of won
+            drawings will be awarded.
         </li>
         <li>
             You may not circumvent any limits put in place by the system, including, but not limited to: maximum
             number of numbers that can be chosen on a ticket, range of numbers allowed to be chosen, maximum
-            number of tickets allowed to be submitted in a certain time period
+            number of tickets allowed to be submitted in a certain time period.
+        </li>
+        <li>
+            You may not tamper with downstream services relied upon by the Lottery, including but not limited to
+            Random.org.
         </li>
         <li>
             Only Lottery Administrators may access areas of the software designated for Administrators. This
@@ -327,6 +389,24 @@
     </button>
 </div>
 
+<div class="reveal" id="image-attributions" data-reveal>
+    <h2 id="modalTitle">Image Attributions</h2>
+    <p>
+        The Thanksgiving Lottery would like to include the following image attributions:
+    </p>
+    <ul>
+        <li>
+            Lottery icons created by Freepik - Flaticon: https://www.flaticon.com/free-icons/lottery
+        </li>
+        <li>
+            Scratch icons created by juicy_fish - Flaticon: https://www.flaticon.com/free-icons/scratch
+        </li>
+    </ul>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
 <script src="{% static 'lottery/js/vendor/jquery.js' %}"></script>
 <script src="{% static 'lottery/js/vendor/what-input.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/js/foundation.min.js"
@@ -337,7 +417,7 @@
 </script>
 
 <script src='{% static "channels/js/websocketbridge.js" %}'></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
 <script>
     const kiosk_id = {{ kiosk_id }};

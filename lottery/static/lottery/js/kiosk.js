@@ -17,8 +17,8 @@ const facts = [
 ]
 
 function aAn(word, capitalize) {
-    const a = capitalize ? "a" : "A";
-    const an = capitalize ? "an" : "An";
+    const a = capitalize ? "A" : "a";
+    const an = capitalize ? "An" : "an";
     if (["a", "e", "i", "o", "u"].find(x => x === word.substring(0).toLowerCase())) {
         return an;
     }
@@ -28,47 +28,47 @@ function aAn(word, capitalize) {
 
 const scratchoffPhrases = {
     0: (animal) => pickRandomElement([
-        `Shucks! Seems this ${animal} can't offer you anything.`,
-        `Rats! TurtleTastics already took all of this points this ${animal} had.`,
-        `Sorry, this ${animal} doesn't have anything for you.`,
-        `Thanksgiving is a time for generosity! That's why this ${animal} has ... oh, oops. This ${animal} has no points for you. Sorry!`,
-        `Yay! I just got my paycheck! Oh, your scratchoff points? Looks like you didn't get any because all you found was this ${animal}.`,
-        `YOU JUST WON THE LOTTERY! *checks notes* Oh, wait. Huh. No, you didn't. All you found was this useless ${animal}.`,
-        `Hmm, maybe check for a turtle under that rock? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle behind that desk? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle over that hill? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle beyond that stop sign? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle under that used tissue? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle in the loft? This ${animal} certainly isn't one.`,
-        `Hmm, maybe check for a turtle in the microwave? This ${animal} certainly isn't one.`,
-        `This just in! You won 0 points from this ${animal}.`,
-        `Sorry, that ${animal} just won't do. Find a turtle if you want points!`,
-        `Oooh boy! This is your time to shine! You've won 0 points. Oh, wait, oops!`,
-        `A point? A point is worth so, so much in your quest to win the lottery. Instead, all you got was this inspirational message. Oof.`,
-        `What's better than ${aAn(animal, true)} ${animal}? ${aAn(animal, true)} ${animal} who gives you 4 points. Too bad it doesn't have anything to give you.`,
-        `Rats! 0 points! This is worse than turkey.`,
-        `I wish I could say you won. But you lost. Enjoy your ${animal}.`,
+        `Shucks! Seems this <strong>${animal}</strong> can't offer you anything.`,
+        `Rats! TurtleTastics already took all of this points this <strong>${animal}</strong> had.`,
+        `Sorry, this <strong>${animal}</strong> doesn't have anything for you.`,
+        `Thanksgiving is a time for generosity! That's why this <strong>${animal}</strong> has ... oh, oops. This <strong>${animal}</strong> has no points for you. Sorry!`,
+        `Yay! I just got my paycheck! Oh, your scratchoff points? Looks like you didn't get any because all you found was this <strong>${animal}</strong>.`,
+        `YOU JUST WON THE LOTTERY! *checks notes* Oh, wait. Huh. No, you didn't. All you found was this useless <strong>${animal}</strong>.`,
+        `Hmm, maybe check for a turtle under that rock? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle behind that desk? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle over that hill? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle beyond that stop sign? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle under that used tissue? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle in the loft? This <strong>${animal}</strong> certainly isn't one.`,
+        `Hmm, maybe check for a turtle in the microwave? This <strong>${animal}</strong> certainly isn't one.`,
+        `This just in! You won 0 points from this <strong>${animal}</strong>.`,
+        `Sorry, that <strong>${animal}</strong> just won't do. Find a turtle if you want points!`,
+        `Oooh boy! This is your time to shine! You've won 0 points from this <strong>${animal}</strong>. Oh, wait, oops!`,
+        `A point? A point is worth so, so much in your quest to win the lottery. Instead, all you got was this <strong>${animal}</strong>.`,
+        `What's better than ${aAn(animal, true)} <strong>${animal}</strong>? ${aAn(animal, true)} <strong>${animal}</strong> who gives you 4 points. Too bad it doesn't have anything to give you.`,
+        `Rats! 0 points! This <strong>${animal}</strong> is worse than turkey.`,
+        `I wish I could say you won. But you lost. Enjoy your <strong>${animal}</strong>.`,
+        `Huh, you didn't earn any points from this <strong>${animal}</strong>. Change the subject to lightbulbs.`,
     ]),
     1: (turtle) => pickRandomElement([
-        `This ${turtle} offers you: 1 point.`,
-        `Yippee! Yippee! You get 1 point courtesy of the ${turtle} you just found.`,
-        `Yay! You got 1 point from this ${turtle}.`,
-        `Hoodoo! This ${turtle} gave you 1 point!`,
-        `@${turtle.replaceAll(" ", "_")} Venmo'd you 1 point. Hooray!`,
-        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's a point courtesy of ${turtle} instead.`,
-        `1 point? That's all you get? Yep! Send thanks to that ${turtle} you just found!`,
-        `The exchange rate between a point and a dollar? Maybe you should worry more about winning the lottery first.`,
-        `What's better than a ${turtle}? ${aAn(turtle, true)} ${turtle} who gives you 4 points. Too bad he only has 1 point to give you!`,
+        `This <strong>${turtle}</strong> offers you: 1 point.`,
+        `Yippee! Yippee! You get 1 point courtesy of the <strong>${turtle}</strong> you just found.`,
+        `Yay! You got 1 point from this <strong>${turtle}</strong>.`,
+        `Hoodoo! This <strong>${turtle}</strong> gave you 1 point!`,
+        `<strong>@${turtle.replaceAll(" ", "_")}</strong> Venmo'd you 1 point. Hooray!`,
+        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's a point courtesy of <strong>${turtle}</strong> instead.`,
+        `You got 1 point! Send thanks to that <strong>${turtle}</strong> you just found!`,
+        `What's better than a <strong>${turtle}</strong>? ${aAn(turtle, true)} <strong>${turtle}</strong> who gives you 4 points. Too bad he only has 1 point to give you!`,
     ]),
     4: (turtle) => pickRandomElement([
-        `Amazing! Here's 4 points for finding a rare ${turtle}.`,
-        `Did you really just find a ${turtle}?! Here's 4 points!`,
-        `Oooh boy! This is your time to shine! You've won 4 points. Oh, hoodoo! Hoodoo! HOOODOOOO!`,
-        `You just found gold! Not really, but here's 4 points from ${turtle} instead!`,
-        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's 4 points from ${turtle} instead.`,
-        `You found a ${turtle}! He has 4 points for you.`,
-        `What's better than ${aAn(turtle, true)} ${turtle}? ${aAn(turtle, true)} ${turtle} who gives you 4 points. And that's what just happened!`,
-        `It's ${turtle} and he has 4 points for you. Yay!`,
+        `Amazing! Here's 4 points for finding a rare <strong>${turtle}</strong>.`,
+        `Did you really just find a <strong>${turtle}</strong>?! Here's 4 points!`,
+        `Oooh boy! This is your time to shine! You've won 4 points from this <strong>${turtle}</strong>. Oh, hoodoo! Hoodoo! HOOODOOOO!`,
+        `You just found gold! Not really, but here's 4 points from this <strong>${turtle}</strong> instead!`,
+        `YOU JUST WON THE LOTTERY! Oh, just kidding. But here's 4 points from this <strong>${turtle}</strong> instead.`,
+        `You found a <strong>${turtle}</strong>! He has 4 points for you.`,
+        `What's better than ${aAn(turtle, true)} <strong>${turtle}</strong>? ${aAn(turtle, true)} <strong>${turtle}</strong> who gives you 4 points. And that's what just happened!`,
+        `It's <strong>${turtle}</strong> and he has 4 points for you. Yay!`,
     ])
 }
 
@@ -108,7 +108,7 @@ wsb.listen(async function (a, s) {
                     resetTicketScreen();
                     updateTicketsTable(await getRecentTickets(currentUser));
                     console.log("got recent tickets");
-                    switchScreens("loading", "screen-3");
+                    switchScreens("loading", "select-game");
                 } else if (!kioskClosed) {
                     switchScreens("loading", "screen-2");
                 } else {
@@ -184,6 +184,9 @@ $(document).ready(function () {
 
     verticallyCenter('#closed', '#closed-center-vertical');
     $('#closed').hide().removeClass('invisible')
+
+    verticallyCenter('#select-game', '#select-game-center-vertical');
+    $('#select-game').hide().removeClass('invisible')
     const serverUrl = window.location.host;
 
     $('#server-address').text(serverUrl);
@@ -212,7 +215,17 @@ $(document).ready(function () {
     $('#scratchoff > tr').on("click", "td", scratchoffItemPicked);
     $('.reset-scratchoff').on("click", resetScratchoffScreen);
     $('#enable-fullscreen').on("click", toggleFullScreen);
+    $('#select-game-lottery').on("click", goToLottery);
+    $('#select-game-scratchoff').on("click", goToScratchoff);
 });
+
+function goToLottery() {
+    switchScreens("select-game", "screen-3");
+}
+
+function goToScratchoff() {
+    switchScreens("select-game", "screen-4");
+}
 
 function fadeArrowsOut() {
     $("i.barcode-arrow-small").animate({
@@ -227,6 +240,10 @@ function fadeArrowsIn() {
 }
 
 function switchScreens(s1, s2) {
+    if (s2 === "screen-3") { // Hack to reset button on lottery screen when returning to it without a full reset
+        $('.submit-ticket:not(.kiosk-end-session)').removeClass("success").text("Submit this ticket");
+    }
+
     s1 = "#" + s1;
     s2 = "#" + s2;
     $(s1).fadeOut();
@@ -236,15 +253,21 @@ function switchScreens(s1, s2) {
 
 function endSession() {
     $('.pretty-outline-footer').css("background-color", pickRandomElement(colors));
+    $("#lottery-nums > tr > td.selected").removeClass("selected");
+    $('.submit-ticket:not(.kiosk-end-session)').removeClass("success").text("Submit this ticket");
+    resetScratchoffScreen();
 
-    if ($('#screen-3').attr("style") !== "display: none;") {
-        switchScreens("screen-3", "screen-4");
+    if ($('#screen-3').attr("style") !== "display: none;" || $('#screen-4').attr("style") !== "display: none;") {
+        switchScreens("screen-3", "select-game");
+        switchScreens("screen-4", "select-game");
     } else {
+        switchScreens("screen-3", "screen-1-new");
         switchScreens("screen-4", "screen-1-new");
+        switchScreens("select-game", "screen-1-new");
+        resetTicketScreen();
+        currentUser = null;
         $("#user-name").val("");
         transactionInProgress = false;
-        resetTicketScreen();
-        resetScratchoffScreen();
     }
 }
 
@@ -254,6 +277,7 @@ function resetTicketScreen() {
     $('.submit-ticket:not(.kiosk-end-session)').removeClass("success").text("Submit this ticket");
     $("#lt-submit-btns").removeClass("hide");
     $('#tickets-list > tr').remove();
+    $("#lottery-nums > tr > td.selected").removeClass("selected");
 }
 
 function numberClicked() {
@@ -352,7 +376,7 @@ async function submitUsername() {
             $('#name-submit-error').removeClass("hide");
             switchScreens("loading", "screen-2",);
         } else {
-            switchScreens("loading", "screen-3");
+            switchScreens("loading", "select-game");
         }
 
     }
@@ -486,6 +510,8 @@ function resetScratchoffScreen() {
     $('.reset-scratchoff').removeClass("hide");
 
     $(".reset-scratchoff").addClass("hide");
+
+    Swal.close();
 }
 
 function restoreChangedScratchoffSquares() {
@@ -496,7 +522,7 @@ function restoreChangedScratchoffSquares() {
 function scratchoffJackpot(animal_file, animal, points, phrase) {
     Swal.fire({
         title: "JACKPOT!",
-        text: phrase,
+        html: phrase,
         iconHtml: `<img alt="${animal}" src="/static/lottery/scratchoff-imgs/${animal_file}" />`,
         customClass: {
             icon: 'no-border'
@@ -515,14 +541,17 @@ function submitScratchoff(num, imgToUpdate) {
         return;
     }
 
+    const scratchoffLoading = setTimeout(() => {
+        Swal.showLoading();
+    }, 100)
     $.ajax({
         url: "/api/kiosk/scratchoffs/add/" + currentUser,
         method: "POST",
-        data: {
-            num: num
-        }
+        data: {num},
     }).then((result) => {
         console.log("result is", result);
+        clearTimeout(scratchoffLoading);
+        Swal.close();
         $("#scratchoff-submit-loading-bar").addClass("hide");
         if (result.state === "error") {
             $("#scratchoff-submit-error").removeClass("hide");
@@ -557,7 +586,7 @@ function submitScratchoff(num, imgToUpdate) {
                 if (result.points === 4) {
                     scratchoffJackpot(result.animal_file, result.animal, result.points, phrase)
                 } else {
-                    $(resultTextElement).text(phrase)
+                    $(resultTextElement).html(phrase)
                     $(resultElement).removeClass("hide");
                 }
             }
@@ -571,6 +600,8 @@ function submitScratchoff(num, imgToUpdate) {
         processingScratchoff = false;
     }, (e) => {
         processingScratchoff = false;
+        clearTimeout(scratchoffLoading);
+        Swal.close();
         console.log("Error: ", e);
 
         $('#scratchoff-submit-error').removeClass("hide");

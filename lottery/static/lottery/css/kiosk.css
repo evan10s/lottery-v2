@@ -176,6 +176,54 @@ body {
     color: #B00020;
 }
 
+.select-game-entry-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 33vh;
+    margin: 36px 0;
+}
+
+.select-game-entry {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    flex-flow: row wrap;
+    height: 33vh;
+    margin: 0 16px;
+    flex-grow: 1;
+    background: #fafafa;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.select-game-entry > h2 {
+    font-size: 4em;
+}
+
+.select-game-entry > img {
+    max-width: 100px;
+}
+
+.select-game-entry > * {
+    flex-basis: 100%;
+    position: relative;
+    text-align: center;
+}
+
+.border-gold {
+    border: 3px solid gold;
+}
+
+.border-silver {
+    border: 3px solid silver;
+}
+
+.mb-32 {
+    margin-bottom: 32px;
+}
+
 
 /* from https://boguz.github.io/Spinners/
  under license:

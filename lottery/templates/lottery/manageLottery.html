@@ -40,6 +40,14 @@
         <div class="large-6 cell">
             <h3>Drawing admin</h3>
             <p>You're managing drawing #{{ drawing_id }}</p>
+
+            {% if entropy_driver != "random" %}
+            <div data-alert class="callout warning">
+                <strong>Entropy driver is not Random.org.</strong><br /><br />
+                <p>The current entropy driver is <strong>{{ entropy_driver }}</strong>. Live lotteries should use Random.org for entropy.</p>
+            </div>
+            {% endif %}
+
             <p>You can't delete an individual ticket from this view. If a user has submitted fraudulent tickets, you
                 should disqualify them from the drawing when running the results for the drawing.</p>
             <p>Enable actions of finality
