@@ -138,14 +138,16 @@ function toggleFullScreen() {
     const doc = window.document;
     const docEl = doc.documentElement;
 
-    const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-    const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    docEl.requestFullscreen({navigationUI: "hide"});
 
-    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-        requestFullScreen.call(docEl);
-    } else {
-        cancelFullScreen.call(doc);
-    }
+    // const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    // const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+    //
+    // if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+    //     requestFullScreen.call(docEl);
+    // } else {
+    //     cancelFullScreen.call(doc);
+    // }
 }
 
 function generateSetupBarcode(kioskId, serverUrl) {
@@ -220,6 +222,7 @@ $(document).ready(function () {
 });
 
 function goToLottery() {
+    $("#max-nums-selected").addClass("hide");
     switchScreens("select-game", "screen-3");
 }
 
@@ -350,12 +353,13 @@ function setupScratchoffTicket() {
 function returnToWelcomeWithError(msg) {
     console.log("Error, returning to screen-1 (welcome)", "The specific error is:", msg);
     $('#screen-1-new,#screen-2,#screen-3,#loading').fadeOut();
-    $('#s1-error-msg > h5').text(msg).parent().removeClass("hide");
+    $('#screen-1-new-error-msg > h5').text(msg).parent().removeClass("hide");
     $("#screen-1-new").fadeIn();
 }
 
 function clearErrorMessage() {
     $('#s1-error-msg').addClass("hide");
+    $('#screen-1-new-error-msg').addClass("hide");
 }
 
 async function submitUsername() {
