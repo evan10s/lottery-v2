@@ -803,7 +803,6 @@ def generateScoreReports(request, drawing_id):
                 results_by_barcode[result["barcode"]]["scratchoff"] = result
 
         answers_nums.sort()
-        print(results_by_barcode)
         result = {
             "answers": str(answers_nums)[1:-1],
             "drawing": drawing,
@@ -867,7 +866,6 @@ def generateScoreReports(request, drawing_id):
             result["results_by_barcode"][r.for_user.username]["tickets"] = to_add['tickets']
 
         result["results_by_barcode"] = result["results_by_barcode"].items()
-        print(result)
         return render(request, "lottery/score_report.html", context=result)
     return HttpResponse("403 Forbidden")
 
