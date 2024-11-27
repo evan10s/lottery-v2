@@ -1,3 +1,5 @@
+from collections import defaultdict
+from dataclasses import asdict
 import datetime
 import json
 import random
@@ -17,6 +19,8 @@ from django.views import generic
 from django.views.generic import TemplateView
 
 from rdoclient import RandomOrgClient
+
+from lottery.scoring import DrawingResults, GameResult, generate_aggregated_results, generate_game_rankings
 
 from .models import Drawing, Ticket, Number, Results, Answer, Scratchoff
 
@@ -98,11 +102,16 @@ class LotteryAdmin(UserPassesTestMixin, generic.ListView):
         end = drawing.end_date
         return Scratchoff.objects.filter(timestamp__gte=start, timestamp__lte=end)
 
+    def get_drawing(self):
+        drawing_id = int(self.kwargs['drawing_id'])
+        return Drawing.objects.filter(pk=drawing_id)[0]
+
     def get_context_data(self):
         context = super(LotteryAdmin, self).get_context_data(
             **self.kwargs)  # getting kwargs to be a template variable from https://stackoverflow.com/a/18233104
         context['scratchoffs'] = self.get_scratchoffs()
         context['entropy_driver'] = settings.ENTROPY_DRIVER
+        context['drawing'] = self.get_drawing()
         return context
 
 
@@ -656,41 +665,100 @@ def isDisqualified(results_dict):
     else:
         return 0
 
+def _get_drawing_results_impl(drawing_id):
+    drawing = Drawing.objects.get(pk=drawing_id)
+    ranking_system = drawing.ranking_system
+
+    results = Results.objects.filter(drawing_id=drawing_id)
+
+    results_list = []
+    barcodes_to_names = {}
+    barcodes_to_results = {}
+    for r in results:
+        lottery_percent = (r.drawing_number_correct / r.drawing_number_possible * 100) \
+            if r.drawing_number_possible != 0 else 0
+        scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
+            if r.scratchoff_number_possible != 0 else 0
+        lottery_total_pts_share = r.drawing_number_possible / (
+                    r.drawing_number_possible + r.scratchoff_number_possible)
+        scratchoff_total_pts_share = r.scratchoff_number_possible / (
+                    r.drawing_number_possible + r.scratchoff_number_possible)
+        overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
+
+        barcodes_to_names[r.for_user.username] = r.for_user.first_name
+        results_dict = {
+            'barcode': r.for_user.username, 'username': r.for_user.first_name,
+            'lottery_correct': r.drawing_number_correct,
+            'lottery_possible': r.drawing_number_possible,
+            'lottery_percent': lottery_percent,
+            'scratchoffs_correct': r.scratchoff_number_correct,
+            'scratchoffs_possible': r.scratchoff_number_possible,
+            'scratchoffs_percent': scratchoff_percent,
+            'total_possible': r.drawing_number_possible + r.scratchoff_number_possible,
+            'overall_score': overall_score,
+            'disqualify': r.disqualify,
+            'not_disqualified': not r.disqualify
+        }
+        barcodes_to_results[r.for_user.username] = results_dict
+        results_list.append(results_dict)
+
+    if ranking_system == "weighted_avg":
+        results_list.sort(key=itemgetter('not_disqualified', 'overall_score', 'total_possible'), reverse=True)
+        return DrawingResults(
+            ranking_system=ranking_system,
+            overall_results=results_list,
+            lottery_results=None,
+            scratchoff_results=None,
+        )
+    elif ranking_system == "ranking_points":
+        lottery_results_unsorted = [
+            GameResult(
+                barcode=r["barcode"],
+                percent_correct=r["lottery_percent"],
+                num_earned=r["lottery_correct"],
+                num_possible=r["lottery_possible"],
+                points_earned_ratio=(r["lottery_correct"] /(r["lottery_correct"] + r["scratchoffs_correct"])),
+                is_disqualified=r["disqualify"],
+            ) for r in results_list
+        ]
+        lottery_rankings_sorted = generate_game_rankings(
+            game_name="lottery",
+            game_results=lottery_results_unsorted,
+        )
+
+        scratchoff_results_unsorted = [
+            GameResult(
+                barcode=r["barcode"],
+                percent_correct=r["scratchoffs_percent"],
+                num_earned=r["scratchoffs_correct"],
+                num_possible=r["scratchoffs_possible"],
+                points_earned_ratio=(r["scratchoffs_correct"] /(r["lottery_correct"] + r["scratchoffs_correct"])),
+                is_disqualified=r["disqualify"],
+            ) for r in results_list
+        ]
+        scratchoff_rankings_sorted = generate_game_rankings(
+            game_name="scratchoff",
+            game_results=scratchoff_results_unsorted,
+        )
+        aggregated_results = generate_aggregated_results(
+            lottery_results=lottery_rankings_sorted,
+            scratchoff_results=scratchoff_rankings_sorted,
+        )
+        return DrawingResults(
+            ranking_system=ranking_system,
+            overall_results=[{**asdict(result), **barcodes_to_results[result.barcode], "rank": idx + 1 } for idx, result in enumerate(aggregated_results)],
+            lottery_results=[{**asdict(result), **barcodes_to_results[result.barcode] } for result in lottery_rankings_sorted],
+            scratchoff_results=[{**asdict(result), **barcodes_to_results[result.barcode] } for result in scratchoff_rankings_sorted],
+        )
+
+    else:
+        raise ValueError(f"Unrecognized ranking system: {ranking_system}")
 
 def getDrawingResults(request, drawing_id):
     if request.user.is_staff:
-        results = Results.objects.filter(drawing_id=drawing_id)
-
-        results_list = []
-        for r in results:
-            lottery_percent = (r.drawing_number_correct / r.drawing_number_possible * 100) \
-                if r.drawing_number_possible is not 0 else 0
-            scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
-                if r.scratchoff_number_possible is not 0 else 0
-            lottery_total_pts_share = r.drawing_number_possible / (
-                        r.drawing_number_possible + r.scratchoff_number_possible)
-            scratchoff_total_pts_share = r.scratchoff_number_possible / (
-                        r.drawing_number_possible + r.scratchoff_number_possible)
-            overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
-
-            results_list.append({
-                'barcode': r.for_user.username, 'username': r.for_user.first_name,
-                'lottery_correct': r.drawing_number_correct,
-                'lottery_possible': r.drawing_number_possible,
-                'lottery_percent': lottery_percent,
-                'scratchoffs_correct': r.scratchoff_number_correct,
-                'scratchoffs_possible': r.scratchoff_number_possible,
-                'scratchoffs_percent': scratchoff_percent,
-                'total_possible': r.drawing_number_possible + r.scratchoff_number_possible,
-                'overall_score': overall_score,
-                'disqualify': r.disqualify,
-                'not_disqualified': not r.disqualify
-            })
-
-        results_list.sort(key=itemgetter('not_disqualified', 'overall_score', 'total_possible'), reverse=True)
-        return HttpResponse(json.dumps(results_list), content_type="application/json")
+        drawing_results = _get_drawing_results_impl(drawing_id)
+        return HttpResponse(json.dumps(asdict(drawing_results)), content_type="application/json")
     return HttpResponse("403 Forbidden")
-
 
 def checkBarcodeAdmin(request, barcode):
     if request.method == "GET" and userIsKiosk(request.user):
@@ -710,11 +778,10 @@ def checkBarcodeAdmin(request, barcode):
 
 def generateScoreReports(request, drawing_id):
     if request.method == "GET" and request.user.is_staff:
-        lottery = Drawing.objects.get(pk=drawing_id)
-        lottery_name = lottery.drawing_name
-        start_date = lottery.start_date
-        end_date = lottery.end_date
-        answers = lottery.answer_set.all()
+        drawing = Drawing.objects.get(pk=drawing_id)
+        answers = drawing.answer_set.all()
+        drawing_results = _get_drawing_results_impl(drawing_id)
+
         answers_nums = []
 
         for a in answers:
@@ -722,21 +789,33 @@ def generateScoreReports(request, drawing_id):
 
         results = Results.objects.filter(drawing_id=drawing_id)
         ranks_possible = len(results)
+
+        results_by_barcode = defaultdict(dict)
+        for result in drawing_results.overall_results:
+            results_by_barcode[result["barcode"]]["overall"] = result
+
+        if drawing_results.lottery_results is not None:
+            for result in drawing_results.lottery_results:
+                results_by_barcode[result["barcode"]]["lottery"] = result
+
+        if drawing_results.scratchoff_results is not None:
+            for result in drawing_results.scratchoff_results:
+                results_by_barcode[result["barcode"]]["scratchoff"] = result
+
         answers_nums.sort()
+        print(results_by_barcode)
         result = {
-            'answers': str(answers_nums)[1:-1],
-            'name': lottery_name,
-            'start_date': start_date,
-            'end_date': end_date,
-            'rank_possible': ranks_possible,
-            'data': []
+            "answers": str(answers_nums)[1:-1],
+            "drawing": drawing,
+            "rank_possible": ranks_possible,
+            "results_by_barcode": results_by_barcode,
         }
 
         for r in results:
             lottery_percent = (r.drawing_number_correct / r.drawing_number_possible * 100) \
-                if r.drawing_number_possible is not 0 else 0
+                if r.drawing_number_possible != 0 else 0
             scratchoff_percent = (r.scratchoff_number_correct / r.scratchoff_number_possible * 100) \
-                if r.scratchoff_number_possible is not 0 else 0
+                if r.scratchoff_number_possible != 0 else 0
             lottery_total_pts_share = r.drawing_number_possible / (
                     r.drawing_number_possible + r.scratchoff_number_possible)
             scratchoff_total_pts_share = r.scratchoff_number_possible / (
@@ -744,22 +823,23 @@ def generateScoreReports(request, drawing_id):
             overall_score = lottery_percent * lottery_total_pts_share + scratchoff_percent * scratchoff_total_pts_share
 
             to_add = {
-                'barcode': r.for_user.username, 'username': r.for_user.first_name,
-                'lottery_correct': r.drawing_number_correct,
-                'lottery_possible': r.drawing_number_possible,
-                'lottery_percent': lottery_percent,
-                'scratchoffs_correct': r.scratchoff_number_correct,
-                'scratchoffs_possible': r.scratchoff_number_possible,
-                'scratchoffs_percent': scratchoff_percent,
-                'total_possible': r.drawing_number_possible + r.scratchoff_number_possible,
-                'overall_score': overall_score,
-                'disqualify': r.disqualify,
-                'not_disqualified': not r.disqualify,
-                'tickets': [],
-                'scratchoffs': []
+                "barcode": r.for_user.username, 'username': r.for_user.first_name,
+                "lottery_correct": r.drawing_number_correct,
+                "lottery_possible": r.drawing_number_possible,
+                "lottery_percent": lottery_percent,
+                "lottery_rank": results_by_barcode[r.for_user.username].get("lottery", {}).get("rank", None),
+                "scratchoffs_correct": r.scratchoff_number_correct,
+                "scratchoffs_possible": r.scratchoff_number_possible,
+                "scratchoffs_percent": scratchoff_percent,
+                "total_possible": r.drawing_number_possible + r.scratchoff_number_possible,
+                "overall_score": overall_score,
+                "disqualify": r.disqualify,
+                "not_disqualified": not r.disqualify,
+                "tickets": [],
+                "scratchoffs": [],
             }
-            user_tickets = Ticket.objects.filter(timestamp__gte=start_date,
-                                                 timestamp__lte=end_date, submitted_by=r.for_user)
+            user_tickets = Ticket.objects.filter(timestamp__gte=drawing.start_date,
+                                                 timestamp__lte=drawing.end_date, submitted_by=r.for_user)
 
             for t in user_tickets:
                 if "Kiosk" in t.submit_method:
@@ -784,9 +864,10 @@ def generateScoreReports(request, drawing_id):
                 ticket['points'] = points
                 to_add['tickets'].append(ticket)
 
-            result['data'].append(to_add)
+            result["results_by_barcode"][r.for_user.username]["tickets"] = to_add['tickets']
 
-        result['data'].sort(key=itemgetter('not_disqualified', 'overall_score', 'total_possible'), reverse=True)
+        result["results_by_barcode"] = result["results_by_barcode"].items()
+        print(result)
         return render(request, "lottery/score_report.html", context=result)
     return HttpResponse("403 Forbidden")
 

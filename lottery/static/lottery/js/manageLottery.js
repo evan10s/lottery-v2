@@ -40,18 +40,18 @@ $(document).ready(function () {
             $('#num-scratchoffs-correct').text(`${data.scratchoff.correct} (${data.scratchoff.total_nums === 0 ? 0 : round(data.scratchoff.correct / data.scratchoff.total_nums * 100, 2)}%)`)
             $('#scratchoff-points').text(`${data.scratchoff.points_earned} / ${data.scratchoff.points_possible} (${calculatePercent(data.scratchoff.points_earned, data.scratchoff.points_possible, 2)}%)`)
             Plotly.newPlot("drawing-hist-container", [{
-                    x: data.drawing.numbers,
-                    type: "histogram",
-                    autobinx: false,
-                    xbins: {
-                        start: 1,
-                        end: 36,
-                        size: 1
-                    },
-                }],
+                x: data.drawing.numbers,
+                type: "histogram",
+                autobinx: false,
+                xbins: {
+                    start: 1,
+                    end: 36,
+                    size: 1
+                },
+            }],
                 {
                     title: {
-                      text: `Ticket Numbers`
+                        text: `Ticket Numbers`
                     },
                     xaxis: {
                         dtick: 5
@@ -60,15 +60,15 @@ $(document).ready(function () {
             )
 
             Plotly.newPlot("scratchoff-hist-container", [{
-                    x: data.scratchoff.numbers,
-                    type: "histogram",
-                    autobinx: false,
-                    xbins: {
-                        start: 1,
-                        end: 16,
-                        size: 1
-                    },
-                }],
+                x: data.scratchoff.numbers,
+                type: "histogram",
+                autobinx: false,
+                xbins: {
+                    start: 1,
+                    end: 16,
+                    size: 1
+                },
+            }],
                 {
                     title: {
                         text: `Scratchoff Numbers`
@@ -80,15 +80,15 @@ $(document).ready(function () {
             )
 
             Plotly.newPlot("scratchoff-points-hist-container", [{
-                    x: data.scratchoff.points,
-                    type: "histogram",
-                    autobinx: false,
-                    xbins: {
-                        start: 0,
-                        end: 5,
-                        size: 1
-                    },
-                }],
+                x: data.scratchoff.points,
+                type: "histogram",
+                autobinx: false,
+                xbins: {
+                    start: 0,
+                    end: 5,
+                    size: 1
+                },
+            }],
                 {
                     title: {
                         text: `Scratchoff Points`
@@ -165,33 +165,67 @@ function displayResults() {
         url: "/api/manage/results/" + drawingId,
         success: function (data) {
             showResultsInTable(data);
+            showGameResultsInTable("lottery", data);
+            showGameResultsInTable("scratchoff", data);
         }
     })
 }
 
-function showResultsInTable(data) {
+function getRankingPointsTableCells(entry, ranking_system) {
+    if (ranking_system !== "ranking_points") {
+        return "";
+    }
+
+    return `<td>${entry.sum_ranking_points}</td>
+        <td>${round(entry.tiebreaker_score, 3)}</td>`;
+}
+
+function showResultsInTable(response_json) {
+    console.log(response_json);
     var tableBody = $("#results > tbody");
-    var entry, percentCorrect, dqStatus,
-        dqYes = "Disqualified",
-        dqNo = "",
-        correct,
-        possible;
     tableBody.empty();
+
+    const data = response_json.overall_results;
+    const ranking_system = response_json.ranking_system;
+
     for (var i = 0; i < data.length; i++) {
-        entry = data[i];
-        dqStatus = entry.disqualify ? dqYes : dqNo;
+        const entry = data[i];
         console.log(entry)
         tableBody.append(`<tr>
             <td>${i + 1}</td>
             <td>${entry.barcode}</td>
             <td>${entry.username}</td>
-            <td>${round(entry.lottery_percent, 2)}% 
-             (${entry.lottery_correct}/${entry.lottery_possible})
-            </td>
-            <td>${round(entry.scratchoffs_percent, 2)}%
-            (${entry.scratchoffs_correct}/${entry.scratchoffs_possible})</td>
+            ${getRankingPointsTableCells(entry, ranking_system)}
+            <td>${round(entry.lottery_percent, 2)}% (${entry.lottery_correct}/${entry.lottery_possible})</td>
+            <td>${round(entry.scratchoffs_percent, 2)}% (${entry.scratchoffs_correct}/${entry.scratchoffs_possible})</td>
             <td>${round(entry.overall_score, 2)}%</td>
-            <td>${dqStatus}</td></tr>`);
+            <td>${entry.disqualify ? "DQ" : ""}</td>
+        </tr>`);
+    }
+}
+
+function showGameResultsInTable(game_name, response_json) {
+    console.log(response_json);
+    var tableBody = $(`#${game_name}-results > tbody`);
+    tableBody.empty();
+
+    const data = response_json[`${game_name}_results`];
+    const ranking_system = response_json.ranking_system;
+
+    const game_name_results_props = game_name === "scratchoff" ? "scratchoffs" : game_name;
+
+    for (var i = 0; i < data.length; i++) {
+        const entry = data[i];
+        console.log(entry)
+        tableBody.append(`<tr>
+            <td>${i + 1}</td>
+            <td>${entry.barcode}</td>
+            <td>${entry.username}</td>
+            <td>${entry.ranking_points}</td>
+            <td>${round(entry[`${game_name_results_props}_percent`], 2)}% (${entry[`${game_name_results_props}_correct`]}/${entry[`${game_name_results_props}_possible`]})</td>
+            <td>${entry[`${game_name_results_props}_possible`]}</td>
+            <td>${entry.disqualify ? "DQ" : ""}</td>
+        </tr>`);
     }
 }
 

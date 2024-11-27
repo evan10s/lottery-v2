@@ -36,10 +36,12 @@
 </div>
 
 <div class="grid-container grid align-center">
-    <div class="grid-x grid-margin-x">
-        <div class="large-6 cell">
-            <h3>Drawing admin</h3>
+    <div class="grid-x">
+        <div class="large-8 cell">
+            <h3>Drawing admin: {{ drawing.drawing_name }}</h3>
             <p>You're managing drawing #{{ drawing_id }}</p>
+            <p>Start time: {{ drawing.start_date }}</p>
+            <p>End time: {{ drawing.end_date }}</p>
 
             {% if entropy_driver != "random" %}
             <div data-alert class="callout warning">
@@ -101,27 +103,82 @@
                     individual score reports</a>
             {% endif %}
 
+            <p>
+                <strong>Current ranking system:</strong>
+                {% if drawing.ranking_system == "weighted_avg" %}
+                Weighted average
+                {% elif drawing.ranking_system == "ranking_points" %}
+                Ranking points ("Mario Kart scoring")
+                {% else %}
+                {{ drawing.ranking_system }}
+                {% endif %}
+            </p>
+
             <div id="results-table">
-                <h5>Lottery Results</h5>
-                <table id="results">
+                <h5>Overall Results</h5>
+                <table id="results" class="results-table">
                     <thead>
-                    <th>Rank</th>
-                    <th>Barcode</th>
-                    <th>Name</th>
-                    <th>Lottery Score</th>
-                    <th>Scratchoff Score</th>
-                    <th>Overall Score</th>
-                    <th>Disqualified</th>
+                        <th>Rank</th>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        {% if drawing.ranking_system == "ranking_points" %}
+                        <th>Ranking Points</th>
+                        <th>Tiebreaker</th>
+                        {% endif %}
+                        <th>Lottery Score</th>
+                        <th>Scratchoff Score</th>
+                        <th>Overall Score</th>
+                        <th>DQ</th>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td id="results-load-status" colspan="6">Loading...</td>
-                    </tr>
+                        <tr>
+                            <td>Loading...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+            {% if drawing.ranking_system == "ranking_points" %}
+            <div id="lottery-results-table">
+                <h5>Lottery Results</h5>
+                <table id="lottery-results" class="results-table">
+                    <thead>
+                        <th>Rank</th>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Ranking Points</th>
+                        <th>Score</th>
+                        <th>Tiebreaker</th>
+                        <th>DQ</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="scratchoff-results-table">
+                <h5>Scratchoff Results</h5>
+                <table id="scratchoff-results" class="results-table">
+                    <thead>
+                        <th>Rank</th>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Ranking Points</th>
+                        <th>Score</th>
+                        <th>Tiebreaker</th>
+                        <th>DQ</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         </div>
-        <div class="large-6 cell">
+        <div class="large-4 cell">
             <h5>Lottery analytics</h5>
             <p><strong>Total lottery tickets submitted:</strong> <span id="num-lottery-tickets">Loading...</span></p>
             <p><strong>Total scratchoffs submitted:</strong> <span id="num-scratchoffs">Loading...</span></p>

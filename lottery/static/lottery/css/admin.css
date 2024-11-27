@@ -1,0 +1,5 @@
+table.results-table {
+    overflow-x: auto;
+    margin: 10px;
+    max-width: 90%
+}

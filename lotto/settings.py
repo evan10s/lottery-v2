@@ -31,6 +31,7 @@ ENTROPY_DRIVER_RANDOM = "random"
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     '127.0.0.1',
     '192.168.1.183',
     '192.168.1.170',
@@ -42,6 +43,7 @@ ALLOWED_HOSTS = [
     '192.168.150.148',
     '192.168.80.39',
     '192.168.0.196',
+    '192.168.86.200',
 ]
 
 LOGIN_URL = '/accounts/login'

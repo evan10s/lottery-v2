@@ -37,7 +37,7 @@ class ResultsAdmin(admin.ModelAdmin):
 
 
 class DrawingAdmin(admin.ModelAdmin):
-    fields = ['drawing_name', 'start_date', 'end_date']
+    fields = ['drawing_name', 'start_date', 'end_date', 'ranking_system']
     inlines = [AnswerInline]
 
 

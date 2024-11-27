@@ -3,10 +3,24 @@ from django.contrib.auth.models import \
 from django.db import models
 
 
+RANKING_SYSTEM_CHOICES =[
+    # The legacy lottery+scratchoff scoring system. Weights percent correct by the points possible in each game.
+    ("weighted_avg", "Weighted average"),
+    # Created in 2024. AKA "Mario Kart scoring." Ranks players by percent correct within each game, then awards points based on that rank
+    # (again, per game). Each player's total score is the sum of their ranking points across all games.
+    # Other notes:
+    # - For each game, the player with the highest rank receives an extra ranking point for that game.
+    # - Tiebreaks for per-game rankings are given to the player who submitted more numbers/scratchoffs.
+    # - Overall tiebreaks are computed as the weighted score by where the points are earned.
+    ("ranking_points", "Ranking points (\"Mario Kart scoring\")"),
+]
+
+
 class Drawing(models.Model):
     drawing_name = models.CharField(max_length=200)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    ranking_system = models.CharField(max_length=200, choices=RANKING_SYSTEM_CHOICES, default="weighted_avg")
 
     def __str__(self):
         return self.drawing_name

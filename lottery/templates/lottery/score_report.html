@@ -1,91 +1,150 @@
-{% comment %} from Django docs https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
+{% comment %} from Django docs
+https://docs.djangoproject.com/en/1.11/topics/auth/default/#django.contrib.auth.views.LoginView {% endcomment %}
 {% load static %}
 <!doctype HTML>
 <html>
+
 <head>
-  <title>Score Report</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css" integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
-<link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
-<link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
-<link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}" />
-<link rel="stylesheet" href="{% static 'lottery/css/indivReport.css' %}" />
+    <title>Score Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/css/foundation.min.css"
+        integrity="sha256-bH+WJCDLdU2hbQ9U7FUJ0hWcM1e+jO3Gwmp2f2KKDBQ=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{% static 'lottery/css/metropolis.css' %}" />
+    <link rel="stylesheet" href="{% static 'lottery/css/global.css' %}" />
+    <link rel="stylesheet" href="{% static 'lottery/css/admin.css' %}" />
+    <link rel="stylesheet" href="{% static 'lottery/css/indivReport.css' %}" />
 
 </head>
+
 <body>
+    <div class="grid-container grid align-center">
+        <div class="grid-x grid-margin-x">
+            <div class="medium-12 cell">
+                {% for barcode, result in results_by_barcode %}
+                <div class="user-report">
+
+                    <h3>{{ drawing.drawing_name }}</h3>
+                    <h4>Score Report - {{ result.overall.username }} ({{ barcode}})</h4>
+
+                    <div style="text-align: center; margin: 0 auto;">
+                        {% if result.overall.is_disqualified %}<h6>❌ <strong>DISQUALIFIED</strong> ❌</h6>{% endif %}
+                        {% if result.overall.rank == 1 %}<h6>🏆🏆🏆 <strong>{{ drawing.drawing_name }} Champion!</strong> 🏆🏆🏆</h6>{% endif %}
+                        {% if result.overall.rank == 2 %}<h6>🏆🏆 <strong>{{ drawing.drawing_name }}: 2nd Place!</strong> 🏆🏆</h6>{% endif %}
+                        {% if result.lottery.rank == 1 %}<h6>🏆 <strong>Lottery Game: Winner!</strong> 🏆</h6>{% endif %}
+                        {% if result.lottery.rank == rank_possible %}<h6>🙁 <strong>Lottery Game: Last Place</strong> 🙁</h6>{% endif %}
+                        {% if result.scratchoff.rank == 1 %}<h6>🏆 <strong>Scratchoff Game: Winner!</strong> 🏆</h6>{% endif %}
+                        {% if result.scratchoff.rank == rank_possible %}<h6>🙁 <strong>Scratchoff Game: Last Place</strong> 🙁</h6>{% endif %}
+                    </div>
+
+                    <h5>Lottery Component</h5>
+                    <strong>Points earned for correct numbers:</strong> {{ result.overall.lottery_correct }} <br />
+                    <strong># of numbers submitted:</strong> {{ result.overall.lottery_possible }} <br />
+                    <strong>Lottery score:</strong> {{ result.overall.lottery_percent | floatformat }}% <br />
+
+                    <br />
+                    <h5>Scratchoff Component</h5>
+                    <strong>Total scratchoff points:</strong> {{ result.overall.scratchoffs_correct }} <br />
+                    <strong>Scratchoff points possible:</strong> {{ result.overall.scratchoffs_possible }}<br />
+                    <strong>Scratchoffs score:</strong> {{ result.overall.scratchoffs_percent | floatformat }}% <br />
+                    <br />
+                    {% if drawing.ranking_system == "ranking_points" %}
+
+                    <h5>Overall</h5>
+                    <ul>
+                        <li>Get a higher score in each game to rank higher</li>
+                        <li>Rank higher to earn more ranking points</li>
+                        <li>Earn the most ranking points to win!</li>
+                    </ul>
+                    <table style="max-width: 60%">
+                        <thead>
+                            <th>Game</th>
+                            <th>Score</th>
+                            <th>Rank</th>
+                            <th>Ranking Points Earned</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Lottery</td>
+                                <td>{{ result.overall.lottery_percent | floatformat }}%</td>
+                                <td>{{ result.overall.ranks_by_game.lottery }} of {{ rank_possible }}</td>
+                                <td><strong>{{ result.lottery.ranking_points }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Scratchoffs</td>
+                                <td>{{ result.overall.scratchoffs_percent | floatformat }}%</td>
+                                <td>{{ result.overall.ranks_by_game.scratchoff }} of {{ rank_possible }}</td>
+                                <td><strong>{{ result.scratchoff.ranking_points }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Overall</td>
+                                <td></td>
+                                <td>{{ result.overall.rank }} of {{ rank_possible }}</td>
+                                <td><strong>{{ result.overall.sum_ranking_points }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <h5>Overall Score</h5>
+                    {% if result.overall.is_disqualified %}
+                    <em>(Disqualified)</em>
+                    {% endif %}
+                    <strong>Overall score: {{ result.overall.overall_score|floatformat }}% (rank {{ forloop.counter }} of
+                        {{ rank_possible }})</strong><br />
+                    <em>The overall score is a weighted average of your lottery and scratchoff scores.</em>
+                    {% endif %}
+                    <p>
+                        The winning numbers are {{ answers }}.
+                    </p>
+                    <p>
+                        Tickets for this lottery had to be submitted after <strong>{{ drawing.start_date }}</strong> and
+                        before <strong>{{ drawing.end_date }}</strong>
+                        <!-- That sentence doesn't have a period at the end because end_date includes "a.m." so the sentence doesn't need two periods. -->
+                        Below are the tickets you submitted that were included in this lottery.
+                    </p>
+                    <em>Correct numbers are <span class="correct">bold and green</span>.</em>
+
+                    <table id="results" style="max-width: 60%">
+                        <thead>
+                            <th>ID</th>
+                            <th>Numbers</th>
+                            <th>Points</th>
+                            <th>Submission method</th>
+                        </thead>
+                        <tbody>
+                            {% for t in result.tickets %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{% for n in t.numbers %}
+                                    {% if n.correct %}
+                                    <span class="correct">
+                                        {% endif %}
+                                        {{ n.number }}
+                                        {% if n.correct %}</span>{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {{ t.points }}
+                                </td>
+                                <td>
+                                    {{ t.method }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
 
 
-<div class="grid-container grid align-center">
-    <div class="grid-x grid-margin-x">
-      <div class="medium-8 cell">
-          {% for user in data %}
-          <div class="user-report">
+            </div>
+            <script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
+            <script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
+            <script src="{% static "lottery/js/scoreReports.js" %}"></script>
 
-            <h3>{{ name }}</h3>
-            <h4>Score Report - {{ user.username }} ({{ user.barcode}})</h4>
-
-            <h5>Lottery Component</h5>
-            <strong>Points earned for correct numbers:</strong> {{ user.lottery_correct }} <br />
-            <strong># of numbers submitted:</strong> {{ user.lottery_possible }} <br />
-            <strong>Lottery score:</strong> {{ user.lottery_percent | floatformat }}% <br />
-            <br />
-            <h5>Scratchoff Component</h5>
-            <strong>Total scratchoff points:</strong> {{ user.scratchoffs_correct }} <br />
-            <strong>Scratchoff points possible:</strong> {{ user.scratchoffs_possible }}<br />
-            <strong>Scratchoffs score:</strong> {{ user.scratchoffs_percent | floatformat }}% <br />
-            <br />
-            <h5>Overall Score</h5>
-            {% if not user.not_disqualified %}
-            <em>(Disqualified)</em>
-            {% endif %}
-            <strong>Overall score: {{ user.overall_score|floatformat }}% (rank {{ forloop.counter }} of {{ rank_possible }})</strong><br />
-            <em>The overall score is a weighted average of your lottery and scratchoff scores.</em>
-            <p>
-                The winning numbers are {{ answers }}.
-            </p>
-            <p>
-                Tickets for this lottery had to be submitted after <strong>{{ start_date }}</strong> and before <strong>{{ end_date }}</strong> <!-- That sentence doesn't have a period at the end because end_date includes "a.m." so the sentence doesn't need two periods. -->  Below are the tickets you submitted that were included in this lottery.
-            </p>
-            <em>Correct numbers are <span class="correct">bold and green</span>.</em>
-
-            <table id="results">
-              <thead>
-                  <th>ID</th>
-                  <th>Numbers</th>
-                  <th>Points</th>
-                  <th>Submission method</th>
-              </thead>
-              <tbody>
-                  {% for t in user.tickets %}
-                  <tr>
-                      <td>{{ forloop.counter }}</td>
-                      <td>{% for n in t.numbers %}
-                          {% if n.correct %}
-                          <span class="correct">
-                          {% endif %}
-                          {{ n.number }}
-                          {% if n.correct %}</span>{% endif %}
-                      {% endfor %}</td>
-                      <td>
-                          {{ t.points }}
-                      </td>
-                      <td>
-                          {{ t.method }}
-                      </td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-            </table>
-        </div>
-          {% endfor %}
-
-
-      </div>
-<script src="{% static "lottery/js/vendor/jquery.js" %}"></script>
-<script src="{% static "lottery/js/vendor/what-input.js" %}"></script>
-<script src="{% static "lottery/js/scoreReports.js" %}"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js" integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script><script>
-  $(document).foundation();
-</script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.0/js/foundation.min.js"
+                integrity="sha256-GmfrdCshorQBtmJD8e9v3bPmbcJfK0Hm/bCUras0ZEg=" crossorigin="anonymous"></script>
+            <script>
+                $(document).foundation();
+            </script>
 </body>
+
 </html>

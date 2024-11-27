@@ -65,6 +65,11 @@
 }
 
 @media print {
+  .correct {
+    font-weight: bold;
+    color: green !important;
+  }
+
   table {
     page-break-inside: avoid;
   }
