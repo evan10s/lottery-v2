@@ -224,6 +224,10 @@ body {
     margin-bottom: 32px;
 }
 
+body {
+    user-select: none;
+    -webkit-user-select: none;
+}
 
 /* from https://boguz.github.io/Spinners/
  under license:

@@ -665,6 +665,9 @@ def isDisqualified(results_dict):
     else:
         return 0
 
+def _get_points_earned_ratio(correct, possible):
+    return correct / possible if possible != 0 else 0
+
 def _get_drawing_results_impl(drawing_id):
     drawing = Drawing.objects.get(pk=drawing_id)
     ranking_system = drawing.ranking_system
@@ -717,7 +720,7 @@ def _get_drawing_results_impl(drawing_id):
                 percent_correct=r["lottery_percent"],
                 num_earned=r["lottery_correct"],
                 num_possible=r["lottery_possible"],
-                points_earned_ratio=(r["lottery_correct"] /(r["lottery_correct"] + r["scratchoffs_correct"])),
+                points_earned_ratio=_get_points_earned_ratio(r["lottery_correct"], r["lottery_correct"] + r["scratchoffs_correct"]),
                 is_disqualified=r["disqualify"],
             ) for r in results_list
         ]
@@ -732,7 +735,7 @@ def _get_drawing_results_impl(drawing_id):
                 percent_correct=r["scratchoffs_percent"],
                 num_earned=r["scratchoffs_correct"],
                 num_possible=r["scratchoffs_possible"],
-                points_earned_ratio=(r["scratchoffs_correct"] /(r["lottery_correct"] + r["scratchoffs_correct"])),
+                points_earned_ratio=_get_points_earned_ratio(r["scratchoffs_correct"], r["lottery_correct"] + r["scratchoffs_correct"]),
                 is_disqualified=r["disqualify"],
             ) for r in results_list
         ]

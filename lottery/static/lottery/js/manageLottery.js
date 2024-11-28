@@ -21,8 +21,7 @@ $(document).ready(function () {
         success: function (data) {
             if (data === "No results") {
                 $('#generate-results').text("End Lottery and Finalize Results").on('click', confirmCustomAnswers);
-                $("#results-load-status").text("Results not generated");
-                console.log("made it past");
+                $(".results-load-status").text("Results not generated");
             } else {
                 updateBtnResultsFinalized();
             }
