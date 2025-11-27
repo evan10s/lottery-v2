@@ -251,7 +251,9 @@ def generate_unique_random_nums(num, a, b, replacement=False):
     result = []
     while len(result) < num:
         x = random.randint(a, b)
-        if x not in result:
+        if not replacement and x not in result:
+            result.append(x)
+        elif replacement:
             result.append(x)
     return result
 
@@ -954,15 +956,17 @@ def create_scratchoff(request, username):
         random.shuffle(winning_4pt_animals)
 
         try:
-            # 4 rounds with a 1 in 16 chance of winning. 3 of the 4 rounds are worth 1 point. 1 round is worth 4 points.
+            # n rounds with a 1 in 16 chance of winning. (n-1) of the rounds are worth 1 point. 1 round is worth 4 points.
             # If no rounds are won, 0 points.
             # If one round is won, the user receives the point value of that round.
             # If multiple rounds are won, the user receives the max point value.
-            round_points_possible = [1, 1, 1, 4]
+            num_scratchoff_rounds = 5
+            round_points_possible = [1] * (num_scratchoff_rounds - 1) + [4]
+            print("scratchoff round points possible:", round_points_possible)
             random.shuffle(round_points_possible)  # Put the 4 in a random spot
-            round_points_earned = [0, 0, 0, 0]
+            round_points_earned = [0] * num_scratchoff_rounds
             print(request_id, "Scratchoff points possible:", round_points_possible)
-            answers = generate_unique_random_nums(4, 1, 16, replacement=True)
+            answers = generate_unique_random_nums(num_scratchoff_rounds, 1, 16, replacement=True)
             print(request_id, "Scratchoff answers:", answers)
             for i in range(len(round_points_possible)):
                 answer = answers[i]
