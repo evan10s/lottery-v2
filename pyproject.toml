@@ -1,0 +1,23 @@
+[project]
+name = "lottery-v2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Evan Strat", email = "5790137+evan10s@users.noreply.github.com" }
+]
+requires-python = ">=3.15"
+dependencies = [
+    "Django>=6.0",
+    "channels",
+    "python-dotenv",
+    "asgi_redis",
+    "rdoclient",
+]
+
+[project.scripts]
+lottery-v2 = "lottery_v2:main"
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"

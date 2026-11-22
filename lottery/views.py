@@ -31,7 +31,6 @@ r = RandomOrgClient(settings.RANDOM_ORG_API_KEY)
 class DrawingsView(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/drawings.html'
     context_object_name = 'drawing_list'
-    login_url = '/login'
 
     def get_queryset(self):
         return Drawing.objects.order_by('-end_date')[:5]
@@ -43,7 +42,6 @@ class DrawingsView(UserPassesTestMixin, generic.ListView):
 class DrawingParticipantDashboard(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/dashboard.html'
     context_object_name = 'drawing_info'
-    login_url = '/login'
 
     def test_func(self):
         return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
@@ -62,7 +60,6 @@ class DrawingParticipantDashboard(UserPassesTestMixin, generic.ListView):
 class AdminDashboard(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/admin_dashboard.html'
     context_object_name = 'drawings'
-    login_url = '/login'
 
     def test_func(self):
         try:
@@ -78,7 +75,6 @@ class AdminDashboard(UserPassesTestMixin, generic.ListView):
 class LotteryAdmin(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/manageLottery.html'
     context_object_name = 'tickets'
-    login_url = '/login'
 
     def test_func(self):
         try:
@@ -444,7 +440,7 @@ def provisionKiosk(request):
     if request.user.is_staff:
         kiosk_id = random.randint(100000, 999999)  # Generate a random 6-digit key for the kiosk user
         kiosk_pw = random.randint(10000000000000, 99999999999999)
-        user = User.objects.create_user(kiosk_id, "", kiosk_pw)
+        user = User.objects.create_user(kiosk_id, "", str(kiosk_pw))
 
         kiosk_group = Group.objects.get(
             name="kiosk")  # this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
@@ -466,7 +462,6 @@ def provisionKiosk(request):
 class Kiosk(UserPassesTestMixin, TemplateView):
     template_name = "lottery/kiosk.html"
     context_object_name = "kiosk"
-    login_url = '/login'
 
     def get_context_data(self, **kwargs):
         context = super(Kiosk, self).get_context_data(

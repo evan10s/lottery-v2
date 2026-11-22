@@ -48,7 +48,7 @@ ALLOWED_HOSTS = [
     '192.168.86.79',
 ]
 
-LOGIN_URL = '/accounts/login'
+LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition
 
