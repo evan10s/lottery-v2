@@ -469,9 +469,8 @@ class Kiosk(UserPassesTestMixin, TemplateView):
         return context
 
     def test_func(self):
-        # print("The kiosk id is",self.kwargs['kiosk_id'])
-        return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == self.kwargs[
-            'kiosk_id']
+        print("The kiosk id is", self.kwargs['kiosk_id'])
+        return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == str(self.kwargs['kiosk_id'])
 
 
 def userIsKiosk(user):

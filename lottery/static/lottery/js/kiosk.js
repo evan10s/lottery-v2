@@ -1,4 +1,4 @@
-const wsb = new channels.WebSocketBridge();
+const ws = new WebSocket(`ws://${window.location.host}/kiosk/${kiosk_id}`);
 
 let currentUser;
 let transactionInProgress = false;
@@ -83,18 +83,21 @@ function pickRandomElement(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-wsb.connect('ws://' + window.location.host + "/kiosk/" + kiosk_id);
-wsb.listen(async function (a, s) {
-    if (a.msgType === "data") {
-        console.log("Barcode scanned:", a.barcode);
+ws.addEventListener('message', async event => {
+    const message = JSON.parse(event.data);
+    console.log("message", message)
+    console.log("message.msgType", message.msgType)
+    if (message.msgType === "data") {
+        console.log("Barcode scanned:", message.barcode);
     } else {
-        console.log("Websocket message:", a);
+        console.log("Websocket message:", message);
     }
     if (!transactionInProgress) {
-        if (a.msgType === "info") {
+        console.log("message.msgType", message.msgType)
+        if (message.msgType === "info") {
             switchScreens("setup", "screen-1-new");
-        } else if (a.msgType === "data") {
-            currentUser = a.barcode;
+        } else if (message.msgType === "data") {
+            currentUser = message.barcode;
             if (kioskClosed) {
                 console.log("active for closed");
                 $('#loading').fadeIn();
@@ -127,18 +130,18 @@ wsb.listen(async function (a, s) {
                 returnToWelcomeWithError("The ticket you just scanned can't be used. Please see a lottery administrator for more information.");
                 transactionInProgress = false;
             }
-        } else if (a.msgType === "searchAcknowledge") {
-            console.log("Scanner search was acknowledged", a);
+        } else if (message.msgType === "searchAcknowledge") {
+            console.log("Scanner search was acknowledged", message);
             switchScreens("setup", "screen-1-new");
         }
     }
 });
 
-wsb.socket.addEventListener('open', function () {
+ws.addEventListener('open', function () {
     console.log("Connected to websocket");
-    wsb.send({
+    ws.send(JSON.stringify({
         "msgType": "searchForScanner"
-    });
+    }));
 });
 
 function toggleFullScreen() {
