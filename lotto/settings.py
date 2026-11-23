@@ -46,7 +46,6 @@ ALLOWED_HOSTS = [
     '192.168.86.200',
     '192.168.50.92',
     '192.168.86.79',
-    'at.str.lottery.barcode', # Android app
 ]
 
 LOGIN_URL = '/accounts/login/'

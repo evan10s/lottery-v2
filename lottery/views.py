@@ -33,7 +33,7 @@ class DrawingsView(UserPassesTestMixin, generic.ListView):
     context_object_name = 'drawing_list'
 
     def get_queryset(self):
-        return Drawing.objects.order_by('-end_date')[:5]
+        return Drawing.objects.order_by('-end_date')
 
     def test_func(self):
         return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
@@ -69,7 +69,7 @@ class AdminDashboard(UserPassesTestMixin, generic.ListView):
         return isStaff
 
     def get_queryset(self):
-        return Drawing.objects.order_by('-end_date')[:5]
+        return Drawing.objects.order_by('-end_date')
 
 
 class LotteryAdmin(UserPassesTestMixin, generic.ListView):
