@@ -1,0 +1,24 @@
+[project]
+name = "lottery-v2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Evan Strat", email = "5790137+evan10s@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "Django>=6.0",
+    "channels[daphne]",
+    "channels_redis",
+    "msgpack-python", # Needed for channels_redis to work (for unclear reasons)
+    "python-dotenv",
+    "rdoclient",
+]
+
+[project.scripts]
+lottery-v2 = "lottery_v2:main"
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0", "types-channels"]
+build-backend = "uv_build"

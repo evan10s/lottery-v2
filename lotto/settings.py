@@ -45,13 +45,15 @@ ALLOWED_HOSTS = [
     '192.168.0.196',
     '192.168.86.200',
     '192.168.50.92',
+    '192.168.86.79',
 ]
 
-LOGIN_URL = '/accounts/login'
+LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = "/drawings"
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,16 +61,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lottery.apps.LotteryConfig',
-    'channels'
+    'channels',
 ]
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts":[("localhost",6379)]
-        },
-        "ROUTING": "lotto.routing.channel_routing"
+        "BACKEND": "channels.layers.InMemoryChannelLayer", # Redis wasn't working and this might be good enough
     }
 }
 
@@ -100,7 +98,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'lotto.wsgi.application'
+ASGI_APPLICATION = 'lotto.asgi.application'
 
 
 # Database
@@ -162,4 +160,5 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(PROJECT_ROOT, '..', 'lottery', 'static'),
 )

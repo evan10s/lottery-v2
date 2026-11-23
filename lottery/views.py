@@ -31,10 +31,9 @@ r = RandomOrgClient(settings.RANDOM_ORG_API_KEY)
 class DrawingsView(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/drawings.html'
     context_object_name = 'drawing_list'
-    login_url = '/login'
 
     def get_queryset(self):
-        return Drawing.objects.order_by('-end_date')[:5]
+        return Drawing.objects.order_by('-end_date')
 
     def test_func(self):
         return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
@@ -43,7 +42,6 @@ class DrawingsView(UserPassesTestMixin, generic.ListView):
 class DrawingParticipantDashboard(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/dashboard.html'
     context_object_name = 'drawing_info'
-    login_url = '/login'
 
     def test_func(self):
         return not self.request.user.is_anonymous and not userIsKiosk(self.request.user)
@@ -62,7 +60,6 @@ class DrawingParticipantDashboard(UserPassesTestMixin, generic.ListView):
 class AdminDashboard(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/admin_dashboard.html'
     context_object_name = 'drawings'
-    login_url = '/login'
 
     def test_func(self):
         try:
@@ -72,13 +69,12 @@ class AdminDashboard(UserPassesTestMixin, generic.ListView):
         return isStaff
 
     def get_queryset(self):
-        return Drawing.objects.order_by('-end_date')[:5]
+        return Drawing.objects.order_by('-end_date')
 
 
 class LotteryAdmin(UserPassesTestMixin, generic.ListView):
     template_name = 'lottery/manageLottery.html'
     context_object_name = 'tickets'
-    login_url = '/login'
 
     def test_func(self):
         try:
@@ -251,7 +247,9 @@ def generate_unique_random_nums(num, a, b, replacement=False):
     result = []
     while len(result) < num:
         x = random.randint(a, b)
-        if x not in result:
+        if not replacement and x not in result:
+            result.append(x)
+        elif replacement:
             result.append(x)
     return result
 
@@ -442,7 +440,7 @@ def provisionKiosk(request):
     if request.user.is_staff:
         kiosk_id = random.randint(100000, 999999)  # Generate a random 6-digit key for the kiosk user
         kiosk_pw = random.randint(10000000000000, 99999999999999)
-        user = User.objects.create_user(kiosk_id, "", kiosk_pw)
+        user = User.objects.create_user(kiosk_id, "", str(kiosk_pw))
 
         kiosk_group = Group.objects.get(
             name="kiosk")  # this method for adding a user to a group is from https://stackoverflow.com/a/6288863/5434744 (this line and next)
@@ -464,7 +462,6 @@ def provisionKiosk(request):
 class Kiosk(UserPassesTestMixin, TemplateView):
     template_name = "lottery/kiosk.html"
     context_object_name = "kiosk"
-    login_url = '/login'
 
     def get_context_data(self, **kwargs):
         context = super(Kiosk, self).get_context_data(
@@ -472,9 +469,8 @@ class Kiosk(UserPassesTestMixin, TemplateView):
         return context
 
     def test_func(self):
-        # print("The kiosk id is",self.kwargs['kiosk_id'])
-        return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == self.kwargs[
-            'kiosk_id']
+        print("The kiosk id is", self.kwargs['kiosk_id'])
+        return self.request.user.groups.filter(name="kiosk").count() >= 1 and self.request.user.username == str(self.kwargs['kiosk_id'])
 
 
 def userIsKiosk(user):
@@ -954,15 +950,17 @@ def create_scratchoff(request, username):
         random.shuffle(winning_4pt_animals)
 
         try:
-            # 4 rounds with a 1 in 16 chance of winning. 3 of the 4 rounds are worth 1 point. 1 round is worth 4 points.
+            # n rounds with a 1 in 16 chance of winning. (n-1) of the rounds are worth 1 point. 1 round is worth 4 points.
             # If no rounds are won, 0 points.
             # If one round is won, the user receives the point value of that round.
             # If multiple rounds are won, the user receives the max point value.
-            round_points_possible = [1, 1, 1, 4]
+            num_scratchoff_rounds = 5
+            round_points_possible = [1] * (num_scratchoff_rounds - 1) + [4]
+            print("scratchoff round points possible:", round_points_possible)
             random.shuffle(round_points_possible)  # Put the 4 in a random spot
-            round_points_earned = [0, 0, 0, 0]
+            round_points_earned = [0] * num_scratchoff_rounds
             print(request_id, "Scratchoff points possible:", round_points_possible)
-            answers = generate_unique_random_nums(4, 1, 16, replacement=True)
+            answers = generate_unique_random_nums(num_scratchoff_rounds, 1, 16, replacement=True)
             print(request_id, "Scratchoff answers:", answers)
             for i in range(len(round_points_possible)):
                 answer = answers[i]

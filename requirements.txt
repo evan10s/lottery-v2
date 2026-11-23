@@ -1,2 +1,5 @@
-Django==1.11.26
-channels==1.1.5
+Django
+channels
+python-dotenv
+asgi_redis
+rdoclient
